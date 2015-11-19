@@ -104,11 +104,14 @@ class AttributedString
     * for the specified range by replacing the previous state.
     * Attributes are overriden per String item, if specified in the StringAttributes typedef
     *
-    * Default attributes  x   x   x   x   x   x   x
-    * Applied attributes              a   a   a   a
-    * Applied attributes          b   b   b
-    * Result  attributes  x   x   b   b   b   a   a
-    *                   [ E , X , A , M , P , L , E ]
+    * 0 = attribute disabled / default
+    * 1 = attribute set
+    *
+    * Default attributes  x(010)   x(010)   x(010)   x(010)   x(010)   x(010)   x(010)
+    * Applied attributes                    a(011)   a(011)   a(011)   a(011)
+    * Applied attributes           b(101)   b(101)   b(101)
+    * Result  attributes  y(010)   y(111)   y(111)   y(111)   y(011)   y(011)   y(010)
+    *                   [ E      , X      , A      , M      , P      , L      , E      ]
     **/
     public function applyAttributes(attributes: StringAttributes)
     {
