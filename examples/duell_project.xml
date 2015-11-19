@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+
+    <include path="../duell_library.xml"/>
+
+    <app title="vectorx Tests" file="VectorXExamples" package="com.gameduell.vectorxexamples" version="0.0.1" company="GameDuell GmbH"  />
+	<main name="Main" />
+
+	<source path="source" />
+
+	<duelllib name="duellkit" version="6.0.0+" />
+    <duelllib name="vectorx" version="master" />
+
+    <haxelib name="format" version="3.1.2" />
+
+    <library-config>
+
+        <filesystem>
+            <static-assets path="assets" />
+        </filesystem>
+
+    </library-config>
+
+    <platform-config>
+
+        <ios>
+            <deployment-target value="7.0" />
+        </ios>
+
+        <android>
+            <activity-parameter name="theme" value="@android:style/Theme.NoTitleBar.Fullscreen" />
+        </android>
+
+    </platform-config>
+
+</project>
