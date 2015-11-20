@@ -33,6 +33,8 @@ import input.MouseButtonEventData;
 
 import tests.OpenGLTest;
 
+import vectorx.svg.SvgContext;
+
 class Main
 {
     inline static private var borderInputCoverage: Float = 1.0/3.0;
@@ -43,9 +45,10 @@ class Main
 
     static private var testArray: Array<Dynamic>;
     static private var currentTestNumber: Int = 0;
-
+    var svgContext = new SvgContext();
     static function main() : Void
     {
+        trace("main");
         _main = new Main();
     }
 

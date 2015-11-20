@@ -26,11 +26,15 @@
 
 package vectorx.svg;
 
+import lib.ha.svg.SVGPathRenderer;
+
 class SvgContext
 {
     // TODO
-
+    var renderer: SVGPathRenderer;
     public function new()
     {
+        trace('SvgContext::new');
+        renderer = new SVGPathRenderer();
     }
 }

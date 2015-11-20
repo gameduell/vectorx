@@ -26,6 +26,8 @@
 
 package tests.fontTest;
 
+import haxe.CallStack;
+import lib.ha.core.utils.Debug;
 import vectorx.font.LayoutBehaviour;
 import types.VerticalAlignment;
 import types.HorizontalAlignment;
@@ -124,6 +126,7 @@ class FontTest extends OpenGLTest
 
     private function createTexture(): Void
     {
+        trace(CallStack.toString(CallStack.callStack()));
         data.offset = 0;
         data.offsetLength = pixelBufferSize;
 
@@ -155,6 +158,7 @@ class FontTest extends OpenGLTest
                 {
                     GL.pixelStorei(GLDefines.UNPACK_ALIGNMENT, 4);
                     GL.texImage2D(GLDefines.TEXTURE_2D, 0, GLDefines.RGBA, bitmap.width, bitmap.height, 0, GLDefines.RGBA, GLDefines.UNSIGNED_BYTE, bitmap.data);
+                    trace('w: ${bitmap.height} h: ${bitmap.width} offset: ${data.offset} size: ${data.allocedLength}');
                 }
             case 1:
                 {
