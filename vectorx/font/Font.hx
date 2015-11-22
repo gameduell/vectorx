@@ -26,10 +26,16 @@
 
 package vectorx.font;
 
+import lib.ha.aggx.typography.FontEngine;
 class Font
 {
+    private var internalFont: FontEngine;
+    public var name(default, null): String;
+
     /** The FontCache is responsible for creating this object **/
-    inline private function new()
+    inline private function new(name: String, font: FontEngine)
     {
+        this.name = name;
+        this.internalFont = font;
     }
 }

@@ -52,21 +52,27 @@ typedef TextLayoutConfig =
 
 class FontContext
 {
+    private var _scanline:Scanline;
+    private var _rasterizerizer:ScanlineRasterizer;
+
+    public function new()
+    {
+        _rasterizerizer = new ScanlineRasterizer();
+        _scanline = new Scanline();
+    }
+
     /// TODO add docu
     /// Implement text layouting and glyph rasterization using aggx library
     /// and move / seperate necessary logic
-    static public function renderStringToColorStorage(attrString: AttributedString,
+    public function renderStringToColorStorage(attrString: AttributedString,
                                                       outStorage: ColorStorage,
                                                       layoutConfig: TextLayoutConfig = null): Void
     {
-
         var data = outStorage.data;
         var pixelBuffer = MemoryManager.mallocEx(data);
         var renderingBuffer = new RenderingBuffer(pixelBuffer, outStorage.width, outStorage.height, ColorStorage.COMPONENTS * outStorage.width);
         var pixelFormatRenderer = new PixelFormatRenderer(renderingBuffer);
         var clippingRenderer = new ClippingRenderer(pixelFormatRenderer);
-        var scanline = new Scanline();
-        var rasterizer = new ScanlineRasterizer();
         var scanlineRenderer = new SolidScanlineRenderer(clippingRenderer);
 
         var string1 = "ABCDEFGHJIKLMNOPQRSTUVWXYZ";
