@@ -31,11 +31,13 @@ class Font
 {
     private var internalFont: FontEngine;
     public var name(default, null): String;
+    public var sizeInPt: Float;
 
     /** The FontCache is responsible for creating this object **/
-    inline private function new(name: String, font: FontEngine)
+    inline private function new(name: String, font: FontEngine, sizeInPt: Float)
     {
         this.name = name;
         this.internalFont = font;
+        this.sizeInPt = sizeInPt;
     }
 }

@@ -26,34 +26,46 @@
 
 package vectorx.font;
 
+import lib.ha.aggx.typography.FontEngine;
+import lib.ha.rfpx.TrueTypeCollection;
+import haxe.ds.StringMap;
 import types.Data;
 
 @:access(vectorx.font.Font)
 class FontCache
 {
+    var fonts: StringMap<FontEngine> = new StringMap<FontEngine>();
+    var defaultFont: String;
+
     public function new()
     {
     }
 
     public function preloadFontFromTTFData(data: Data)
     {
-        // TODO
-        // Extract font name
-        // Parse and cache with font name as key
+        var ttc: TrueTypeCollection = new TrueTypeCollection(data);
+        var fontEngine: FontEngine = new FontEngine(ttc);
+        fonts.set(fontEngine.currentFont.getName(), fontEngine);
     }
 
     public function unloadFontWithName(fontName: String): Void
     {
-        // TODO
+        fonts.set(fontName, null);
     }
 
     public function createFontWithNameAndSize(fontName: String, sizeInPt: Float): Font
     {
-        // TODO
-        // Create font which holds ref to parsedFont representation
-        // Font object stores sizeInPts to use.
+        var fontEngine: FontEngine = fonts.get(fontName);
+        if (fontEngine == null)
+        {
+            fontEngine = fonts.get(defaultFont);
+        }
 
-        // Returns default font (copy) if fontName was not preloaded
-        return null;
+        if (fontEngine == null)
+        {
+            return null;
+        }
+
+        return new Font(fontName, fontEngine, sizeInPt);
     }
 }
