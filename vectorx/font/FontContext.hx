@@ -91,8 +91,9 @@ class FontContext
         var ttfData: Data = AssetLoader.getDataFromFile("libraryTest/fonts/font_1_ant-kaku.ttf");
 
         fontCache.preloadFontFromTTFData(ttfData);
-        var fontEngine = new FontEngine(TrueTypeCollection.create(ttfData));
-        var fontSize = 80;
+        var font: Font = fontCache.createFontWithNameAndSize("Honoka Antique-Kaku", 80);
+        var fontEngine = font.internalFont;
+        var fontSize = font.sizeInPt;
 
         scanlineRenderer.color = new RgbaColor(255, 0, 0);
 
