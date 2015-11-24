@@ -26,6 +26,7 @@
 
 package vectorx.font;
 
+import lib.ha.core.memory.MemoryAccess;
 import lib.ha.rfpx.TrueTypeCollection;
 import lib.ha.rfpx.TrueTypeCollection;
 import tests.utils.AssetLoader;
@@ -52,13 +53,15 @@ typedef TextLayoutConfig =
 
 class FontContext
 {
-    private var _scanline:Scanline;
-    private var _rasterizerizer:ScanlineRasterizer;
+    private var scanline: Scanline;
+    private var rasterizerizer: ScanlineRasterizer;
+    private var fontCache: FontCache;
 
     public function new()
     {
-        _rasterizerizer = new ScanlineRasterizer();
-        _scanline = new Scanline();
+        rasterizerizer = new ScanlineRasterizer();
+        scanline = new Scanline();
+        fontCache = new FontCache();
     }
 
     /// TODO add docu
@@ -69,8 +72,8 @@ class FontContext
                                                       layoutConfig: TextLayoutConfig = null): Void
     {
         var data = outStorage.data;
-        var pixelBuffer = MemoryManager.mallocEx(data);
-        var renderingBuffer = new RenderingBuffer(pixelBuffer, outStorage.width, outStorage.height, ColorStorage.COMPONENTS * outStorage.width);
+        MemoryAccess.select(data);
+        var renderingBuffer = new RenderingBuffer(outStorage.width, outStorage.height, ColorStorage.COMPONENTS * outStorage.width);
         var pixelFormatRenderer = new PixelFormatRenderer(renderingBuffer);
         var clippingRenderer = new ClippingRenderer(pixelFormatRenderer);
         var scanlineRenderer = new SolidScanlineRenderer(clippingRenderer);
@@ -86,6 +89,8 @@ class FontContext
         var japanString3 = '個人での利用のほか、商用利用においてデザイナーやクリエイターの方もご活用いただけます。';
 
         var ttfData: Data = AssetLoader.getDataFromFile("libraryTest/fonts/font_1_ant-kaku.ttf");
+
+        fontCache.preloadFontFromTTFData(ttfData);
         var fontEngine = new FontEngine(TrueTypeCollection.create(ttfData));
         var fontSize = 80;
 
@@ -145,5 +150,7 @@ class FontContext
         var y = 160 * fontSize / 20;
 
         fontEngine.renderString(japanString3, fontSize, x, y, scanlineRenderer);
+
+        MemoryAccess.select(null);
     }
 }

@@ -32,6 +32,7 @@ import haxe.ds.StringMap;
 import types.Data;
 
 @:access(vectorx.font.Font)
+
 class FontCache
 {
     var fonts: StringMap<FontEngine> = new StringMap<FontEngine>();
@@ -43,8 +44,10 @@ class FontCache
 
     public function preloadFontFromTTFData(data: Data)
     {
-        var ttc: TrueTypeCollection = new TrueTypeCollection(data);
+        trace('FontCache:preloadFontFromTTFData');
+        var ttc: TrueTypeCollection = TrueTypeCollection.create(data);
         var fontEngine: FontEngine = new FontEngine(ttc);
+        trace('Loaded font: ${fontEngine.currentFont.getName()}');
         fonts.set(fontEngine.currentFont.getName(), fontEngine);
     }
 

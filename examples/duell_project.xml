@@ -9,7 +9,7 @@
 	<source path="source" />
 
 	<duelllib name="duellkit" version="6.0.0+" />
-    <duelllib name="vectorx" version="master" />
+    <duelllib name="vectorx" version="development" />
 
     <haxelib name="format" version="3.1.2" />
 

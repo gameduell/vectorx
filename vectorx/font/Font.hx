@@ -29,7 +29,7 @@ package vectorx.font;
 import lib.ha.aggx.typography.FontEngine;
 class Font
 {
-    private var internalFont: FontEngine;
+    public var internalFont(default, null): FontEngine;
     public var name(default, null): String;
     public var sizeInPt: Float;
 

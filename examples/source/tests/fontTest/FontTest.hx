@@ -204,6 +204,8 @@ class FontTest extends OpenGLTest
         var fontCache: FontCache = new FontCache();
         fontCache.preloadFontFromTTFData(ttfData);
 
+        var fontContext: FontContext = new FontContext();
+
         var font: Font = fontCache.createFontWithNameAndSize("arial", 24.0);
 
         var stringAttributes: StringAttributes = {range: new Range(), font: font};
@@ -220,7 +222,7 @@ class FontTest extends OpenGLTest
                                               verticalAlignment: VerticalAlignment.Top,
                                               layoutBehaviour: LayoutBehaviour.Clip};
 
-        FontContext.renderStringToColorStorage(attributedString, colorStorage, layoutConfig);
+        fontContext.renderStringToColorStorage(attributedString, colorStorage, layoutConfig);
     }
 
     private function update(deltaTime: Float, currentTime: Float)
