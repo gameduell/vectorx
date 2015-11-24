@@ -26,6 +26,7 @@
 
 package vectorx.font;
 
+import lib.ha.core.utils.Debug;
 import lib.ha.aggx.typography.FontEngine;
 import lib.ha.rfpx.TrueTypeCollection;
 import haxe.ds.StringMap;
@@ -38,8 +39,16 @@ class FontCache
     var fonts: StringMap<FontEngine> = new StringMap<FontEngine>();
     var defaultFont: String;
 
-    public function new()
+    public function new(defaultFont: Data)
     {
+        if (defaultFont != null)
+        {
+            var ttc: TrueTypeCollection = TrueTypeCollection.create(defaultFont);
+            var fontEngine: FontEngine = new FontEngine(ttc);
+            fonts.set(fontEngine.currentFont.getName(), fontEngine);
+            this.defaultFont = fontEngine.currentFont.getName();
+            trace('FontCache::new() Loaded default font ${this.defaultFont}');
+        }
     }
 
     public function preloadFontFromTTFData(data: Data)

@@ -61,7 +61,8 @@ class FontContext
     {
         rasterizerizer = new ScanlineRasterizer();
         scanline = new Scanline();
-        fontCache = new FontCache();
+        var ttfData: Data = AssetLoader.getDataFromFile("libraryTest/fonts/arial.ttf");
+        fontCache = new FontCache(ttfData);
     }
 
     /// TODO add docu

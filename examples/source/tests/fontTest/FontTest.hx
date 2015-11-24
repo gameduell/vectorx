@@ -126,7 +126,6 @@ class FontTest extends OpenGLTest
 
     private function createTexture(): Void
     {
-        trace(CallStack.toString(CallStack.callStack()));
         data.offset = 0;
         data.offsetLength = pixelBufferSize;
 
@@ -201,12 +200,13 @@ class FontTest extends OpenGLTest
         var japanString3 = '個人での利用のほか、商用利用においてデザイナーやクリエイターの方もご活用いただけます。';
         // TODO test strings with line breaks \n
 
-        var fontCache: FontCache = new FontCache();
-        fontCache.preloadFontFromTTFData(ttfData);
+        var ttfData: Data = AssetLoader.getDataFromFile("libraryTest/fonts/arial.ttf");
+        var fontCache: FontCache = new FontCache(ttfData);
 
         var fontContext: FontContext = new FontContext();
 
         var font: Font = fontCache.createFontWithNameAndSize("arial", 24.0);
+        trace(font.internalFont.currentFont.getName());
 
         var stringAttributes: StringAttributes = {range: new Range(), font: font};
 
