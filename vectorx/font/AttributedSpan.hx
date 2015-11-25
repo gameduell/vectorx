@@ -5,12 +5,13 @@ import types.Range;
 
 class AttributedSpan
 {
-    public var range(default, null): Range;
+    public var range(default, null): AttributedRange;
     public var font: Font = null;
-    public var id: Int;
+    public var id(default, null): Int;
+
     private static var nextId: Int = 0;
 
-    public function new(range: Range)
+    public function new(range: AttributedRange)
     {
         this.range = range;
         id = nextId++;

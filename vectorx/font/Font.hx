@@ -40,4 +40,9 @@ class Font
         this.internalFont = font;
         this.sizeInPt = sizeInPt;
     }
+
+    public function toString(): String
+    {
+        return 'Font: {name: $name, size: $sizeInPt}';
+    }
 }

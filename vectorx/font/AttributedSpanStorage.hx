@@ -1,7 +1,6 @@
 package vectorx.font;
 
 import lib.ha.core.utils.Debug;
-import types.Range;
 class AttributedSpanStorage
 {
     private var spans: Array<AttributedSpan> = [];
@@ -19,11 +18,11 @@ class AttributedSpanStorage
         }
 
         var generatedSpans: Array<AttributedSpan> = [];
-        var newSpanRange: Range = newSpan.range;
+        var newSpanRange: AttributedRange = newSpan.range;
 
         for (span in spans)
         {
-            var spanRange: Range = newSpan.range;
+            var spanRange: AttributedRange = newSpan.range;
             var spanRightBound: Int = spanRange.index + spanRange.length;
             var newSpanRightBound: Int = newSpanRange.index + newSpanRange.length;
 
@@ -45,7 +44,7 @@ class AttributedSpanStorage
                 var coverLength: Int = newSpanRightBound - spanRange.index;
 
                 spanRange.length = spanRange.length - coverLength;
-                var coverSpan: AttributedSpan = new AttributedSpan(new Range(spanRange.index, coverLength));
+                var coverSpan: AttributedSpan = new AttributedSpan(new AttributedRange(spanRange.index, coverLength));
                 spanRange.index = newSpanRightBound;
 
                 coverSpan.apply(span);
@@ -70,7 +69,7 @@ class AttributedSpanStorage
 
             var coverLenght: Int = spanRightBound - newSpanRange.index;
             spanRange.length -= coverLenght;
-            var coverSpan: AttributedSpan = new AttributedSpan(new Range(newSpanRange.index, coverLenght));
+            var coverSpan: AttributedSpan = new AttributedSpan(new AttributedRange(newSpanRange.index, coverLenght));
             coverSpan.apply(span);
             coverSpan.apply(newSpan);
             generatedSpans.push(coverSpan);
@@ -92,6 +91,19 @@ class AttributedSpanStorage
             }
 
             return -1;
-        })
+        });
+    }
+
+    public function toString(): String
+    {
+        var buf = new StringBuf();
+        buf.add("[");
+        for (span in spans)
+        {
+            buf.add('$span\n');
+        }
+        buf.add("]");
+
+        return buf.toString();
     }
 }

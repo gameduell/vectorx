@@ -27,7 +27,6 @@
 package vectorx.font;
 
 import haxe.xml.Check.Attrib;
-import js.html.Attr;
 import types.Color4F;
 import types.Range;
 
@@ -91,7 +90,7 @@ class AttributedString
     {
         // Convert string to internal representation.
         this.string = string;
-        var range: Range = new Range(0, string.length);
+        var range: AttributedRange = new AttributedRange(0, string.length);
         if (attributes != null)
         {
             range.index = attributes.range.index;
@@ -143,7 +142,8 @@ class AttributedString
     **/
     public function applyAttributes(attributes: StringAttributes)
     {
-        var span: AttributedSpan = new AttributedSpan(attributes.range);
+        var range: AttributedRange = new AttributedRange(attributes.range.index, attributes.range.length);
+        var span: AttributedSpan = new AttributedSpan(range);
         span.applyAttributes(attributes);
         attributeStorage.addSpan(span);
     }
@@ -151,5 +151,10 @@ class AttributedString
     public function endEditing()
     {
 
+    }
+
+    public function toString(): String
+    {
+        return 'AttributedString {string: $string attributes:\n$attributeStorage}';
     }
 }
