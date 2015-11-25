@@ -205,8 +205,7 @@ class FontTest extends OpenGLTest
 
         var fontContext: FontContext = new FontContext();
 
-        var font: Font = fontCache.createFontWithNameAndSize("arial", 24.0);
-        trace(font.internalFont.currentFont.getName());
+        var font: Font = fontCache.createFontWithNameAndSize("Arial", 24.0);
 
         var stringAttributes: StringAttributes = {range: new Range(), font: font};
 
