@@ -26,6 +26,7 @@ class AttributedSpanStorage
             var spanRange: Range = newSpan.range;
             var spanRightBound: Int = spanRange.index + spanRange.length;
             var newSpanRightBound: Int = newSpanRange.index + newSpanRange.length;
+
             //new span before current span
             if (newSpanRightBound < spanRange.index + spanRange.length)
             {
@@ -41,12 +42,15 @@ class AttributedSpanStorage
             //new span cover current partially from left side
             if (newSpanRightBound >=  spanRange.index && newSpanRightBound < spanRightBound)
             {
-                var pivot: Int = newSpanRightBound - spanRange.index;
-                var coverLength: Int = pivot - spanRange.index;
-                var oldSpanLength: Int = spanRange.length - coverLength;
-                spanRange.length = oldSpanLength;
+                var coverLength: Int = newSpanRightBound - spanRange.index;
 
-                var coverSpan: AttributedSpan = new AttributedSpan(new Range(pivot, coverLength));
+                spanRange.length = spanRange.length - coverLength;
+                var coverSpan: AttributedSpan = new AttributedSpan(new Range(spanRange.index, coverLength));
+                spanRange.index = newSpanRightBound;
+
+                coverSpan.apply(span);
+                coverSpan.apply(newSpan);
+                generatedSpans.push(coverSpan);
 
                 continue;
             }
@@ -63,6 +67,14 @@ class AttributedSpanStorage
             {
                 Debug.brk();
             }
+
+            var coverLenght: Int = spanRightBound - newSpanRange.index;
+            spanRange.length -= coverLenght;
+            var coverSpan: AttributedSpan = new AttributedSpan(new Range(newSpanRange.index, coverLenght));
+            coverSpan.apply(span);
+            coverSpan.apply(newSpan);
+            generatedSpans.push(coverSpan);
+
         }
 
         spans.concat(generatedSpans);

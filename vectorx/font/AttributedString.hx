@@ -82,7 +82,7 @@ typedef StringAttributes =
 
 class AttributedString
 {
-//  var internalRepresentation: Dynamic // TODO Define
+    var attributeStorage: AttributedSpanStorage = new AttributedSpanStorage();
 
     public function new (string: String, attributes: StringAttributes = null)
     {
