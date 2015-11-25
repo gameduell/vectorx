@@ -26,6 +26,8 @@
 
 package vectorx.font;
 
+import haxe.xml.Check.Attrib;
+import js.html.Attr;
 import types.Color4F;
 import types.Range;
 
@@ -82,13 +84,39 @@ typedef StringAttributes =
 
 class AttributedString
 {
-    var attributeStorage: AttributedSpanStorage = new AttributedSpanStorage();
+    private var attributeStorage: AttributedSpanStorage = new AttributedSpanStorage();
+    private var string: String;
 
     public function new (string: String, attributes: StringAttributes = null)
     {
         // Convert string to internal representation.
+        this.string = string;
+        var range: Range = new Range(0, string.length);
+        if (attributes != null)
+        {
+            range.index = attributes.range.index;
+
+            if (attributes.range.length != -1)
+            {
+                range.length = attributes.range.length;
+            }
+            else
+            {
+                range.length = string.length - range.index;
+            }
+        }
+
+        var span: AttributedSpan = new AttributedSpan(range);
+
+        if (attributes != null)
+        {
+            span.applyAttributes(attributes);
+        }
+
+        attributeStorage.addSpan(span);
 
         // Apply default String attributes
+
 
         // Apply attributes if not null
 
@@ -115,7 +143,9 @@ class AttributedString
     **/
     public function applyAttributes(attributes: StringAttributes)
     {
-
+        var span: AttributedSpan = new AttributedSpan(attributes.range);
+        span.applyAttributes(attributes);
+        attributeStorage.addSpan(span);
     }
 
     public function endEditing()
