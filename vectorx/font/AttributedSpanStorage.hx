@@ -12,7 +12,7 @@ class AttributedSpanStorage
 
     public function addSpan(newSpan: AttributedSpan): Void
     {
-        trace('AttributedSpanStorage::addSpan $newSpan');
+        //trace('AttributedSpanStorage::addSpan $newSpan');
 
         if (spans.length == 0)
         {
@@ -25,32 +25,33 @@ class AttributedSpanStorage
 
         for (span in spans)
         {
-            trace('cur span: $span');
+            //trace('cur span: $span');
 
             var spanRange: AttributedRange = span.range;
             var spanRightBound: Int = spanRange.index + spanRange.length;
             var newSpanRightBound: Int = newSpanRange.index + newSpanRange.length;
 
-            trace('spanRange: $spanRange');
-            trace('spanRightBound: $spanRightBound');
-            trace('newSpanRightBound: $newSpanRightBound');
+            //trace('spanRange: $spanRange');
+            //trace('spanRightBound: $spanRightBound');
+            //trace('newSpanRightBound: $newSpanRightBound');
 
-            if (newSpanRightBound < spanRange.index)
+            //trace('newSpanRightBound($newSpanRightBound) <= spanRange.index(${spanRange.index})');
+            if (newSpanRightBound <= spanRange.index)
             {
-                trace('new span before current span');
+                //trace('new span before current span');
                 continue;
             }
 
             if (spanRange.index > newSpanRightBound)
             {
-                trace('new span after current span');
+                //trace('new span after current span');
                 break;
             }
 
             //trace('newSpanRightBound($newSpanRightBound) >=  spanRange.index(${spanRange.index}) && newSpanRightBound($newSpanRightBound) < spanRightBound($spanRightBound) && newSpanRange.index(${newSpanRange.index}) < spanRange.index(${spanRange.index})');
             if (newSpanRightBound >  spanRange.index && newSpanRightBound < spanRightBound && newSpanRange.index < spanRange.index)
             {
-                trace('new span cover current partially from left side');
+                //trace('new span cover current partially from left side');
                 var coverLength: Int = newSpanRightBound - spanRange.index;
 
                 spanRange.length = spanRange.length - coverLength;
@@ -64,16 +65,17 @@ class AttributedSpanStorage
                 continue;
             }
 
+
             if (newSpanRange.index <= spanRange.index && newSpanRightBound >= spanRightBound)
             {
-                trace('new span fully covers current one');
+                //trace('new span fully covers current one');
                 span.apply(newSpan);
                 continue;
             }
 
             if (newSpanRange.index > spanRange.index && newSpanRange.index < spanRightBound && newSpanRightBound > spanRightBound)
             {
-                trace('new span covers current partially from right side');
+                //trace('new span covers current partially from right side');
                 var coverLenght: Int = spanRightBound - newSpanRange.index;
                 spanRange.length -= coverLenght;
                 var coverSpan: AttributedSpan = new AttributedSpan(new AttributedRange(newSpanRange.index, coverLenght));
@@ -85,7 +87,7 @@ class AttributedSpanStorage
 
             if (newSpanRange.index > spanRange.index && newSpanRightBound < spanRightBound)
             {
-                trace('new span area is fully inside current span');
+                //trace('new span area is fully inside current span');
                 generatedSpans.push(newSpan);
                 var spanRangeLength = newSpanRange.index - spanRange.index;
                 var remainderSpan: AttributedSpan = new AttributedSpan(new AttributedRange(newSpanRightBound, spanRange.length - spanRangeLength));
@@ -95,11 +97,10 @@ class AttributedSpanStorage
                 continue;
             }
 
-            trace('should not get here');
-            Debug.brk();
+            //trace('should not get here');
         }
 
-        trace('adding generated spans: $generatedSpans');
+        //trace('adding generated spans: $generatedSpans');
 
         spans = spans.concat(generatedSpans);
 
