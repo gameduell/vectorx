@@ -142,6 +142,7 @@ class AttributedString
     **/
     public function applyAttributes(attributes: StringAttributes)
     {
+        trace("AttributedString::applyAttributes");
         var range: AttributedRange = new AttributedRange(attributes.range.index, attributes.range.length);
         var span: AttributedSpan = new AttributedSpan(range);
         span.applyAttributes(attributes);

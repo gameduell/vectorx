@@ -43,6 +43,6 @@ class Font
 
     public function toString(): String
     {
-        return 'Font: {name: $name, size: $sizeInPt}';
+        return '{name: $name, size: $sizeInPt}';
     }
 }

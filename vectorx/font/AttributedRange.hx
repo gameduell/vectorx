@@ -16,6 +16,6 @@ class AttributedRange
 
     public function toString(): String
     {
-        return 'Range: {index: $index, length: $length}';
+        return '{index: $index, length: $length}';
     }
 }

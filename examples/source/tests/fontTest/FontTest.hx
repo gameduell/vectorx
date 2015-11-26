@@ -206,10 +206,29 @@ class FontTest extends OpenGLTest
         var fontContext: FontContext = new FontContext();
 
         var font: Font = fontCache.createFontWithNameAndSize("Arial", 24.0);
+        var font2: Font = fontCache.createFontWithNameAndSize("Arial", 12.0);
+        var font3: Font = fontCache.createFontWithNameAndSize("Arial", 6.0);
+        var font4: Font = fontCache.createFontWithNameAndSize("Arial", 5.0);
+
 
         var stringAttributes: StringAttributes = {range: new Range(), font: font};
 
         var attributedString: AttributedString = new AttributedString(string1, stringAttributes);
+
+        trace('test inside case');
+        var stringAttributes2: StringAttributes = {range: new Range(10, 10), font: font2};
+        attributedString.applyAttributes(stringAttributes2);
+        trace(attributedString);
+
+        trace('test left-right case');
+        var stringAttributes3: StringAttributes = {range: new Range(5, 10), font: font3};
+        attributedString.applyAttributes(stringAttributes3);
+        trace(attributedString);
+
+        trace('full cover');
+        var stringAttributes4: StringAttributes = {range: new Range(5, 10), font: font4};
+        attributedString.applyAttributes(stringAttributes4);
+        trace(attributedString);
 
         // TODO test applying attributes
 

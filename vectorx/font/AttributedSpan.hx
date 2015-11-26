@@ -19,7 +19,12 @@ class AttributedSpan
 
     public function toString(): String
     {
-        return 'AttributedSpan: {id: $id, index: ${range.index} length: ${range.length}}';
+        if (font != null)
+        {
+            return '{id: $id, index: ${range.index} length: ${range.length} fon: $font}';
+        }
+
+        return '{id: $id, index: ${range.index} length: ${range.length}}';
     }
 
     public function apply(span: AttributedSpan)

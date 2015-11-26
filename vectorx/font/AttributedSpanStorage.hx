@@ -1,5 +1,6 @@
 package vectorx.font;
 
+import js.html.Attr;
 import lib.ha.core.utils.Debug;
 class AttributedSpanStorage
 {
@@ -11,6 +12,8 @@ class AttributedSpanStorage
 
     public function addSpan(newSpan: AttributedSpan): Void
     {
+        trace('AttributedSpanStorage::addSpan $newSpan');
+
         if (spans.length == 0)
         {
             spans.push(newSpan);
@@ -22,25 +25,32 @@ class AttributedSpanStorage
 
         for (span in spans)
         {
-            var spanRange: AttributedRange = newSpan.range;
+            trace('cur span: $span');
+
+            var spanRange: AttributedRange = span.range;
             var spanRightBound: Int = spanRange.index + spanRange.length;
             var newSpanRightBound: Int = newSpanRange.index + newSpanRange.length;
 
-            //new span before current span
-            if (newSpanRightBound < spanRange.index + spanRange.length)
+            trace('spanRange: $spanRange');
+            trace('spanRightBound: $spanRightBound');
+            trace('newSpanRightBound: $newSpanRightBound');
+
+            if (newSpanRightBound < spanRange.index)
             {
+                trace('new span before current span');
                 continue;
             }
 
-            //new span after current span
             if (spanRange.index > newSpanRightBound)
             {
+                trace('new span after current span');
                 break;
             }
 
-            //new span cover current partially from left side
-            if (newSpanRightBound >=  spanRange.index && newSpanRightBound < spanRightBound)
+            //trace('newSpanRightBound($newSpanRightBound) >=  spanRange.index(${spanRange.index}) && newSpanRightBound($newSpanRightBound) < spanRightBound($spanRightBound) && newSpanRange.index(${newSpanRange.index}) < spanRange.index(${spanRange.index})');
+            if (newSpanRightBound >  spanRange.index && newSpanRightBound < spanRightBound && newSpanRange.index < spanRange.index)
             {
+                trace('new span cover current partially from left side');
                 var coverLength: Int = newSpanRightBound - spanRange.index;
 
                 spanRange.length = spanRange.length - coverLength;
@@ -54,29 +64,44 @@ class AttributedSpanStorage
                 continue;
             }
 
-            //new span fully covers current one
-            if (newSpanRange.index < spanRange.index && newSpanRightBound > spanRightBound)
+            if (newSpanRange.index <= spanRange.index && newSpanRightBound >= spanRightBound)
             {
+                trace('new span fully covers current one');
                 span.apply(newSpan);
                 continue;
             }
 
-            //new span covers current partially from right side
-            if (!(newSpanRange.index > spanRange.index && newSpanRightBound > spanRightBound))
+            if (newSpanRange.index > spanRange.index && newSpanRange.index < spanRightBound && newSpanRightBound > spanRightBound)
             {
-                Debug.brk();
+                trace('new span covers current partially from right side');
+                var coverLenght: Int = spanRightBound - newSpanRange.index;
+                spanRange.length -= coverLenght;
+                var coverSpan: AttributedSpan = new AttributedSpan(new AttributedRange(newSpanRange.index, coverLenght));
+                coverSpan.apply(span);
+                coverSpan.apply(newSpan);
+                generatedSpans.push(coverSpan);
+                continue;
             }
 
-            var coverLenght: Int = spanRightBound - newSpanRange.index;
-            spanRange.length -= coverLenght;
-            var coverSpan: AttributedSpan = new AttributedSpan(new AttributedRange(newSpanRange.index, coverLenght));
-            coverSpan.apply(span);
-            coverSpan.apply(newSpan);
-            generatedSpans.push(coverSpan);
+            if (newSpanRange.index > spanRange.index && newSpanRightBound < spanRightBound)
+            {
+                trace('new span area is fully inside current span');
+                generatedSpans.push(newSpan);
+                var spanRangeLength = newSpanRange.index - spanRange.index;
+                var remainderSpan: AttributedSpan = new AttributedSpan(new AttributedRange(newSpanRightBound, spanRange.length - spanRangeLength));
+                spanRange.length = spanRangeLength;
+                remainderSpan.apply(span);
+                generatedSpans.push(remainderSpan);
+                continue;
+            }
 
+            trace('should not get here');
+            Debug.brk();
         }
 
-        spans.concat(generatedSpans);
+        trace('adding generated spans: $generatedSpans');
+
+        spans = spans.concat(generatedSpans);
 
         spans.sort(function(a: AttributedSpan, b: AttributedSpan)
         {
@@ -92,6 +117,8 @@ class AttributedSpanStorage
 
             return -1;
         });
+
+        //trace('result spans: $spans');
     }
 
     public function toString(): String
