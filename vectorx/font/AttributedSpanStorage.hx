@@ -1,6 +1,5 @@
 package vectorx.font;
 
-import js.html.Attr;
 import lib.ha.core.utils.Debug;
 class AttributedSpanStorage
 {
