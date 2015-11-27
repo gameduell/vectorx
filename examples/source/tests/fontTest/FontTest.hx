@@ -215,7 +215,7 @@ class FontTest extends OpenGLTest
 
         var attributedString: AttributedString = new AttributedString(string1, stringAttributes);
 
-        trace('test inside case');
+        /*trace('test inside case');
         var stringAttributes2: StringAttributes = {range: new Range(10, 10), font: font2};
         attributedString.applyAttributes(stringAttributes2);
         trace(attributedString);
@@ -228,7 +228,7 @@ class FontTest extends OpenGLTest
         trace('full cover');
         var stringAttributes4: StringAttributes = {range: new Range(5, 10), font: font4};
         attributedString.applyAttributes(stringAttributes4);
-        trace(attributedString);
+        trace(attributedString);*/
 
         // TODO test applying attributes
 

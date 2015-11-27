@@ -71,4 +71,9 @@ class AttributedSpan
         shadow = choose(shadow, source.shadow);
         attachment = choose(attachment, source.attachment);
     }
+
+    public function applyDefaults(source: StringAttributes)
+    {
+
+    }
 }

@@ -3,7 +3,7 @@ package vectorx.font;
 import lib.ha.core.utils.Debug;
 class AttributedSpanStorage
 {
-    private var spans: Array<AttributedSpan> = [];
+    public var spans(default, null): Array<AttributedSpan> = [];
 
     public function new()
     {

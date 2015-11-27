@@ -83,8 +83,8 @@ typedef StringAttributes =
 
 class AttributedString
 {
-    private var attributeStorage: AttributedSpanStorage = new AttributedSpanStorage();
-    private var string: String;
+    public var attributeStorage(default, null): AttributedSpanStorage = new AttributedSpanStorage();
+    public var string(default, null): String;
 
     public function new (string: String, attributes: StringAttributes = null)
     {
