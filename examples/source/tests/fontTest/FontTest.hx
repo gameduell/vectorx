@@ -26,6 +26,7 @@
 
 package tests.fontTest;
 
+import types.Color4F;
 import haxe.CallStack;
 import lib.ha.core.utils.Debug;
 import vectorx.font.LayoutBehaviour;
@@ -96,7 +97,7 @@ class FontTest extends OpenGLTest
 
     private function configureOpenGLState(): Void
     {
-        GL.clearColor(0.0, 0.4, 0.6, 1.0);
+        GL.clearColor(0.8, 0.8, 0.8, 1.0);
     }
 
     private function createShader()
@@ -157,7 +158,6 @@ class FontTest extends OpenGLTest
                 {
                     GL.pixelStorei(GLDefines.UNPACK_ALIGNMENT, 4);
                     GL.texImage2D(GLDefines.TEXTURE_2D, 0, GLDefines.RGBA, bitmap.width, bitmap.height, 0, GLDefines.RGBA, GLDefines.UNSIGNED_BYTE, bitmap.data);
-                    trace('w: ${bitmap.height} h: ${bitmap.width} offset: ${data.offset} size: ${data.allocedLength}');
                 }
             case 1:
                 {
@@ -205,35 +205,46 @@ class FontTest extends OpenGLTest
 
         var fontContext: FontContext = new FontContext();
 
-        var font: Font = fontCache.createFontWithNameAndSize("Arial", 24.0);
-        var font2: Font = fontCache.createFontWithNameAndSize("Arial", 12.0);
-        var font3: Font = fontCache.createFontWithNameAndSize("Arial", 6.0);
-        var font4: Font = fontCache.createFontWithNameAndSize("Arial", 5.0);
+        var font: Font = fontCache.createFontWithNameAndSize("Arial", 25.0);
+        var font2: Font = fontCache.createFontWithNameAndSize("Arial", 20.0);
+        var font3: Font = fontCache.createFontWithNameAndSize("Arial", 15.0);
+        var font4: Font = fontCache.createFontWithNameAndSize("Arial", 10.0);
 
 
         var stringAttributes: StringAttributes = {range: new Range(), font: font};
 
         var attributedString: AttributedString = new AttributedString(string1, stringAttributes);
 
-        /*trace('test inside case');
-        var stringAttributes2: StringAttributes = {range: new Range(10, 10), font: font2};
+        var red: Color4F = new Color4F();
+        red.setRGBA(1, 0, 0, 1);
+        var green: Color4F = new Color4F();
+        green.setRGBA(0, 1, 0, 1);
+        var blue: Color4F = new Color4F();
+        blue.setRGBA(0, 0, 1, 1);
+
+        //trace('test inside case');
+        var stringAttributes2: StringAttributes = {range: new Range(10, 10), font: font2, foregroundColor: red};
         attributedString.applyAttributes(stringAttributes2);
-        trace(attributedString);
+        //trace(attributedString);
 
-        trace('test left-right case');
-        var stringAttributes3: StringAttributes = {range: new Range(5, 10), font: font3};
+        //trace('test left-right case');
+        var stringAttributes3: StringAttributes = {range: new Range(5, 10), font: font3, foregroundColor: green};
         attributedString.applyAttributes(stringAttributes3);
-        trace(attributedString);
+        //trace(attributedString);
 
-        trace('full cover');
-        var stringAttributes4: StringAttributes = {range: new Range(5, 10), font: font4};
+        //trace('full cover');
+        var stringAttributes4: StringAttributes = {range: new Range(5, 10), font: font4, foregroundColor: blue};
         attributedString.applyAttributes(stringAttributes4);
-        trace(attributedString);*/
+        //trace(attributedString);
 
         // TODO test applying attributes
 
         var colorStorage: ColorStorage = new ColorStorage(pixelBufferWidth, pixelBufferHeight);
         data = colorStorage.data;
+        colorStorage.selectedRect.x = 10;
+        colorStorage.selectedRect.y = 20;
+        colorStorage.selectedRect.width = 200;
+        colorStorage.selectedRect.height = 300;
 
         var layoutConfig: TextLayoutConfig = {pointsToPixelRatio: 1.0,
                                               horizontalAlignment: HorizontalAlignment.Left,

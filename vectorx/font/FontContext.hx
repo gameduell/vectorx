@@ -92,15 +92,18 @@ class FontContext
                                                       outStorage: ColorStorage,
                                                       layoutConfig: TextLayoutConfig = null): Void
     {
-        var data = outStorage.data;
-        MemoryAccess.select(data);
+        MemoryAccess.select(outStorage.data);
         var renderingBuffer = new RenderingBuffer(outStorage.width, outStorage.height, ColorStorage.COMPONENTS * outStorage.width);
         var pixelFormatRenderer = new PixelFormatRenderer(renderingBuffer);
         var clippingRenderer = new ClippingRenderer(pixelFormatRenderer);
         var scanlineRenderer = new SolidScanlineRenderer(clippingRenderer);
         var cleanUpList: Array<FontEngine> = [];
 
-        //clippingRenderer.setClippingBounds(outStorage.selectedRect.x, outStorage.selectedRect.y, outStorage.selectedRect.width, outStorage.selectedRect.height);
+        clippingRenderer.setClippingBounds(outStorage.selectedRect.x, outStorage.selectedRect.y,
+            outStorage.selectedRect.x + outStorage.selectedRect.width,
+            outStorage.selectedRect.y + outStorage.selectedRect.height);
+
+        debugBox(outStorage.selectedRect.x, outStorage.selectedRect.y, outStorage.selectedRect.width, outStorage.selectedRect.height);
 
         var x: Float = outStorage.selectedRect.x;
         var y: Float = outStorage.selectedRect.y;
@@ -110,6 +113,8 @@ class FontContext
         var measure: Vector2 = new Vector2();
         for (span in attrString.attributeStorage.spans)
         {
+            trace('rendering span: $span');
+            
             if (span.foregroundColor != null)
             {
                 scanlineRenderer.color.setFromColor4F(span.foregroundColor);

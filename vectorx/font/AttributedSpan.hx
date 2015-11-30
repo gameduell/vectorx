@@ -28,12 +28,7 @@ class AttributedSpan
 
     public function toString(): String
     {
-        if (font != null)
-        {
-            return '{id: $id, index: ${range.index} length: ${range.length} fon: $font}';
-        }
-
-        return '{id: $id, index: ${range.index} length: ${range.length}}';
+        return '{id: $id, index: ${range.index} length: ${range.length}  font: $font bgColor: $backgroundColor fgColor: $foregroundColor}';
     }
 
     private inline function choose<T>(dst: T, src: T)
