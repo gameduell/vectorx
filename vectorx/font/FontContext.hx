@@ -26,6 +26,10 @@
 
 package vectorx.font;
 
+import lib.ha.aggx.vectorial.converters.ConvStroke;
+import lib.ha.svg.SVGColors;
+import lib.ha.aggx.vectorial.PathFlags;
+import lib.ha.aggx.vectorial.VectorPath;
 import types.Range;
 import types.Vector2;
 import types.Color4F;
@@ -57,8 +61,11 @@ typedef TextLayoutConfig =
 class FontContext
 {
     private var scanline: Scanline;
-    private var rasterizerizer: ScanlineRasterizer;
+    private var rasterizer: ScanlineRasterizer;
     private var fontCache: FontCache;
+    private var debugPath: VectorPath = new VectorPath();
+    private var debugPathStroke: ConvStroke;
+
     private static var defaultAttributes: StringAttributes =
     {
         range: new Range(),
@@ -70,10 +77,12 @@ class FontContext
 
     public function new()
     {
-        rasterizerizer = new ScanlineRasterizer();
+        rasterizer = new ScanlineRasterizer();
         scanline = new Scanline();
         var ttfData: Data = AssetLoader.getDataFromFile("libraryTest/fonts/arial.ttf");
         fontCache = new FontCache(ttfData);
+        debugPathStroke = new ConvStroke(debugPath);
+        debugPathStroke.width = 2;
     }
 
     /// TODO add docu
@@ -89,12 +98,14 @@ class FontContext
         var pixelFormatRenderer = new PixelFormatRenderer(renderingBuffer);
         var clippingRenderer = new ClippingRenderer(pixelFormatRenderer);
         var scanlineRenderer = new SolidScanlineRenderer(clippingRenderer);
-
+        var cleanUpList: Array<FontEngine> = [];
 
         //clippingRenderer.setClippingBounds(outStorage.selectedRect.x, outStorage.selectedRect.y, outStorage.selectedRect.width, outStorage.selectedRect.height);
 
         var x: Float = outStorage.selectedRect.x;
         var y: Float = outStorage.selectedRect.y;
+
+        trace('{${outStorage.selectedRect}}');
 
         var measure: Vector2 = new Vector2();
         for (span in attrString.attributeStorage.spans)
@@ -109,13 +120,44 @@ class FontContext
             }
 
             var fontEngine: FontEngine = span.font.internalFont;
+            cleanUpList.push(fontEngine);
+            fontEngine.rasterizer = rasterizer;
+            fontEngine.scanline = scanline;
+
             var spanString: String = attrString.string.substr(span.range.index, span.range.length);
             fontEngine.measureString(spanString, span.font.sizeInPt, measure);
-            var dy: Float = measure.y / 2;
-            fontEngine.renderString(spanString, span.font.sizeInPt, x, dy, scanlineRenderer, measure);
+            trace(measure);
+            debugBox(x, y, measure.x, measure.y);
+
+            fontEngine.renderString(spanString, span.font.sizeInPt, x, y, scanlineRenderer, measure);
             x += measure.x;
         }
 
+        renderDebugPath(scanlineRenderer);
+
         MemoryAccess.select(null);
+        for (font in cleanUpList)
+        {
+            font.scanline = null;
+            font.scanline = null;
+        }
+    }
+
+    private function renderDebugPath(renderer: SolidScanlineRenderer)
+    {
+        rasterizer.addPath(debugPathStroke);
+        renderer.color = SVGColors.get("hotpink");
+        SolidScanlineRenderer.renderScanlines(rasterizer, scanline, renderer);
+        rasterizer.reset();
+        debugPath.removeAll();
+    }
+
+    private function debugBox(x: Float, y: Float, w: Float, h: Float)
+    {
+        debugPath.moveTo(x, y);
+        debugPath.lineTo(x + w, y);
+        debugPath.lineTo(x + w, y + h);
+        debugPath.lineTo(x,y + h);
+        debugPath.endPoly(PathFlags.CLOSE);
     }
 }
