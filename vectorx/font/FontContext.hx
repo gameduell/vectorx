@@ -64,6 +64,7 @@ class FontContext
     private var rasterizer: ScanlineRasterizer;
     private var fontCache: FontCache;
     private var debugPath: VectorPath = new VectorPath();
+    private var path: VectorPath = new VectorPath();
     private var debugPathStroke: ConvStroke;
 
     private static var defaultAttributes: StringAttributes =
@@ -114,15 +115,6 @@ class FontContext
         for (span in attrString.attributeStorage.spans)
         {
             trace('rendering span: $span');
-            
-            if (span.foregroundColor != null)
-            {
-                scanlineRenderer.color.setFromColor4F(span.foregroundColor);
-            }
-            else
-            {
-                scanlineRenderer.color.setFromColor4F(defaultAttributes.foregroundColor);
-            }
 
             var fontEngine: FontEngine = span.font.internalFont;
             cleanUpList.push(fontEngine);
@@ -134,11 +126,32 @@ class FontContext
             trace(measure);
             debugBox(x, y, measure.x, measure.y);
 
+            if (span.backgroundColor != null)
+            {
+                scanlineRenderer.color.setFromColor4F(span.backgroundColor);
+                //trace('bg: ${scanlineRenderer.color}');
+                box(path, x, y, measure.x + 1, measure.y + 1);
+                rasterizer.reset();
+                rasterizer.addPath(path);
+                SolidScanlineRenderer.renderScanlines(rasterizer, scanline, scanlineRenderer);
+                path.removeAll();
+            }
+
+            if (span.foregroundColor != null)
+            {
+                scanlineRenderer.color.setFromColor4F(span.foregroundColor);
+            }
+            else
+            {
+                scanlineRenderer.color.setFromColor4F(defaultAttributes.foregroundColor);
+            }
+
+            //trace('fg: ${scanlineRenderer.color}');
             fontEngine.renderString(spanString, span.font.sizeInPt, x, y, scanlineRenderer, measure);
             x += measure.x;
         }
 
-        renderDebugPath(scanlineRenderer);
+        //renderDebugPath(scanlineRenderer);
 
         MemoryAccess.select(null);
         for (font in cleanUpList)
@@ -157,12 +170,17 @@ class FontContext
         debugPath.removeAll();
     }
 
+    private static function box(target: VectorPath, x: Float, y: Float, w: Float, h: Float)
+    {
+        target.moveTo(x, y);
+        target.lineTo(x + w, y);
+        target.lineTo(x + w, y + h);
+        target.lineTo(x,y + h);
+        target.endPoly(PathFlags.CLOSE);
+    }
+
     private function debugBox(x: Float, y: Float, w: Float, h: Float)
     {
-        debugPath.moveTo(x, y);
-        debugPath.lineTo(x + w, y);
-        debugPath.lineTo(x + w, y + h);
-        debugPath.lineTo(x,y + h);
-        debugPath.endPoly(PathFlags.CLOSE);
+        box(debugPath, x, y, w, h);
     }
 }

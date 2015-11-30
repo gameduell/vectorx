@@ -221,9 +221,11 @@ class FontTest extends OpenGLTest
         green.setRGBA(0, 1, 0, 1);
         var blue: Color4F = new Color4F();
         blue.setRGBA(0, 0, 1, 1);
+        var white: Color4F = new Color4F();
+        white.setRGBA(1, 1, 1, 1);
 
         //trace('test inside case');
-        var stringAttributes2: StringAttributes = {range: new Range(10, 10), font: font2, foregroundColor: red};
+        var stringAttributes2: StringAttributes = {range: new Range(10, 10), font: font2, foregroundColor: red, backgroundColor: white};
         attributedString.applyAttributes(stringAttributes2);
         //trace(attributedString);
 
