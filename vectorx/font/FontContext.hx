@@ -26,6 +26,7 @@
 
 package vectorx.font;
 
+import types.Range;
 import types.Vector2;
 import types.Color4F;
 import vectorx.font.AttributedString.StringAttributes;
@@ -60,6 +61,7 @@ class FontContext
     private var fontCache: FontCache;
     private static var defaultAttributes: StringAttributes =
     {
+        range: new Range(),
         foregroundColor: new Color4F(),
         baselineOffset: 0,
         strokeWidth: 0,
@@ -88,6 +90,7 @@ class FontContext
         var clippingRenderer = new ClippingRenderer(pixelFormatRenderer);
         var scanlineRenderer = new SolidScanlineRenderer(clippingRenderer);
 
+
         //clippingRenderer.setClippingBounds(outStorage.selectedRect.x, outStorage.selectedRect.y, outStorage.selectedRect.width, outStorage.selectedRect.height);
 
         var x: Float = outStorage.selectedRect.x;
@@ -96,11 +99,21 @@ class FontContext
         var measure: Vector2 = new Vector2();
         for (span in attrString.attributeStorage.spans)
         {
+            if (span.foregroundColor != null)
+            {
+                scanlineRenderer.color.setFromColor4F(span.foregroundColor);
+            }
+            else
+            {
+                scanlineRenderer.color.setFromColor4F(defaultAttributes.foregroundColor);
+            }
+
             var fontEngine: FontEngine = span.font.internalFont;
             var spanString: String = attrString.string.substr(span.range.index, span.range.length);
-            fontEngine.measureString(spanString, measure);
+            fontEngine.measureString(spanString, span.font.sizeInPt, measure);
             var dy: Float = measure.y / 2;
-            fontEngine.renderString(spanString, span.font.sizeInPt)
+            fontEngine.renderString(spanString, span.font.sizeInPt, x, dy, scanlineRenderer, measure);
+            x += measure.x;
         }
 
         MemoryAccess.select(null);
