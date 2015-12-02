@@ -105,7 +105,7 @@ class AttributedString
             }
         }
 
-        var span: AttributedSpan = new AttributedSpan(range);
+        var span: AttributedSpan = new AttributedSpan(range, string);
 
         if (attributes != null)
         {
@@ -144,7 +144,7 @@ class AttributedString
     {
         trace("AttributedString::applyAttributes");
         var range: AttributedRange = new AttributedRange(attributes.range.index, attributes.range.length);
-        var span: AttributedSpan = new AttributedSpan(range);
+        var span: AttributedSpan = new AttributedSpan(range, string);
         span.applyAttributes(attributes);
         attributeStorage.addSpan(span);
     }

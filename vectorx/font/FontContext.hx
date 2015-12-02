@@ -110,26 +110,28 @@ class FontContext
         var x: Float = outStorage.selectedRect.x;
         var y: Float = outStorage.selectedRect.y;
 
-        var measure: Vector2 = new Vector2();
-
         var maxBackgroundExtension: Float = 0;
         var maxSpanHeight: Float = 0;
+
+        //calculate max height
         for (span in attrString.attributeStorage.spans)
         {
             var fontEngine: FontEngine = span.font.internalFont;
-            var spanString: String = attrString.string.substr(span.range.index, span.range.length);
-            fontEngine.measureString(spanString, span.font.sizeInPt, measure);
+            var spanString: String = span.string;
+            var measure = span.getMeasure();
+
             if (measure.y > maxSpanHeight)
             {
                 maxSpanHeight = measure.y;
             }
         }
 
+        //calculate background height
         for (span in attrString.attributeStorage.spans)
         {
             var fontEngine: FontEngine = span.font.internalFont;
-            var spanString: String = attrString.string.substr(span.range.index, span.range.length);
-            fontEngine.measureString(spanString, span.font.sizeInPt, measure);
+            var spanString: String = span.string;
+            var measure = span.getMeasure();
             var alignY: Float = maxSpanHeight - measure.y;
 
             for (i in 0 ... Utf8.length(spanString))
@@ -157,10 +159,10 @@ class FontContext
             fontEngine.rasterizer = rasterizer;
             fontEngine.scanline = scanline;
 
-            var spanString: String = attrString.string.substr(span.range.index, span.range.length);
+            var spanString: String = span.string;
+            var measure = span.getMeasure();
 
-            fontEngine.measureString(spanString, span.font.sizeInPt, measure);
-            trace(measure);
+            //trace(measure);
             var alignY: Float = maxSpanHeight - measure.y;
             debugBox(x, y + alignY, measure.x, measure.y);
 
@@ -173,7 +175,7 @@ class FontContext
                 var by =  -face.glyph.bounds.y1 * scale;
                 var w = (face.glyph.bounds.x2 - face.glyph.bounds.x1) * scale;
                 var h = (-face.glyph.bounds.y2 - -face.glyph.bounds.y1) * scale;
-                trace('h: $h y: ${measure.y + by + alignY} max: $maxSpanHeight');
+                //trace('h: $h y: ${measure.y + by + alignY} max: $maxSpanHeight');
                 debugBox(bboxX + bx, y + measure.y + by + alignY, w, h);
                 bboxX += face.glyph.advanceWidth * scale;
             }
@@ -203,7 +205,7 @@ class FontContext
             x += measure.x;
         }
 
-        //renderDebugPath(scanlineRenderer);
+        renderDebugPath(scanlineRenderer);
 
         MemoryAccess.select(null);
         for (font in cleanUpList)

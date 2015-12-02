@@ -1,5 +1,6 @@
 package vectorx.font;
 
+import types.Vector2;
 import types.Color4F;
 import vectorx.font.AttributedString.StringAttributes;
 import types.Range;
@@ -17,18 +18,32 @@ class AttributedSpan
     public var shadow: FontShadow = null;
     public var attachment: FontAttachment = null;
 
+    public var baseString(default, null): String;
+    public var string(default, null): String;
+
+    private var measure: Vector2 = new Vector2();
+    private var measured: Bool = false;
+
     private var id(default, null): Int;
     private static var nextId: Int = 0;
 
-    public function new(range: AttributedRange)
+    public function new(range: AttributedRange, string: String)
     {
         this.range = range;
         id = nextId++;
+
+        baseString = string;
+        updateString();
+    }
+
+    public function updateString()
+    {
+        this.string = baseString.substr(range.index, range.length);
     }
 
     public function toString(): String
     {
-        return '{id: $id, index: ${range.index} length: ${range.length}  font: $font bgColor: $backgroundColor fgColor: $foregroundColor}';
+        return '{id: $id, range: ${range.index}[${range.length}] str: $string font: $font bgColor: $backgroundColor fgColor: $foregroundColor}';
     }
 
     private inline function choose<T>(dst: T, src: T)
@@ -52,6 +67,7 @@ class AttributedSpan
         strokeColor = choose(strokeColor, source.strokeColor);
         shadow = choose(shadow, source.shadow);
         attachment = choose(attachment, source.attachment);
+        measured = false;
     }
 
     public function applyAttributes(source: StringAttributes)
@@ -65,10 +81,17 @@ class AttributedSpan
         strokeColor = choose(strokeColor, source.strokeColor);
         shadow = choose(shadow, source.shadow);
         attachment = choose(attachment, source.attachment);
+        measured = false;
     }
 
-    public function applyDefaults(source: StringAttributes)
+    public function getMeasure(): Vector2
     {
+        if (!measured)
+        {
+            font.internalFont.measureString(string, font.sizeInPt, measure);
+            measured = true;
+        }
 
+        return measure;
     }
 }
