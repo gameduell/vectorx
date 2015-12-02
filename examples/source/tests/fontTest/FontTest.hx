@@ -189,6 +189,7 @@ class FontTest extends OpenGLTest
     {
         var ttfData: Data = AssetLoader.getDataFromFile(FONT_PATH_JAPAN);
 
+        var string0 = "gggggggggggggggggggggggggg";
         var string1 = "ABCDEFGHJIKLMNOPQRSTUVWXYZ";
         var string2 = "abcdefghjiklmnopqrstuvwxyz";
         var string3 = "1234567890";
@@ -205,10 +206,10 @@ class FontTest extends OpenGLTest
 
         var fontContext: FontContext = new FontContext();
 
-        var font: Font = fontCache.createFontWithNameAndSize("Arial", 25.0);
-        var font2: Font = fontCache.createFontWithNameAndSize("Arial", 20.0);
-        var font3: Font = fontCache.createFontWithNameAndSize("Arial", 15.0);
-        var font4: Font = fontCache.createFontWithNameAndSize("Arial", 10.0);
+        var font: Font = fontCache.createFontWithNameAndSize("Arial", 65.0);
+        var font2: Font = fontCache.createFontWithNameAndSize("Arial", 60.0);
+        var font3: Font = fontCache.createFontWithNameAndSize("Arial", 45.0);
+        var font4: Font = fontCache.createFontWithNameAndSize("Arial", 40.0);
 
 
         var stringAttributes: StringAttributes = {range: new Range(), font: font};
@@ -243,10 +244,10 @@ class FontTest extends OpenGLTest
 
         var colorStorage: ColorStorage = new ColorStorage(pixelBufferWidth, pixelBufferHeight);
         data = colorStorage.data;
-        colorStorage.selectedRect.x = 10;
-        colorStorage.selectedRect.y = 20;
-        colorStorage.selectedRect.width = 200;
-        colorStorage.selectedRect.height = 300;
+        colorStorage.selectedRect.x = 30;
+        colorStorage.selectedRect.y = 100;
+        colorStorage.selectedRect.width = 1000;
+        colorStorage.selectedRect.height = 600;
 
         var layoutConfig: TextLayoutConfig = {pointsToPixelRatio: 1.0,
                                               horizontalAlignment: HorizontalAlignment.Left,

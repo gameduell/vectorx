@@ -26,6 +26,7 @@
 
 package vectorx.font;
 
+import haxe.Utf8;
 import lib.ha.aggx.vectorial.converters.ConvStroke;
 import lib.ha.svg.SVGColors;
 import lib.ha.aggx.vectorial.PathFlags;
@@ -100,18 +101,53 @@ class FontContext
         var scanlineRenderer = new SolidScanlineRenderer(clippingRenderer);
         var cleanUpList: Array<FontEngine> = [];
 
-        clippingRenderer.setClippingBounds(outStorage.selectedRect.x, outStorage.selectedRect.y,
+        /*clippingRenderer.setClippingBounds(outStorage.selectedRect.x, outStorage.selectedRect.y,
             outStorage.selectedRect.x + outStorage.selectedRect.width,
-            outStorage.selectedRect.y + outStorage.selectedRect.height);
+            outStorage.selectedRect.y + outStorage.selectedRect.height);*/
 
         debugBox(outStorage.selectedRect.x, outStorage.selectedRect.y, outStorage.selectedRect.width, outStorage.selectedRect.height);
 
         var x: Float = outStorage.selectedRect.x;
         var y: Float = outStorage.selectedRect.y;
 
-        trace('{${outStorage.selectedRect}}');
-
         var measure: Vector2 = new Vector2();
+
+        var maxBackgroundExtension: Float = 0;
+        var maxSpanHeight: Float = 0;
+        for (span in attrString.attributeStorage.spans)
+        {
+            var fontEngine: FontEngine = span.font.internalFont;
+            var spanString: String = attrString.string.substr(span.range.index, span.range.length);
+            fontEngine.measureString(spanString, span.font.sizeInPt, measure);
+            if (measure.y > maxSpanHeight)
+            {
+                maxSpanHeight = measure.y;
+            }
+        }
+
+        for (span in attrString.attributeStorage.spans)
+        {
+            var fontEngine: FontEngine = span.font.internalFont;
+            var spanString: String = attrString.string.substr(span.range.index, span.range.length);
+            fontEngine.measureString(spanString, span.font.sizeInPt, measure);
+            var alignY: Float = maxSpanHeight - measure.y;
+
+            for (i in 0 ... Utf8.length(spanString))
+            {
+                var face = fontEngine.getFace(Utf8.charCodeAt(spanString, i));
+                var scale = fontEngine.getScale(span.font.sizeInPt);
+
+                var by =  -face.glyph.bounds.y1 * scale;
+                var h = (-face.glyph.bounds.y2 - -face.glyph.bounds.y1) * scale;
+
+                var ext: Float = (alignY + measure.y + by) - maxSpanHeight;
+                if (ext > maxBackgroundExtension)
+                {
+                    maxBackgroundExtension = ext;
+                }
+            }
+        }
+
         for (span in attrString.attributeStorage.spans)
         {
             trace('rendering span: $span');
@@ -122,15 +158,31 @@ class FontContext
             fontEngine.scanline = scanline;
 
             var spanString: String = attrString.string.substr(span.range.index, span.range.length);
+
             fontEngine.measureString(spanString, span.font.sizeInPt, measure);
             trace(measure);
-            debugBox(x, y, measure.x, measure.y);
+            var alignY: Float = maxSpanHeight - measure.y;
+            debugBox(x, y + alignY, measure.x, measure.y);
+
+            var bboxX = x;
+            for (i in 0 ... Utf8.length(spanString))
+            {
+                var face = fontEngine.getFace(Utf8.charCodeAt(spanString, i));
+                var scale = fontEngine.getScale(span.font.sizeInPt);
+                var bx =  face.glyph.bounds.x1 * scale;
+                var by =  -face.glyph.bounds.y1 * scale;
+                var w = (face.glyph.bounds.x2 - face.glyph.bounds.x1) * scale;
+                var h = (-face.glyph.bounds.y2 - -face.glyph.bounds.y1) * scale;
+                trace('h: $h y: ${measure.y + by + alignY} max: $maxSpanHeight');
+                debugBox(bboxX + bx, y + measure.y + by + alignY, w, h);
+                bboxX += face.glyph.advanceWidth * scale;
+            }
 
             if (span.backgroundColor != null)
             {
                 scanlineRenderer.color.setFromColor4F(span.backgroundColor);
                 //trace('bg: ${scanlineRenderer.color}');
-                box(path, x, y, measure.x + 1, measure.y + 1);
+                box(path, x, y, measure.x + 1, maxSpanHeight + maxBackgroundExtension + 1);
                 rasterizer.reset();
                 rasterizer.addPath(path);
                 SolidScanlineRenderer.renderScanlines(rasterizer, scanline, scanlineRenderer);
@@ -147,7 +199,7 @@ class FontContext
             }
 
             //trace('fg: ${scanlineRenderer.color}');
-            fontEngine.renderString(spanString, span.font.sizeInPt, x, y, scanlineRenderer, measure);
+            fontEngine.renderString(spanString, span.font.sizeInPt, x, y + alignY, scanlineRenderer, measure);
             x += measure.x;
         }
 
