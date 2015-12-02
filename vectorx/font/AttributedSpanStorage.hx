@@ -1,12 +1,65 @@
 package vectorx.font;
 
 import lib.ha.core.utils.Debug;
+
+class AttributedSpanStorageIterator
+{
+    var range: AttributedRange = new AttributedRange();
+    var storage: Array<AttributedSpan> = null;
+    var spanIndex: Int = 0;
+    var pos: Int = 0;
+    var remainderSpan: AttributedSpan = new AttributedSpan();
+
+    public function new(storage: Array<AttributedSpan>)
+    {
+        this.storate = storage;
+    }
+
+    public function hasNext(): Bool
+    {
+        return pos < range.length && spanIndex != -1;
+    }
+
+    public function next(): AttributedSpan
+    {
+
+    }
+
+    private function findSpan(): Int
+    {
+        if (spanIndex == -1)
+        {
+            return;
+        }
+
+        var index = spanIndex;
+        spanIndex = -1;
+
+        for (i in index ... storage.length)
+        {
+            //if (pos > )
+        }
+    }
+
+    public function reset(begin: Int, len: Int)
+    {
+        range.index = begin;
+        range.length = len;
+        spanIndex = 0;
+        pos = range.index;
+        findSpan();
+    }
+
+}
+
 class AttributedSpanStorage
 {
-    public var spans(default, null): Array<AttributedSpan> = [];
+    private var spans: Array<AttributedSpan> = [];
+    private var rangeIterator: AttributedSpanStorageIterator;
 
     public function new()
     {
+        rangeIterator = new AttributedSpanStorageIterator(spans);
     }
 
     public function addSpan(newSpan: AttributedSpan): Void
@@ -124,6 +177,17 @@ class AttributedSpanStorage
         });
 
         //trace('result spans: $spans');
+    }
+
+    public function iterator()
+    {
+        return spans.iterator();
+    }
+
+    public function getRangeIterator(index: Int, len: Int)
+    {
+        rangeIterator.reset(index, len);
+        return rangeIterator;
     }
 
     public function toString(): String

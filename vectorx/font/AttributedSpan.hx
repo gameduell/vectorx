@@ -27,6 +27,24 @@ class AttributedSpan
     private var id(default, null): Int;
     private static var nextId: Int = 0;
 
+    public function setFromSpan(other: AttributedSpan)
+    {
+        this.range.index = other.range.index;
+        this.range.length = other.range.length;
+        this.font = other.font;
+        this.backgroundColor = other.backgroundColor;
+        this.foregroundColor = other.foregroundColor;
+        this.baselineOffset = other.baselineOffset;
+        this.kern = other.kern;
+        this.strokeWidth = other.strokeWidth;
+        this.strokeColor = other.strokeColor;
+        this.shadow = other.shadow;
+        this.attachment = other.attachment;
+        this.baseString = other.baseString;
+        this.string = other.string;
+        this.measured = false;
+    }
+
     public function new(range: AttributedRange, string: String)
     {
         this.range = range;

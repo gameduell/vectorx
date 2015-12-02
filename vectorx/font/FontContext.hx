@@ -107,27 +107,12 @@ class FontContext
 
         debugBox(outStorage.selectedRect.x, outStorage.selectedRect.y, outStorage.selectedRect.width, outStorage.selectedRect.height);
 
-        var x: Float = outStorage.selectedRect.x;
-        var y: Float = outStorage.selectedRect.y;
-
         var maxBackgroundExtension: Float = 0;
-        var maxSpanHeight: Float = 0;
+        var maxSpanHeight: Float = calculateMaxSpanHeight(attrString);
 
-        //calculate max height
-        for (span in attrString.attributeStorage.spans)
-        {
-            var fontEngine: FontEngine = span.font.internalFont;
-            var spanString: String = span.string;
-            var measure = span.getMeasure();
-
-            if (measure.y > maxSpanHeight)
-            {
-                maxSpanHeight = measure.y;
-            }
-        }
 
         //calculate background height
-        for (span in attrString.attributeStorage.spans)
+        for (span in attrString.attributeStorage)
         {
             var fontEngine: FontEngine = span.font.internalFont;
             var spanString: String = span.string;
@@ -150,9 +135,12 @@ class FontContext
             }
         }
 
-        for (span in attrString.attributeStorage.spans)
+        var x: Float = outStorage.selectedRect.x;
+        var y: Float = outStorage.selectedRect.y;
+
+        for (span in attrString.attributeStorage)
         {
-            trace('rendering span: $span');
+            //trace('rendering span: $span');
 
             var fontEngine: FontEngine = span.font.internalFont;
             cleanUpList.push(fontEngine);
@@ -213,6 +201,30 @@ class FontContext
             font.scanline = null;
             font.scanline = null;
         }
+    }
+
+    private function calculateMaxSpanHeight(attrString: AttributedString, index: Int = 0, lenght: Int = -1): Float
+    {
+        if (lenght == -1)
+        {
+            lenght = attrString.string.length;
+        }
+
+        var maxSpanHeight: Float = 0;
+
+        for (span in attrString.attributeStorage)
+        {
+            var fontEngine: FontEngine = span.font.internalFont;
+            var spanString: String = span.string;
+            var measure = span.getMeasure();
+
+            if (measure.y > maxSpanHeight)
+            {
+                maxSpanHeight = measure.y;
+            }
+        }
+
+        return maxSpanHeight;
     }
 
     private function renderDebugPath(renderer: SolidScanlineRenderer)
