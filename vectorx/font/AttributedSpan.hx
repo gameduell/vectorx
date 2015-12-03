@@ -7,7 +7,7 @@ import types.Range;
 
 class AttributedSpan
 {
-    public var range(default, null): AttributedRange;
+    public var range(default, null): AttributedRange = new AttributedRange();
     public var font: Font = null;
     public var backgroundColor: Color4F = null;
     public var foregroundColor: Color4F = null;
@@ -47,7 +47,14 @@ class AttributedSpan
 
     public function new(range: AttributedRange, string: String)
     {
-        this.range = range;
+        this.range.index = range.index;
+        this.range.length = range.length;
+
+        if (this.range.length == -1)
+        {
+            this.range.length = string.length;
+        }
+
         id = nextId++;
 
         baseString = string;

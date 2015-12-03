@@ -1,65 +1,16 @@
 package vectorx.font;
 
+import lib.ha.core.math.Calc;
 import lib.ha.core.utils.Debug;
-
-class AttributedSpanStorageIterator
-{
-    var range: AttributedRange = new AttributedRange();
-    var storage: Array<AttributedSpan> = null;
-    var spanIndex: Int = 0;
-    var pos: Int = 0;
-    var remainderSpan: AttributedSpan = new AttributedSpan();
-
-    public function new(storage: Array<AttributedSpan>)
-    {
-        this.storate = storage;
-    }
-
-    public function hasNext(): Bool
-    {
-        return pos < range.length && spanIndex != -1;
-    }
-
-    public function next(): AttributedSpan
-    {
-
-    }
-
-    private function findSpan(): Int
-    {
-        if (spanIndex == -1)
-        {
-            return;
-        }
-
-        var index = spanIndex;
-        spanIndex = -1;
-
-        for (i in index ... storage.length)
-        {
-            //if (pos > )
-        }
-    }
-
-    public function reset(begin: Int, len: Int)
-    {
-        range.index = begin;
-        range.length = len;
-        spanIndex = 0;
-        pos = range.index;
-        findSpan();
-    }
-
-}
 
 class AttributedSpanStorage
 {
     private var spans: Array<AttributedSpan> = [];
-    private var rangeIterator: AttributedSpanStorageIterator;
+    private var tempSpan: AttributedSpan;
 
     public function new()
     {
-        rangeIterator = new AttributedSpanStorageIterator(spans);
+        tempSpan = new AttributedSpan(new AttributedRange(), "");
     }
 
     public function addSpan(newSpan: AttributedSpan): Void
@@ -179,15 +130,77 @@ class AttributedSpanStorage
         //trace('result spans: $spans');
     }
 
-    public function iterator()
+    public function iterator(): Iterator<AttributedSpan>
     {
         return spans.iterator();
     }
 
-    public function getRangeIterator(index: Int, len: Int)
+    public function eachSpanInRange(cbk: AttributedSpan -> Void, begin: Int = 0, len: Int = -1): Void
     {
-        rangeIterator.reset(index, len);
-        return rangeIterator;
+        if (spans.length == 0)
+        {
+            return;
+        }
+
+        if (len == -1)
+        {
+            len = spans[0].baseString.length - begin;
+        }
+
+        var end = begin + len;
+
+        for (span in spans)
+        {
+            var spanRange = span.range;
+            var spanBegin = spanRange.index;
+            var spanEnd = spanRange.index +spanRange.length;
+
+            if (end < spanBegin)
+            {
+                return;
+            }
+
+            if (begin > spanEnd)
+            {
+                continue;
+            }
+
+            if (begin <= spanBegin && end >= spanEnd)
+            {
+                cbk(span);
+                continue;
+            }
+
+            var leftSegmentLen = begin - spanBegin;
+            if (leftSegmentLen > 0)
+            {
+                tempSpan.setFromSpan(span);
+                tempSpan.range.length = leftSegmentLen;
+                tempSpan.updateString();
+                cbk(tempSpan);
+            }
+
+            var middleSegmentBegin: Int = Calc.max(begin, spanBegin);
+            var middleSegmentLen: Int = Calc.min(end, spanEnd) - middleSegmentBegin;
+            if (middleSegmentLen > 0)
+            {
+                tempSpan.setFromSpan(span);
+                tempSpan.range.index = middleSegmentBegin;
+                tempSpan.range.length = middleSegmentLen;
+                tempSpan.updateString();
+                cbk(tempSpan);
+            }
+
+            var rightSegmentLen = spanEnd - end;
+            if (rightSegmentLen > 0)
+            {
+                tempSpan.setFromSpan(span);
+                tempSpan.range.index = end;
+                tempSpan.range.length = rightSegmentLen;
+                tempSpan.updateString();
+                cbk(tempSpan);
+            }
+        }
     }
 
     public function toString(): String
