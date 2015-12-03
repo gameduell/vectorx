@@ -88,24 +88,28 @@ class AttributedString
 
     public function new (string: String, attributes: StringAttributes = null)
     {
+        var index: Int  = 0;
+        var length: Int = 0;
+
         // Convert string to internal representation.
         this.string = string;
         var range: AttributedRange = new AttributedRange(0, string.length);
+
         if (attributes != null)
         {
-            range.index = attributes.range.index;
+            index = attributes.range.index;
 
             if (attributes.range.length != -1)
             {
-                range.length = attributes.range.length;
+                length = attributes.range.length;
             }
             else
             {
-                range.length = string.length - range.index;
+                length = string.length - index;
             }
         }
 
-        var span: AttributedSpan = new AttributedSpan(range, string);
+        var span: AttributedSpan = new AttributedSpan(string, index, length);
 
         if (attributes != null)
         {
@@ -143,8 +147,7 @@ class AttributedString
     public function applyAttributes(attributes: StringAttributes)
     {
         trace("AttributedString::applyAttributes");
-        var range: AttributedRange = new AttributedRange(attributes.range.index, attributes.range.length);
-        var span: AttributedSpan = new AttributedSpan(range, string);
+        var span: AttributedSpan = new AttributedSpan(string, attributes.range.index, attributes.range.length);
         span.applyAttributes(attributes);
         attributeStorage.addSpan(span);
     }

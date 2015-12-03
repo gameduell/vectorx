@@ -10,7 +10,7 @@ class AttributedSpanStorage
 
     public function new()
     {
-        tempSpan = new AttributedSpan(new AttributedRange(), "");
+        tempSpan = new AttributedSpan("");
     }
 
     public function addSpan(newSpan: AttributedSpan): Void
@@ -58,8 +58,7 @@ class AttributedSpanStorage
                 var coverLength: Int = newSpanRightBound - spanRange.index;
 
                 spanRange.length = spanRange.length - coverLength;
-                var coverSpanRange = new AttributedRange(spanRange.index, coverLength);
-                var coverSpan: AttributedSpan = new AttributedSpan(coverSpanRange, span.baseString);
+                var coverSpan: AttributedSpan = new AttributedSpan(span.baseString, spanRange.index, coverLength);
                 spanRange.index = newSpanRightBound;
 
                 coverSpan.apply(span);
@@ -82,8 +81,7 @@ class AttributedSpanStorage
                 //trace('new span covers current partially from right side');
                 var coverLenght: Int = spanRightBound - newSpanRange.index;
                 spanRange.length -= coverLenght;
-                var coverSpanRange = new AttributedRange(newSpanRange.index, coverLenght);
-                var coverSpan: AttributedSpan = new AttributedSpan(coverSpanRange, span.baseString);
+                var coverSpan: AttributedSpan = new AttributedSpan(span.baseString, newSpanRange.index, coverLenght);
                 coverSpan.apply(span);
                 coverSpan.apply(newSpan);
                 generatedSpans.push(coverSpan);
@@ -96,8 +94,7 @@ class AttributedSpanStorage
                 //trace('new span area is fully inside current span');
                 generatedSpans.push(newSpan);
                 var spanRangeLength = newSpanRange.index - spanRange.index;
-                var remainderSpanRange = new AttributedRange(newSpanRightBound, spanRange.length - spanRangeLength);
-                var remainderSpan: AttributedSpan = new AttributedSpan(remainderSpanRange, span.baseString);
+                var remainderSpan: AttributedSpan = new AttributedSpan(span.baseString, newSpanRightBound, spanRange.length - spanRangeLength);
                 spanRange.length = spanRangeLength;
                 remainderSpan.apply(span);
                 generatedSpans.push(remainderSpan);

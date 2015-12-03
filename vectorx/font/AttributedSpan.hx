@@ -45,10 +45,10 @@ class AttributedSpan
         this.measured = false;
     }
 
-    public function new(range: AttributedRange, string: String)
+    public function new(string: String, index: Int = 0, len: Int = 0)
     {
-        this.range.index = range.index;
-        this.range.length = range.length;
+        this.range.index = index;
+        this.range.length = len;
 
         if (this.range.length == -1)
         {
