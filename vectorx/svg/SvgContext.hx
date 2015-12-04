@@ -26,15 +26,58 @@
 
 package vectorx.svg;
 
-import lib.ha.svg.SVGPathRenderer;
-
+import haxe.io.Bytes;
+import types.Data;
 class SvgContext
 {
     // TODO
-    var renderer: SVGPathRenderer;
+
     public function new()
     {
-        trace('SvgContext::new');
-        renderer = new SVGPathRenderer();
     }
+
+    // Compile time // Unit tests // This function should be compiled to a standalone
+    // application which serves the artist as a checker if their provides svg are correct.
+    // Further it is used in a buildstep to convert all svg assets to our binary format.
+    public function convertSvgToVectorBin(inSvg: Xml, outVectorBin: Bytes)
+    {
+        // Checks svg for compliance and parses the svg into our intermediate format which is binary.
+
+        // Compliance should include TODO
+        // Every SVG must specify width and height in Points
+        // Check throws/logs error if features are used which are not supported
+    }
+
+    /*
+     * To goal of converting the svg to our intermediate binary format at compile-time
+     * is to save time when reading it at runtime and not to ship raw svgs into the product,
+     * but a one directional format, which cannot easily converted back to SVG. (Saves art work copyrights)
+     *
+     * The format should somehow look similar to the data which is created during the parsing
+     * in the SVGParser/SVGPathRenderer class of aggx.
+     *
+     * One of the slow things of the svg parsing from xml is, that is allows for different type
+     * of representation for the same data. (For example you can separated by comma or space).
+     * Having this in an own fixed and single defined way improves the parsing process.
+     *
+      * */
+
+    
+    // RunTime // Unit tests TODO
+    public function deserializeVectorBin(inVectorBin: Data, outVectorBin: VectorBin)
+    {
+
+    }
+
+    // RunTime TODO
+    public function renderVectorBinToColorStorage(inVectorBin: VectorBin, outStorage: ColorStorage): Void
+    {
+
+    }
+}
+
+
+class VectorBin
+{
+
 }
