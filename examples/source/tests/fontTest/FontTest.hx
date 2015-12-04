@@ -190,7 +190,7 @@ class FontTest extends OpenGLTest
         var ttfData: Data = AssetLoader.getDataFromFile(FONT_PATH_JAPAN);
 
         var string0 = "gggggggggggggggggggggggggg";
-        var string1 = "ABCDEFGHJIKLMNOPQRSTUVWXYZ";
+        var string1 = "ABCDE FGHJIKLMNOPQRSTUVWXYZ";
         var string2 = "abcdefghjiklmnopqrstuvwxyz";
         var string3 = "1234567890";
         var string4 = "!@#$%^&*()_+|{}:?><~`';/.,";
@@ -240,13 +240,15 @@ class FontTest extends OpenGLTest
         attributedString.applyAttributes(stringAttributes4);
         //trace(attributedString);
 
-        // TODO test applying attributes
+        var stringAttributes5: StringAttributes = {range: new Range(24, 3), backgroundColor: white};
+        attributedString.applyAttributes(stringAttributes5);
+        trace(attributedString);
 
         var colorStorage: ColorStorage = new ColorStorage(pixelBufferWidth, pixelBufferHeight);
         data = colorStorage.data;
         colorStorage.selectedRect.x = 30;
         colorStorage.selectedRect.y = 100;
-        colorStorage.selectedRect.width = 1000;
+        colorStorage.selectedRect.width = 500;
         colorStorage.selectedRect.height = 600;
 
         var layoutConfig: TextLayoutConfig = {pointsToPixelRatio: 1.0,

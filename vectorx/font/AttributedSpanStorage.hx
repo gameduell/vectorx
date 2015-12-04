@@ -92,9 +92,15 @@ class AttributedSpanStorage
             if (newSpanRange.index > spanRange.index && newSpanRightBound < spanRightBound)
             {
                 //trace('new span area is fully inside current span');
-                generatedSpans.push(newSpan);
+                var tempSpan = new AttributedSpan("");
+                tempSpan.setFromSpan(newSpan);
+                tempSpan.applyBefore(span);
+                trace(tempSpan);
+                generatedSpans.push(tempSpan);
+                //generatedSpans.push(newSpan);
                 var spanRangeLength = newSpanRange.index - spanRange.index;
-                var remainderSpan: AttributedSpan = new AttributedSpan(span.baseString, newSpanRightBound, spanRange.length - spanRangeLength);
+                var remainderSpan: AttributedSpan = new AttributedSpan(span.baseString, newSpanRightBound, spanRange.length - spanRangeLength - newSpanRange.length);
+                trace('remainderSpan: $remainderSpan');
                 spanRange.length = spanRangeLength;
                 remainderSpan.apply(span);
                 generatedSpans.push(remainderSpan);
@@ -134,6 +140,7 @@ class AttributedSpanStorage
 
     public function eachSpanInRange(cbk: AttributedSpan -> Void, begin: Int = 0, len: Int = -1): Void
     {
+        trace(Debug.calledFrom());
         if (spans.length == 0)
         {
             return;
@@ -150,7 +157,7 @@ class AttributedSpanStorage
         {
             var spanRange = span.range;
             var spanBegin = spanRange.index;
-            var spanEnd = spanRange.index +spanRange.length;
+            var spanEnd = spanRange.index + spanRange.length;
 
             if (end < spanBegin)
             {
@@ -168,35 +175,39 @@ class AttributedSpanStorage
                 continue;
             }
 
-            var leftSegmentLen = begin - spanBegin;
-            if (leftSegmentLen > 0)
+            trace(span);
+            trace('begin: $begin');
+            trace('end: $end');
+            trace('spanBegin: $spanBegin');
+            trace('spanEnd: $spanEnd');
+
+            tempSpan.setFromSpan(span);
+
+            if (begin < spanBegin)
             {
-                tempSpan.setFromSpan(span);
-                tempSpan.range.length = leftSegmentLen;
-                tempSpan.updateString();
-                cbk(tempSpan);
+                trace('left');
+                var len = end - spanBegin;
+                tempSpan.range.index = spanBegin;
+                tempSpan.range.length = len;
+            }
+            else if (end > spanEnd)
+            {
+                trace('right');
+                var len = spanEnd - begin;
+                tempSpan.range.index = begin;
+                tempSpan.range.length = len;
+            }
+            else
+            {
+                trace('middle');
+                var len = end - begin;
+                tempSpan.range.index = begin;
+                tempSpan.range.length = len;
             }
 
-            var middleSegmentBegin: Int = Calc.max(begin, spanBegin);
-            var middleSegmentLen: Int = Calc.min(end, spanEnd) - middleSegmentBegin;
-            if (middleSegmentLen > 0)
-            {
-                tempSpan.setFromSpan(span);
-                tempSpan.range.index = middleSegmentBegin;
-                tempSpan.range.length = middleSegmentLen;
-                tempSpan.updateString();
-                cbk(tempSpan);
-            }
-
-            var rightSegmentLen = spanEnd - end;
-            if (rightSegmentLen > 0)
-            {
-                tempSpan.setFromSpan(span);
-                tempSpan.range.index = end;
-                tempSpan.range.length = rightSegmentLen;
-                tempSpan.updateString();
-                cbk(tempSpan);
-            }
+            tempSpan.updateString();
+            trace('tempSpan: $tempSpan');
+            cbk(tempSpan);
         }
     }
 

@@ -107,68 +107,87 @@ class FontContext
 
         debugBox(outStorage.selectedRect.x, outStorage.selectedRect.y, outStorage.selectedRect.width, outStorage.selectedRect.height);
 
-        var maxSpanHeight: Float = calculateMaxSpanHeight(attrString);
-        var maxBackgroundHeight: Float =  calculateBackgroundHeight(attrString, maxSpanHeight);
+        var lines: Array<TextLine> = TextLine.calculate(attrString, outStorage.selectedRect.width);
+
+        trace(lines);
 
         var x: Float = outStorage.selectedRect.x;
         var y: Float = outStorage.selectedRect.y;
 
-        for (span in attrString.attributeStorage)
+        for (line in lines)
         {
-            //trace('rendering span: $span');
+            trace('rendering line: $line');
 
-            var fontEngine: FontEngine = span.font.internalFont;
-            cleanUpList.push(fontEngine);
-            fontEngine.rasterizer = rasterizer;
-            fontEngine.scanline = scanline;
+            var maxSpanHeight: Float = calculateMaxSpanHeight(attrString, line.begin, line.lenght);
+            var maxBackgroundHeight: Float =  calculateBackgroundHeight(attrString, maxSpanHeight, line.begin, line.lenght);
 
-            var spanString: String = span.string;
-            var measure = span.getMeasure();
-
-            //trace(measure);
-            var alignY: Float = maxSpanHeight - measure.y;
-            debugBox(x, y + alignY, measure.x, measure.y);
-
-            var bboxX = x;
-            for (i in 0 ... Utf8.length(spanString))
+            attrString.attributeStorage.eachSpanInRange(function(span: AttributedSpan): Void
             {
-                var face = fontEngine.getFace(Utf8.charCodeAt(spanString, i));
-                var scale = fontEngine.getScale(span.font.sizeInPt);
-                var bx =  face.glyph.bounds.x1 * scale;
-                var by =  -face.glyph.bounds.y1 * scale;
-                var w = (face.glyph.bounds.x2 - face.glyph.bounds.x1) * scale;
-                var h = (-face.glyph.bounds.y2 - -face.glyph.bounds.y1) * scale;
-                //trace('h: $h y: ${measure.y + by + alignY} max: $maxSpanHeight');
-                debugBox(bboxX + bx, y + measure.y + by + alignY, w, h);
-                bboxX += face.glyph.advanceWidth * scale;
-            }
+                trace('rendering span: $span');
 
-            if (span.backgroundColor != null)
-            {
-                scanlineRenderer.color.setFromColor4F(span.backgroundColor);
-                //trace('bg: ${scanlineRenderer.color}');
-                box(path, x, y, measure.x + 1, maxBackgroundHeight + 1);
-                rasterizer.reset();
-                rasterizer.addPath(path);
-                SolidScanlineRenderer.renderScanlines(rasterizer, scanline, scanlineRenderer);
-                path.removeAll();
-            }
+                var fontEngine: FontEngine = span.font.internalFont;
+                cleanUpList.push(fontEngine);
+                fontEngine.rasterizer = rasterizer;
+                fontEngine.scanline = scanline;
 
-            if (span.foregroundColor != null)
-            {
-                scanlineRenderer.color.setFromColor4F(span.foregroundColor);
-            }
-            else
-            {
-                scanlineRenderer.color.setFromColor4F(defaultAttributes.foregroundColor);
-            }
+                var spanString: String = span.string;
+                var measure = span.getMeasure();
 
-            //trace('fg: ${scanlineRenderer.color}');
-            fontEngine.renderString(spanString, span.font.sizeInPt, x, y + alignY, scanlineRenderer, measure);
-            x += measure.x;
+                //trace(measure);
+                var alignY: Float = maxSpanHeight - measure.y;
+                debugBox(x, y + alignY, measure.x, measure.y);
+
+                var bboxX = x;
+                for (i in 0 ... Utf8.length(spanString))
+                {
+                    var face = fontEngine.getFace(Utf8.charCodeAt(spanString, i));
+                    var scale = fontEngine.getScale(span.font.sizeInPt);
+                    if (face.glyph.bounds != null)
+                    {
+                        var bx =  face.glyph.bounds.x1 * scale;
+                        var by =  -face.glyph.bounds.y1 * scale;
+                        var w = (face.glyph.bounds.x2 - face.glyph.bounds.x1) * scale;
+                        var h = (-face.glyph.bounds.y2 - -face.glyph.bounds.y1) * scale;
+                        //trace('h: $h y: ${measure.y + by + alignY} max: $maxSpanHeight');
+                        debugBox(bboxX + bx, y + measure.y + by + alignY, w, h);
+                    }
+
+                    bboxX += face.glyph.advanceWidth * scale;
+                }
+
+                if (span.backgroundColor != null)
+                {
+                    scanlineRenderer.color.setFromColor4F(span.backgroundColor);
+                    //trace('bg: ${scanlineRenderer.color}');
+                    box(path, x, y, measure.x + 1, maxBackgroundHeight + 1);
+                    rasterizer.reset();
+                    rasterizer.addPath(path);
+                    SolidScanlineRenderer.renderScanlines(rasterizer, scanline, scanlineRenderer);
+                    path.removeAll();
+                }
+
+                if (span.foregroundColor != null)
+                {
+                    scanlineRenderer.color.setFromColor4F(span.foregroundColor);
+                }
+                else
+                {
+                    scanlineRenderer.color.setFromColor4F(defaultAttributes.foregroundColor);
+                }
+
+                //trace('fg: ${scanlineRenderer.color}');
+                fontEngine.renderString(spanString, span.font.sizeInPt, x, y + alignY, scanlineRenderer, measure);
+                x += measure.x;
+
+            }, line.begin, line.lenght);
+
+            x = outStorage.selectedRect.x;
+            y += maxBackgroundHeight;
         }
 
-        //renderDebugPath(scanlineRenderer);
+
+
+        renderDebugPath(scanlineRenderer);
 
         MemoryAccess.select(null);
         for (font in cleanUpList)
@@ -194,6 +213,7 @@ class FontContext
             }
         }, index, lenght);
 
+        trace('calculateMaxSpanHeight: $maxSpanHeight');
         return maxSpanHeight;
     }
 
@@ -210,6 +230,10 @@ class FontContext
             for (i in 0 ... Utf8.length(spanString))
             {
                 var face = fontEngine.getFace(Utf8.charCodeAt(spanString, i));
+                if (face.glyph.bounds == null)
+                {
+                    continue;
+                }
                 var scale = fontEngine.getScale(span.font.sizeInPt);
 
                 var by =  -face.glyph.bounds.y1 * scale;
@@ -223,6 +247,7 @@ class FontContext
             }
         }, index, lenght);
 
+        trace('calculateBackgroundHeight: ${maxBackgroundExtension + maxSpanHeight}');
         return maxBackgroundExtension + maxSpanHeight;
     }
 

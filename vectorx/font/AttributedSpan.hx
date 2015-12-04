@@ -68,7 +68,7 @@ class AttributedSpan
 
     public function toString(): String
     {
-        return '{id: $id, range: ${range.index}[${range.length}] str: $string font: $font bgColor: $backgroundColor fgColor: $foregroundColor}';
+        return '{id: $id, range: ${range.index}[${range.length}] str: $string font: $font}';
     }
 
     private inline function choose<T>(dst: T, src: T)
@@ -79,6 +79,30 @@ class AttributedSpan
         }
 
         return src;
+    }
+
+    private inline function chooseBefore<T>(dst: T, src: T)
+    {
+        if (dst == null)
+        {
+            return src;
+        }
+
+        return dst;
+    }
+
+    public function applyBefore(source: AttributedSpan)
+    {
+        font = chooseBefore(font, source.font);
+        backgroundColor = chooseBefore(backgroundColor, source.backgroundColor);
+        foregroundColor = chooseBefore(foregroundColor, source.foregroundColor);
+        baselineOffset = chooseBefore(baselineOffset, source.baselineOffset);
+        kern = chooseBefore(kern, source.kern);
+        strokeWidth = chooseBefore(strokeWidth, source.strokeWidth);
+        strokeColor = chooseBefore(strokeColor, source.strokeColor);
+        shadow = chooseBefore(shadow, source.shadow);
+        attachment = chooseBefore(attachment, source.attachment);
+        measured = false;
     }
 
     public function apply(source: AttributedSpan)
