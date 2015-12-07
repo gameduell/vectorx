@@ -95,10 +95,12 @@ class FontContext
                                                       layoutConfig: TextLayoutConfig = null): Void
     {
         MemoryAccess.select(outStorage.data);
+
         var renderingBuffer = new RenderingBuffer(outStorage.width, outStorage.height, ColorStorage.COMPONENTS * outStorage.width);
         var pixelFormatRenderer = new PixelFormatRenderer(renderingBuffer);
         var clippingRenderer = new ClippingRenderer(pixelFormatRenderer);
         var scanlineRenderer = new SolidScanlineRenderer(clippingRenderer);
+
         var cleanUpList: Array<FontEngine> = [];
 
         /*clippingRenderer.setClippingBounds(outStorage.selectedRect.x, outStorage.selectedRect.y,
@@ -133,9 +135,10 @@ class FontContext
                 var spanString: String = span.string;
                 var measure = span.getMeasure();
 
-                //trace(measure);
                 var alignY: Float = maxSpanHeight - measure.y;
                 debugBox(x, y + alignY, measure.x, measure.y);
+
+                var baseLineOffset = span.baselineOffset == null ? defaultAttributes.baselineOffset : span.baselineOffset;
 
                 var bboxX = x;
                 for (i in 0 ... Utf8.length(spanString))
@@ -149,7 +152,7 @@ class FontContext
                         var w = (face.glyph.bounds.x2 - face.glyph.bounds.x1) * scale;
                         var h = (-face.glyph.bounds.y2 - -face.glyph.bounds.y1) * scale;
                         //trace('h: $h y: ${measure.y + by + alignY} max: $maxSpanHeight');
-                        debugBox(bboxX + bx, y + measure.y + by + alignY, w, h);
+                        debugBox(bboxX + bx, y + measure.y + by + alignY + baseLineOffset, w, h);
                     }
 
                     bboxX += face.glyph.advanceWidth * scale;
@@ -176,7 +179,7 @@ class FontContext
                 }
 
                 //trace('fg: ${scanlineRenderer.color}');
-                fontEngine.renderString(spanString, span.font.sizeInPt, x, y + alignY, scanlineRenderer, measure);
+                fontEngine.renderString(spanString, span.font.sizeInPt, x, y + alignY + baseLineOffset, scanlineRenderer, measure);
                 x += measure.x;
 
             }, line.begin, line.lenght);
