@@ -115,7 +115,7 @@ class TextLine
 
 
         output[output.length - 1].breakAt = -1;
-        output[output.length - 1].width= currentWidth;
+        output[output.length - 1].width = currentWidth;
 
         return output;
     }

@@ -34,25 +34,25 @@ class AttributedSpanStorage
             var spanRightBound: Int = spanRange.index + spanRange.length;
             var newSpanRightBound: Int = newSpanRange.index + newSpanRange.length;
 
-            //trace('spanRange: $spanRange');
-            //trace('spanRightBound: $spanRightBound');
-            //trace('newSpanRightBound: $newSpanRightBound');
+            /*trace('spanRange: $spanRange');
+            trace('newSpanRange: $newSpanRange');
+            trace('spanRightBound: $spanRightBound');
+            trace('newSpanRightBound: $newSpanRightBound');*/
 
-            //trace('newSpanRightBound($newSpanRightBound) <= spanRange.index(${spanRange.index})');
-            if (newSpanRightBound <= spanRange.index)
+            if (newSpanRange.index > spanRightBound)
             {
-                //trace('new span before current span');
+                //trace('new span after current span');
                 continue;
             }
 
-            if (spanRange.index > newSpanRightBound)
+            if (newSpanRightBound < spanRange.index)
             {
-                //trace('new span after current span');
+                //trace('new span before current span');
                 break;
             }
 
             //trace('newSpanRightBound($newSpanRightBound) >=  spanRange.index(${spanRange.index}) && newSpanRightBound($newSpanRightBound) < spanRightBound($spanRightBound) && newSpanRange.index(${newSpanRange.index}) < spanRange.index(${spanRange.index})');
-            if (newSpanRightBound >  spanRange.index && newSpanRightBound < spanRightBound && newSpanRange.index < spanRange.index)
+            if (newSpanRightBound >  spanRange.index && newSpanRightBound < spanRightBound && newSpanRange.index <= spanRange.index)
             {
                 //trace('new span cover current partially from left side');
                 var coverLength: Int = newSpanRightBound - spanRange.index;
@@ -76,7 +76,7 @@ class AttributedSpanStorage
                 continue;
             }
 
-            if (newSpanRange.index > spanRange.index && newSpanRange.index < spanRightBound && newSpanRightBound > spanRightBound)
+            if (newSpanRange.index > spanRange.index && newSpanRange.index < spanRightBound && newSpanRightBound >= spanRightBound)
             {
                 //trace('new span covers current partially from right side');
                 var coverLenght: Int = spanRightBound - newSpanRange.index;
@@ -91,7 +91,7 @@ class AttributedSpanStorage
 
             if (newSpanRange.index > spanRange.index && newSpanRightBound < spanRightBound)
             {
-                //trace('new span area is fully inside current span');
+                //('new span area is fully inside current span');
                 var tempSpan = new AttributedSpan("");
                 tempSpan.setFromSpan(newSpan);
                 tempSpan.applyBefore(span);
