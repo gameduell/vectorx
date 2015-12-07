@@ -226,7 +226,7 @@ class FontTest extends OpenGLTest
         white.setRGBA(1, 1, 1, 1);
 
         //trace('test inside case');
-        var stringAttributes2: StringAttributes = {range: new Range(10, 10), font: font2, foregroundColor: red, backgroundColor: white};
+        var stringAttributes2: StringAttributes = {range: new Range(10, 10), font: font2, foregroundColor: red, backgroundColor: white, kern: -10};
         attributedString.applyAttributes(stringAttributes2);
         //trace(attributedString);
 
@@ -242,6 +242,10 @@ class FontTest extends OpenGLTest
 
         var stringAttributes5: StringAttributes = {range: new Range(24, 3), backgroundColor: white};
         attributedString.applyAttributes(stringAttributes5);
+        //trace(attributedString);
+
+        var stringAttributes6: StringAttributes = {range: new Range(2, 10), strokeWidth: -3, strokeColor: green};
+        attributedString.applyAttributes(stringAttributes6);
         trace(attributedString);
 
         var colorStorage: ColorStorage = new ColorStorage(pixelBufferWidth, pixelBufferHeight);

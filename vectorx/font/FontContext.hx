@@ -170,6 +170,9 @@ class FontContext
                     path.removeAll();
                 }
 
+
+                //trace('fg: ${scanlineRenderer.color}');
+
                 if (span.foregroundColor != null)
                 {
                     scanlineRenderer.color.setFromColor4F(span.foregroundColor);
@@ -179,8 +182,23 @@ class FontContext
                     scanlineRenderer.color.setFromColor4F(defaultAttributes.foregroundColor);
                 }
 
-                //trace('fg: ${scanlineRenderer.color}');
-                fontEngine.renderString(spanString, span.font.sizeInPt, x, y + alignY + baseLineOffset, scanlineRenderer, kern, measure);
+                if (span.strokeWidth == null || span.strokeWidth < 0)
+                {
+                    fontEngine.renderString(spanString, span.font.sizeInPt, x, y + alignY + baseLineOffset, scanlineRenderer, kern, measure);
+                }
+
+                if (span.strokeWidth != null)
+                {
+                    if (span.strokeColor != null)
+                    {
+                        scanlineRenderer.color.setFromColor4F(span.strokeColor);
+                    }
+
+                    var strokeWidth = Math.abs(span.strokeWidth);
+
+                    fontEngine.renderStringStroke(spanString, span.font.sizeInPt, x, y + alignY + baseLineOffset, scanlineRenderer, strokeWidth, kern, measure);
+                }
+
                 x += measure.x;
 
             }, line.begin, line.lenght);
@@ -188,8 +206,6 @@ class FontContext
             x = outStorage.selectedRect.x;
             y += maxBackgroundHeight;
         }
-
-
 
         renderDebugPath(scanlineRenderer);
 
