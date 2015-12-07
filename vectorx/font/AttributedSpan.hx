@@ -137,7 +137,8 @@ class AttributedSpan
     {
         if (!measured)
         {
-            font.internalFont.measureString(string, font.sizeInPt, measure);
+            var kern = this.kern == null ? 0 : this.kern;
+            font.internalFont.measureString(string, font.sizeInPt, measure, kern);
             measured = true;
         }
 

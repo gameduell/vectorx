@@ -139,6 +139,7 @@ class FontContext
                 debugBox(x, y + alignY, measure.x, measure.y);
 
                 var baseLineOffset = span.baselineOffset == null ? defaultAttributes.baselineOffset : span.baselineOffset;
+                var kern = span.kern == null ? 0 : span.kern;
 
                 var bboxX = x;
                 for (i in 0 ... Utf8.length(spanString))
@@ -155,7 +156,7 @@ class FontContext
                         debugBox(bboxX + bx, y + measure.y + by + alignY + baseLineOffset, w, h);
                     }
 
-                    bboxX += face.glyph.advanceWidth * scale;
+                    bboxX += face.glyph.advanceWidth * scale + kern;
                 }
 
                 if (span.backgroundColor != null)
@@ -179,7 +180,7 @@ class FontContext
                 }
 
                 //trace('fg: ${scanlineRenderer.color}');
-                fontEngine.renderString(spanString, span.font.sizeInPt, x, y + alignY + baseLineOffset, scanlineRenderer, measure);
+                fontEngine.renderString(spanString, span.font.sizeInPt, x, y + alignY + baseLineOffset, scanlineRenderer, kern, measure);
                 x += measure.x;
 
             }, line.begin, line.lenght);

@@ -51,6 +51,7 @@ class TextLine
             var fontEngine: FontEngine = span.font.internalFont;
             var spanString: String = span.string;
             var scale = fontEngine.getScale(span.font.sizeInPt);
+            var kern = span.kern == null ? 0 : span.kern;
 
             for (i in 0 ... Utf8.length(spanString))
             {
@@ -77,7 +78,7 @@ class TextLine
                     default:
                         {
                             var face = fontEngine.getFace(code);
-                            advance = face.glyph.advanceWidth * scale;
+                            advance = face.glyph.advanceWidth * scale + kern;
                             if (currentWidth + advance > textWidth)
                             {
                                 //trace('pos: $pos currentWidth: $currentWidth advance: $advance textWidth: $textWidth');
