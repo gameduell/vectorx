@@ -26,6 +26,7 @@
 
 package vectorx.font;
 
+import types.RectI;
 import haxe.Utf8;
 import lib.ha.aggx.vectorial.converters.ConvStroke;
 import lib.ha.svg.SVGColors;
@@ -77,6 +78,14 @@ class FontContext
         strokeColor: new Color4F()
     };
 
+    private static var defaultTextlayout: TextLayoutConfig =
+    {
+        pointsToPixelRatio: 1,
+        horizontalAlignment: HorizontalAlignment.Left,
+        verticalAlignment: VerticalAlignment.Top,
+        layoutBehaviour: LayoutBehaviour.Clip
+    };
+
     public function new()
     {
         rasterizer = new ScanlineRasterizer();
@@ -96,6 +105,11 @@ class FontContext
     {
         MemoryAccess.select(outStorage.data);
 
+        if (layoutConfig == null)
+        {
+            layoutConfig = defaultTextlayout;
+        }
+
         var renderingBuffer = new RenderingBuffer(outStorage.width, outStorage.height, ColorStorage.COMPONENTS * outStorage.width);
         var pixelFormatRenderer = new PixelFormatRenderer(renderingBuffer);
         var clippingRenderer = new ClippingRenderer(pixelFormatRenderer);
@@ -113,12 +127,13 @@ class FontContext
 
         trace(lines);
 
-        var x: Float = outStorage.selectedRect.x;
         var y: Float = outStorage.selectedRect.y;
 
         for (line in lines)
         {
             trace('rendering line: $line');
+
+            var x: Float = alignX(layoutConfig.horizontalAlignment, outStorage.selectedRect, line);
 
             var maxSpanHeight: Float = calculateMaxSpanHeight(attrString, line.begin, line.lenght);
             var maxBackgroundHeight: Float =  calculateBackgroundHeight(attrString, maxSpanHeight, line.begin, line.lenght);
@@ -203,7 +218,6 @@ class FontContext
 
             }, line.begin, line.lenght);
 
-            x = outStorage.selectedRect.x;
             y += maxBackgroundHeight;
         }
 
@@ -214,6 +228,25 @@ class FontContext
         {
             font.scanline = null;
             font.scanline = null;
+        }
+    }
+
+    private function alignX(aligment: HorizontalAlignment, rect: RectI, line: TextLine): Float
+    {
+        switch (aligment)
+        {
+            case null | HorizontalAlignment.Left:
+                {
+                    return rect.x;
+                }
+            case HorizontalAlignment.Right:
+                {
+                    return rect.x + rect.width - line.width;
+                }
+            case HorizontalAlignment.Center:
+                {
+                    return rect.x + (rect.width - line.width) / 2;
+                }
         }
     }
 
