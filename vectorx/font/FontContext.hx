@@ -125,9 +125,13 @@ class FontContext
 
         var lines: Array<TextLine> = TextLine.calculate(attrString, outStorage.selectedRect.width);
 
-        trace(lines);
+        var height: Float = 0;
+        for (line in lines)
+        {
+            height += line.maxBgHeight;
+        }
 
-        var y: Float = outStorage.selectedRect.y;
+        var y: Float = alignY(layoutConfig.verticalAlignment, outStorage.selectedRect, height);
 
         for (line in lines)
         {
@@ -227,9 +231,9 @@ class FontContext
         }
     }
 
-    private function alignX(aligment: HorizontalAlignment, rect: RectI, line: TextLine): Float
+    private function alignX(align: HorizontalAlignment, rect: RectI, line: TextLine): Float
     {
-        switch (aligment)
+        switch (align)
         {
             case null | HorizontalAlignment.Left:
                 {
@@ -242,6 +246,25 @@ class FontContext
             case HorizontalAlignment.Center:
                 {
                     return rect.x + (rect.width - line.width) / 2;
+                }
+        }
+    }
+
+    private function alignY(align: VerticalAlignment, rect: RectI, height: Float): Float
+    {
+        switch (align)
+        {
+            case null | VerticalAlignment.Top:
+                {
+                    return rect.y;
+                }
+            case VerticalAlignment.Bottom:
+                {
+                    return rect.y + rect.height - height;
+                }
+            case VerticalAlignment.Middle:
+                {
+                    return rect.y + (rect.height - height) / 2;
                 }
         }
     }

@@ -257,7 +257,7 @@ class FontTest extends OpenGLTest
 
         var layoutConfig: TextLayoutConfig = {pointsToPixelRatio: 1.0,
                                               horizontalAlignment: HorizontalAlignment.Center,
-                                              verticalAlignment: VerticalAlignment.Top,
+                                              verticalAlignment: VerticalAlignment.Middle,
                                               layoutBehaviour: LayoutBehaviour.Clip};
 
         fontContext.renderStringToColorStorage(attributedString, colorStorage, layoutConfig);
