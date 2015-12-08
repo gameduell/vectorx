@@ -135,9 +135,6 @@ class FontContext
 
             var x: Float = alignX(layoutConfig.horizontalAlignment, outStorage.selectedRect, line);
 
-            var maxSpanHeight: Float = calculateMaxSpanHeight(attrString, line.begin, line.lenght);
-            var maxBackgroundHeight: Float =  calculateBackgroundHeight(attrString, maxSpanHeight, line.begin, line.lenght);
-
             attrString.attributeStorage.eachSpanInRange(function(span: AttributedSpan): Void
             {
                 trace('rendering span: $span');
@@ -150,7 +147,7 @@ class FontContext
                 var spanString: String = span.string;
                 var measure = span.getMeasure();
 
-                var alignY: Float = maxSpanHeight - measure.y;
+                var alignY: Float = line.maxSpanHeight - measure.y;
                 debugBox(x, y + alignY, measure.x, measure.y);
 
                 var baseLineOffset = span.baselineOffset == null ? defaultAttributes.baselineOffset : span.baselineOffset;
@@ -178,13 +175,12 @@ class FontContext
                 {
                     scanlineRenderer.color.setFromColor4F(span.backgroundColor);
                     //trace('bg: ${scanlineRenderer.color}');
-                    box(path, x, y, measure.x + 1, maxBackgroundHeight + 1);
+                    box(path, x, y, measure.x + 1, line.maxBgHeight + 1);
                     rasterizer.reset();
                     rasterizer.addPath(path);
                     SolidScanlineRenderer.renderScanlines(rasterizer, scanline, scanlineRenderer);
                     path.removeAll();
                 }
-
 
                 //trace('fg: ${scanlineRenderer.color}');
 
@@ -218,7 +214,7 @@ class FontContext
 
             }, line.begin, line.lenght);
 
-            y += maxBackgroundHeight;
+            y += line.maxBgHeight;
         }
 
         renderDebugPath(scanlineRenderer);
@@ -248,60 +244,6 @@ class FontContext
                     return rect.x + (rect.width - line.width) / 2;
                 }
         }
-    }
-
-    private function calculateMaxSpanHeight(attrString: AttributedString, index: Int = 0, lenght: Int = -1): Float
-    {
-        var maxSpanHeight: Float = 0;
-
-        attrString.attributeStorage.eachSpanInRange(function(span: AttributedSpan): Void
-        {
-            var fontEngine: FontEngine = span.font.internalFont;
-            var spanString: String = span.string;
-            var measure = span.getMeasure();
-
-            if (measure.y > maxSpanHeight)
-            {
-                maxSpanHeight = measure.y;
-            }
-        }, index, lenght);
-
-        trace('calculateMaxSpanHeight: $maxSpanHeight');
-        return maxSpanHeight;
-    }
-
-    private function calculateBackgroundHeight(attrString: AttributedString, maxSpanHeight: Float, index: Int = 0, lenght: Int = 0)
-    {
-        var maxBackgroundExtension: Float = 0;
-        attrString.attributeStorage.eachSpanInRange(function(span: AttributedSpan): Void
-        {
-            var fontEngine: FontEngine = span.font.internalFont;
-            var spanString: String = span.string;
-            var measure = span.getMeasure();
-            var alignY: Float = maxSpanHeight - measure.y;
-
-            for (i in 0 ... Utf8.length(spanString))
-            {
-                var face = fontEngine.getFace(Utf8.charCodeAt(spanString, i));
-                if (face.glyph.bounds == null)
-                {
-                    continue;
-                }
-                var scale = fontEngine.getScale(span.font.sizeInPt);
-
-                var by =  -face.glyph.bounds.y1 * scale;
-                var h = (-face.glyph.bounds.y2 - -face.glyph.bounds.y1) * scale;
-
-                var ext: Float = (alignY + measure.y + by) - maxSpanHeight;
-                if (ext > maxBackgroundExtension)
-                {
-                    maxBackgroundExtension = ext;
-                }
-            }
-        }, index, lenght);
-
-        trace('calculateBackgroundHeight: ${maxBackgroundExtension + maxSpanHeight}');
-        return maxBackgroundExtension + maxSpanHeight;
     }
 
     private function renderDebugPath(renderer: SolidScanlineRenderer)

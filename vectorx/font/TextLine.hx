@@ -8,6 +8,8 @@ class TextLine
     public var begin(default, null): Int;
     public var lenght(get, null): Int;
     public var width(default, null): Float = 0;
+    public var maxSpanHeight(default, null): Float = 0;
+    public var maxBgHeight(default, null): Float = 0;
 
     private var breakAt: Int = -1;
     private var charAtBreakPos: Int = 0;
@@ -34,6 +36,45 @@ class TextLine
         }
 
         return breakAt - begin;
+    }
+
+    private function calculateMaxSpanHeight(span: AttributedSpan)
+    {
+        var fontEngine: FontEngine = span.font.internalFont;
+        var spanString: String = span.string;
+        var measure = span.getMeasure();
+
+        if (measure.y > maxSpanHeight)
+        {
+            maxSpanHeight = measure.y;
+        }
+    }
+
+    private function calculateMaxBgHeight(span: AttributedSpan)
+    {
+        var fontEngine: FontEngine = span.font.internalFont;
+        var spanString: String = span.string;
+        var measure = span.getMeasure();
+        var alignY: Float = maxSpanHeight - measure.y;
+
+        for (i in 0 ... Utf8.length(spanString))
+        {
+            var face = fontEngine.getFace(Utf8.charCodeAt(spanString, i));
+            if (face.glyph.bounds == null)
+            {
+                continue;
+            }
+            var scale = fontEngine.getScale(span.font.sizeInPt);
+
+            var by =  -face.glyph.bounds.y1 * scale;
+            var h = (-face.glyph.bounds.y2 - -face.glyph.bounds.y1) * scale;
+
+            var ext: Float = (alignY + measure.y + by);
+            if (ext > maxBgHeight)
+            {
+                maxBgHeight = ext;
+            }
+        }
     }
 
     public static function calculate(string: AttributedString, textWidth: Float): Array<TextLine>
@@ -117,6 +158,19 @@ class TextLine
 
         output[output.length - 1].breakAt = -1;
         output[output.length - 1].width = currentWidth;
+
+        for(line in output)
+        {
+            string.attributeStorage.eachSpanInRange(function(span: AttributedSpan)
+            {
+                line.calculateMaxSpanHeight(span);
+            }, line.begin, line.lenght);
+
+            string.attributeStorage.eachSpanInRange(function(span: AttributedSpan)
+            {
+                line.calculateMaxBgHeight(span);
+            }, line.begin, line.lenght);
+        }
 
         return output;
     }
