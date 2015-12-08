@@ -77,7 +77,7 @@ class TextLine
         }
     }
 
-    public static function calculate(string: AttributedString, textWidth: Float): Array<TextLine>
+    public static function calculate(string: AttributedString, textWidth: Float, pixelRatio: Float = 1.0): Array<TextLine>
     {
         var output: Array<TextLine> = [];
         var currentWidth: Float = 0;
@@ -91,8 +91,9 @@ class TextLine
         {
             var fontEngine: FontEngine = span.font.internalFont;
             var spanString: String = span.string;
-            var scale = fontEngine.getScale(span.font.sizeInPt);
+            var scale = fontEngine.getScale(span.font.sizeInPt) * pixelRatio;
             var kern = span.kern == null ? 0 : span.kern;
+            kern *= pixelRatio;
 
             for (i in 0 ... Utf8.length(spanString))
             {
@@ -170,6 +171,9 @@ class TextLine
             {
                 line.calculateMaxBgHeight(span);
             }, line.begin, line.lenght);
+
+            line.maxSpanHeight *= pixelRatio;
+            line.maxBgHeight *= pixelRatio;
         }
 
         return output;

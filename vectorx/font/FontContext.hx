@@ -123,7 +123,7 @@ class FontContext
 
         debugBox(outStorage.selectedRect.x, outStorage.selectedRect.y, outStorage.selectedRect.width, outStorage.selectedRect.height);
 
-        var lines: Array<TextLine> = TextLine.calculate(attrString, outStorage.selectedRect.width);
+        var lines: Array<TextLine> = TextLine.calculate(attrString, outStorage.selectedRect.width, layoutConfig.pointsToPixelRatio);
 
         var height: Float = 0;
         for (line in lines)
@@ -151,25 +151,31 @@ class FontContext
                 var spanString: String = span.string;
                 var measure = span.getMeasure();
 
-                var alignY: Float = line.maxSpanHeight - measure.y;
-                debugBox(x, y + alignY, measure.x, measure.y);
+                var measureX = measure.x * layoutConfig.pointsToPixelRatio;
+                var measureY = measure.y * layoutConfig.pointsToPixelRatio;
+
+                var alignY: Float = line.maxSpanHeight - measureY;
+                debugBox(x, y + alignY, measureX, measureY);
 
                 var baseLineOffset = span.baselineOffset == null ? defaultAttributes.baselineOffset : span.baselineOffset;
+                baseLineOffset *= layoutConfig.pointsToPixelRatio;
+
                 var kern = span.kern == null ? 0 : span.kern;
+                kern *= layoutConfig.pointsToPixelRatio;
 
                 var bboxX = x;
                 for (i in 0 ... Utf8.length(spanString))
                 {
                     var face = fontEngine.getFace(Utf8.charCodeAt(spanString, i));
-                    var scale = fontEngine.getScale(span.font.sizeInPt);
+                    var scale = fontEngine.getScale(span.font.sizeInPt) * layoutConfig.pointsToPixelRatio;
                     if (face.glyph.bounds != null)
                     {
                         var bx =  face.glyph.bounds.x1 * scale;
                         var by =  -face.glyph.bounds.y1 * scale;
                         var w = (face.glyph.bounds.x2 - face.glyph.bounds.x1) * scale;
                         var h = (-face.glyph.bounds.y2 - -face.glyph.bounds.y1) * scale;
-                        //trace('h: $h y: ${measure.y + by + alignY} max: $maxSpanHeight');
-                        debugBox(bboxX + bx, y + measure.y + by + alignY + baseLineOffset, w, h);
+                        //trace('h: $h y: ${measureY + by + alignY} max: $maxSpanHeight');
+                        debugBox(bboxX + bx, y + measureY + by + alignY + baseLineOffset, w, h);
                     }
 
                     bboxX += face.glyph.advanceWidth * scale + kern;
@@ -179,7 +185,7 @@ class FontContext
                 {
                     scanlineRenderer.color.setFromColor4F(span.backgroundColor);
                     //trace('bg: ${scanlineRenderer.color}');
-                    box(path, x, y, measure.x + 1, line.maxBgHeight + 1);
+                    box(path, x, y, measureX + 1, line.maxBgHeight + 1);
                     rasterizer.reset();
                     rasterizer.addPath(path);
                     SolidScanlineRenderer.renderScanlines(rasterizer, scanline, scanlineRenderer);
@@ -199,7 +205,7 @@ class FontContext
 
                 if (span.strokeWidth == null || span.strokeWidth < 0)
                 {
-                    fontEngine.renderString(spanString, span.font.sizeInPt, x, y + alignY + baseLineOffset, scanlineRenderer, kern, measure);
+                    fontEngine.renderString(spanString, span.font.sizeInPt * layoutConfig.pointsToPixelRatio, x, y + alignY + baseLineOffset, scanlineRenderer, kern);
                 }
 
                 if (span.strokeWidth != null)
@@ -211,17 +217,17 @@ class FontContext
 
                     var strokeWidth = Math.abs(span.strokeWidth);
 
-                    fontEngine.renderStringStroke(spanString, span.font.sizeInPt, x, y + alignY + baseLineOffset, scanlineRenderer, strokeWidth, kern, measure);
+                    fontEngine.renderStringStroke(spanString, span.font.sizeInPt * layoutConfig.pointsToPixelRatio, x, y + alignY + baseLineOffset, scanlineRenderer, strokeWidth, kern);
                 }
 
-                x += measure.x;
+                x += measureX;
 
             }, line.begin, line.lenght);
 
             y += line.maxBgHeight;
         }
 
-        renderDebugPath(scanlineRenderer);
+        //renderDebugPath(scanlineRenderer);
 
         MemoryAccess.select(null);
         for (font in cleanUpList)
