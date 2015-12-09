@@ -127,6 +127,8 @@ class FontContext
         var pixelRatio: Float = textLayout.pixelRatio;
         var y: Float = textLayout.alignY();
 
+        debugBox(outStorage.selectedRect.x, outStorage.selectedRect.y, outStorage.selectedRect.width, textLayout.height);
+
         for (line in textLayout.lines)
         {
             //trace('rendering line: $line');

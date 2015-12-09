@@ -140,7 +140,7 @@ class AttributedSpanStorage
 
     public function eachSpanInRange(cbk: AttributedSpan -> Void, begin: Int = 0, len: Int = -1): Void
     {
-        trace(Debug.calledFrom());
+        //trace(Debug.calledFrom());
         if (spans.length == 0)
         {
             return;
@@ -175,38 +175,38 @@ class AttributedSpanStorage
                 continue;
             }
 
-            trace(span);
+            /*trace(span);
             trace('begin: $begin');
             trace('end: $end');
             trace('spanBegin: $spanBegin');
-            trace('spanEnd: $spanEnd');
+            trace('spanEnd: $spanEnd');*/
 
             tempSpan.setFromSpan(span);
 
             if (begin < spanBegin)
             {
-                trace('left');
+                //trace('left');
                 var len = end - spanBegin;
                 tempSpan.range.index = spanBegin;
                 tempSpan.range.length = len;
             }
             else if (end > spanEnd)
             {
-                trace('right');
+                //trace('right');
                 var len = spanEnd - begin;
                 tempSpan.range.index = begin;
                 tempSpan.range.length = len;
             }
             else
             {
-                trace('middle');
+                //trace('middle');
                 var len = end - begin;
                 tempSpan.range.index = begin;
                 tempSpan.range.length = len;
             }
 
             tempSpan.updateString();
-            trace('tempSpan: $tempSpan');
+            //trace('tempSpan: $tempSpan');
             cbk(tempSpan);
         }
     }

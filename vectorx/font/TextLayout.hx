@@ -12,19 +12,67 @@ class TextLayout
     public var height(default, null): Float = 0;
     public var config(default,  null): TextLayoutConfig;
     public var rect(default, null): RectI;
+    public var pixelRatio(default, null): Float;
 
     public function new(string: AttributedString, layoutConfing: TextLayoutConfig, rect: RectI)
     {
         this.config = layoutConfing;
         this.rect = rect;
+        this.pixelRatio = config.pointsToPixelRatio;
+
         lines = TextLine.calculate(string, rect.width, config.pointsToPixelRatio);
         height = calculateTextHeight(lines);
+
+        if (config.layoutBehaviour == LayoutBehaviour.AlwaysFit)
+        {
+            fitPixelRatio(string);
+        }
+    }
+
+    private function fitPixelRatio(string: AttributedString)
+    {
+        trace('fitPixelRatio');
+        if (textFits(lines, height, rect))
+        {
+            trace('already fits');
+            return;
+        }
+
+        trace('initial ratio: $pixelRatio');
+
+        var begin: Float = 0;
+        var end: Float = pixelRatio;
+        var iteration: Int = 0;
+        while(end - begin > 0.05)
+        {
+            var newRatio = (begin + end) / 2;
+            lines = TextLine.calculate(string, rect.width, newRatio);
+            height = calculateTextHeight(lines);
+
+            if (textFits(lines, height, rect))
+            {
+                trace('begin: $newRatio');
+                begin = newRatio;
+            }
+            else
+            {
+                trace('end: $newRatio');
+                end = newRatio;
+            }
+
+            iteration++;
+        }
+
+        pixelRatio = begin;
+
+        trace('found ratio: $pixelRatio in $iteration');
     }
 
     private static function textFits(lines: Array<TextLine>, height: Float, rect: RectI): Bool
     {
         if (lines.length > 1)
         {
+            trace('height: $height rectHeight: ${rect.height}');
             if (height >= rect.height)
             {
                 return false;

@@ -97,7 +97,7 @@ class FontTest extends OpenGLTest
 
     private function configureOpenGLState(): Void
     {
-        GL.clearColor(0.8, 0.8, 0.8, 1.0);
+        GL.clearColor(0.5, 0.5, 0.5, 1.0);
     }
 
     private function createShader()
@@ -189,7 +189,7 @@ class FontTest extends OpenGLTest
     {
         var ttfData: Data = AssetLoader.getDataFromFile(FONT_PATH_JAPAN);
 
-        var string0 = "QabcdefghjiklmnopqrstuvwxyzabcdefghjiklmnopqrstuvwxyzabcdefghjiklmnopqrstuvwxyzabcdefghjiklmnopqrstuvwxyzQ";
+        var string0 = "QabcdefghjiklmnopqrstuvwxyzabcdefghjiklmnopqrstuvwxyzabcdefghjiklmnopqrstuvwxyzabcdefghjiklmnopqrstuvwxyzabcdefghjiklmnopqrstuvwxyzabcdefghjiklmnopqrstuvwxyzQ";
         var string1 = "ABCDE FGHJIKLMNOPQRSTUVWXYZ";
         var string2 = "abcdefghjiklmnopqrstuvwxyz";
         var string3 = "1234567890";
@@ -211,11 +211,6 @@ class FontTest extends OpenGLTest
         var font3: Font = fontCache.createFontWithNameAndSize("Arial", 45.0);
         var font4: Font = fontCache.createFontWithNameAndSize("Arial", 40.0);
 
-
-        var stringAttributes: StringAttributes = {range: new Range(), font: font};
-
-        var attributedString: AttributedString = new AttributedString(string0, stringAttributes);
-
         var red: Color4F = new Color4F();
         red.setRGBA(1, 0, 0, 1);
         var green: Color4F = new Color4F();
@@ -224,6 +219,11 @@ class FontTest extends OpenGLTest
         blue.setRGBA(0, 0, 1, 1);
         var white: Color4F = new Color4F();
         white.setRGBA(1, 1, 1, 1);
+        var lightGrey: Color4F = new Color4F();
+        lightGrey.setRGBA(0.8, 0.8, 0.8, 1);
+
+        var stringAttributes: StringAttributes = {range: new Range(), font: font, backgroundColor: lightGrey};
+        var attributedString: AttributedString = new AttributedString(string0, stringAttributes);
 
         //trace('test inside case');
         var stringAttributes2: StringAttributes = {range: new Range(10, 10), font: font2, foregroundColor: red, backgroundColor: white, kern: -10};
@@ -255,10 +255,10 @@ class FontTest extends OpenGLTest
         colorStorage.selectedRect.width = 500;
         colorStorage.selectedRect.height = 600;
 
-        var layoutConfig: TextLayoutConfig = {pointsToPixelRatio: 0.5,
+        var layoutConfig: TextLayoutConfig = {pointsToPixelRatio: 1,
                                               horizontalAlignment: HorizontalAlignment.Center,
-                                              verticalAlignment: VerticalAlignment.Middle,
-                                              layoutBehaviour: LayoutBehaviour.Clip};
+                                              verticalAlignment: VerticalAlignment.Top,
+                                              layoutBehaviour: LayoutBehaviour.AlwaysFit};
 
         fontContext.renderStringToColorStorage(attributedString, colorStorage, layoutConfig);
     }
