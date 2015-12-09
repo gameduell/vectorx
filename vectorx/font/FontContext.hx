@@ -116,7 +116,6 @@ class FontContext
         var scanlineRenderer = new SolidScanlineRenderer(clippingRenderer);
 
         var cleanUpList: Array<FontEngine> = [];
-        var pixelRatio: Float = layoutConfig.pointsToPixelRatio;
 
         /*clippingRenderer.setClippingBounds(outStorage.selectedRect.x, outStorage.selectedRect.y,
             outStorage.selectedRect.x + outStorage.selectedRect.width,
@@ -125,7 +124,7 @@ class FontContext
         debugBox(outStorage.selectedRect.x, outStorage.selectedRect.y, outStorage.selectedRect.width, outStorage.selectedRect.height);
 
         var textLayout = new TextLayout(attrString, layoutConfig, outStorage.selectedRect);
-
+        var pixelRatio: Float = textLayout.pixelRatio;
         var y: Float = textLayout.alignY();
 
         for (line in textLayout.lines)
