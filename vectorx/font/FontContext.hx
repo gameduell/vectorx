@@ -116,6 +116,7 @@ class FontContext
         var scanlineRenderer = new SolidScanlineRenderer(clippingRenderer);
 
         var cleanUpList: Array<FontEngine> = [];
+        var pixelRatio: Float = layoutConfig.pointsToPixelRatio;
 
         /*clippingRenderer.setClippingBounds(outStorage.selectedRect.x, outStorage.selectedRect.y,
             outStorage.selectedRect.x + outStorage.selectedRect.width,
@@ -123,25 +124,19 @@ class FontContext
 
         debugBox(outStorage.selectedRect.x, outStorage.selectedRect.y, outStorage.selectedRect.width, outStorage.selectedRect.height);
 
-        var lines: Array<TextLine> = TextLine.calculate(attrString, outStorage.selectedRect.width, layoutConfig.pointsToPixelRatio);
+        var textLayout = new TextLayout(attrString, layoutConfig, outStorage.selectedRect);
 
-        var height: Float = 0;
-        for (line in lines)
+        var y: Float = textLayout.alignY();
+
+        for (line in textLayout.lines)
         {
-            height += line.maxBgHeight;
-        }
+            //trace('rendering line: $line');
 
-        var y: Float = alignY(layoutConfig.verticalAlignment, outStorage.selectedRect, height);
-
-        for (line in lines)
-        {
-            trace('rendering line: $line');
-
-            var x: Float = alignX(layoutConfig.horizontalAlignment, outStorage.selectedRect, line);
+            var x: Float = textLayout.alignX(line);
 
             attrString.attributeStorage.eachSpanInRange(function(span: AttributedSpan): Void
             {
-                trace('rendering span: $span');
+                //trace('rendering span: $span');
 
                 var fontEngine: FontEngine = span.font.internalFont;
                 cleanUpList.push(fontEngine);
@@ -151,23 +146,23 @@ class FontContext
                 var spanString: String = span.string;
                 var measure = span.getMeasure();
 
-                var measureX = measure.x * layoutConfig.pointsToPixelRatio;
-                var measureY = measure.y * layoutConfig.pointsToPixelRatio;
+                var measureX = measure.x * pixelRatio;
+                var measureY = measure.y * pixelRatio;
 
                 var alignY: Float = line.maxSpanHeight - measureY;
                 debugBox(x, y + alignY, measureX, measureY);
 
                 var baseLineOffset = span.baselineOffset == null ? defaultAttributes.baselineOffset : span.baselineOffset;
-                baseLineOffset *= layoutConfig.pointsToPixelRatio;
+                baseLineOffset *= pixelRatio;
 
                 var kern = span.kern == null ? 0 : span.kern;
-                kern *= layoutConfig.pointsToPixelRatio;
+                kern *= pixelRatio;
 
                 var bboxX = x;
                 for (i in 0 ... Utf8.length(spanString))
                 {
                     var face = fontEngine.getFace(Utf8.charCodeAt(spanString, i));
-                    var scale = fontEngine.getScale(span.font.sizeInPt) * layoutConfig.pointsToPixelRatio;
+                    var scale = fontEngine.getScale(span.font.sizeInPt) * pixelRatio;
                     if (face.glyph.bounds != null)
                     {
                         var bx =  face.glyph.bounds.x1 * scale;
@@ -205,7 +200,7 @@ class FontContext
 
                 if (span.strokeWidth == null || span.strokeWidth < 0)
                 {
-                    fontEngine.renderString(spanString, span.font.sizeInPt * layoutConfig.pointsToPixelRatio, x, y + alignY + baseLineOffset, scanlineRenderer, kern);
+                    fontEngine.renderString(spanString, span.font.sizeInPt * pixelRatio, x, y + alignY + baseLineOffset, scanlineRenderer, kern);
                 }
 
                 if (span.strokeWidth != null)
@@ -217,7 +212,7 @@ class FontContext
 
                     var strokeWidth = Math.abs(span.strokeWidth);
 
-                    fontEngine.renderStringStroke(spanString, span.font.sizeInPt * layoutConfig.pointsToPixelRatio, x, y + alignY + baseLineOffset, scanlineRenderer, strokeWidth, kern);
+                    fontEngine.renderStringStroke(spanString, span.font.sizeInPt * pixelRatio, x, y + alignY + baseLineOffset, scanlineRenderer, strokeWidth, kern);
                 }
 
                 x += measureX;
@@ -227,51 +222,13 @@ class FontContext
             y += line.maxBgHeight;
         }
 
-        //renderDebugPath(scanlineRenderer);
+        renderDebugPath(scanlineRenderer);
 
         MemoryAccess.select(null);
         for (font in cleanUpList)
         {
             font.scanline = null;
             font.scanline = null;
-        }
-    }
-
-    private function alignX(align: HorizontalAlignment, rect: RectI, line: TextLine): Float
-    {
-        switch (align)
-        {
-            case null | HorizontalAlignment.Left:
-                {
-                    return rect.x;
-                }
-            case HorizontalAlignment.Right:
-                {
-                    return rect.x + rect.width - line.width;
-                }
-            case HorizontalAlignment.Center:
-                {
-                    return rect.x + (rect.width - line.width) / 2;
-                }
-        }
-    }
-
-    private function alignY(align: VerticalAlignment, rect: RectI, height: Float): Float
-    {
-        switch (align)
-        {
-            case null | VerticalAlignment.Top:
-                {
-                    return rect.y;
-                }
-            case VerticalAlignment.Bottom:
-                {
-                    return rect.y + rect.height - height;
-                }
-            case VerticalAlignment.Middle:
-                {
-                    return rect.y + (rect.height - height) / 2;
-                }
         }
     }
 
