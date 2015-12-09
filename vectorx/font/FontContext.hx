@@ -117,17 +117,17 @@ class FontContext
 
         var cleanUpList: Array<FontEngine> = [];
 
-        /*clippingRenderer.setClippingBounds(outStorage.selectedRect.x, outStorage.selectedRect.y,
+        clippingRenderer.setClippingBounds(outStorage.selectedRect.x, outStorage.selectedRect.y,
             outStorage.selectedRect.x + outStorage.selectedRect.width,
-            outStorage.selectedRect.y + outStorage.selectedRect.height);*/
+            outStorage.selectedRect.y + outStorage.selectedRect.height);
 
-        debugBox(outStorage.selectedRect.x, outStorage.selectedRect.y, outStorage.selectedRect.width, outStorage.selectedRect.height);
+        //debugBox(outStorage.selectedRect.x, outStorage.selectedRect.y, outStorage.selectedRect.width, outStorage.selectedRect.height);
 
         var textLayout = new TextLayout(attrString, layoutConfig, outStorage.selectedRect);
         var pixelRatio: Float = textLayout.pixelRatio;
         var y: Float = textLayout.alignY();
 
-        debugBox(outStorage.selectedRect.x, outStorage.selectedRect.y, outStorage.selectedRect.width, textLayout.height);
+        debugBox(outStorage.selectedRect.x, y, outStorage.selectedRect.width, textLayout.height);
 
         for (line in textLayout.lines)
         {

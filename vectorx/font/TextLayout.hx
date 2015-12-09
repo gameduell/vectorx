@@ -21,7 +21,7 @@ class TextLayout
         this.pixelRatio = config.pointsToPixelRatio;
 
         lines = TextLine.calculate(string, rect.width, config.pointsToPixelRatio);
-        height = calculateTextHeight(lines);
+        height = calculateTextHeight(lines, string.string);
 
         if (config.layoutBehaviour == LayoutBehaviour.AlwaysFit)
         {
@@ -31,48 +31,50 @@ class TextLayout
 
     private function fitPixelRatio(string: AttributedString)
     {
-        trace('fitPixelRatio');
+        //trace('fitPixelRatio');
         if (textFits(lines, height, rect))
         {
-            trace('already fits');
+            //trace('already fits');
             return;
         }
 
-        trace('initial ratio: $pixelRatio');
+        //trace('initial ratio: $pixelRatio');
 
         var begin: Float = 0;
         var end: Float = pixelRatio;
         var iteration: Int = 0;
+        var lastRatio: Float = 0;
         while(end - begin > 0.05)
         {
-            var newRatio = (begin + end) / 2;
-            lines = TextLine.calculate(string, rect.width, newRatio);
-            height = calculateTextHeight(lines);
+            lastRatio = (begin + end) / 2;
+            var lines = TextLine.calculate(string, rect.width, lastRatio);
+            var height = calculateTextHeight(lines, string.string);
 
             if (textFits(lines, height, rect))
             {
-                trace('begin: $newRatio');
-                begin = newRatio;
+                //trace('begin: $lastRatio');
+                begin = lastRatio;
+                this.lines = lines;
+                this.height = height;
+                pixelRatio = begin;
             }
             else
             {
-                trace('end: $newRatio');
-                end = newRatio;
+                //trace('end: $lastRatio');
+                end = lastRatio;
             }
 
             iteration++;
         }
 
-        pixelRatio = begin;
-
-        trace('found ratio: $pixelRatio in $iteration');
+        //trace('found ratio: $pixelRatio in $iteration');
     }
 
     private static function textFits(lines: Array<TextLine>, height: Float, rect: RectI): Bool
     {
         if (lines.length > 1)
         {
-            trace('height: $height rectHeight: ${rect.height}');
+            //trace('height: $height rectHeight: ${rect.height}');
             if (height >= rect.height)
             {
                 return false;
@@ -87,12 +89,13 @@ class TextLayout
         return true;
     }
 
-    private static function calculateTextHeight(lines: Array<TextLine>)
+    private static function calculateTextHeight(lines: Array<TextLine>, string: String)
     {
         var height: Float = 0;
         for (line in lines)
         {
             height += line.maxBgHeight;
+            //trace('line: ${string.substr(line.begin, line.lenght)} lineHeight: ${line.maxBgHeight} total: $height}');
         }
 
         return height;
