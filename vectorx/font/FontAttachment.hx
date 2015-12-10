@@ -40,9 +40,18 @@ class FontAttachment
     /** Defines the layout bounds of the receiver's graphical representation in the text coordinate system. (pts) **/
     public var bounds(default, null): RectI; // Default zero uses the selectedRect of the image
 
-    public function new(image: ColorStorage)
+    public function new(image: ColorStorage, x: Int, y: Int, width: Int, height: Int)
     {
         this.image = image;
         this.bounds = new RectI();
+        this.bounds.x = x;
+        this.bounds.y = y;
+        this.bounds.width = width;
+        this.bounds.height = height;
+    }
+
+    public function toString(): String
+    {
+        return '{x: ${bounds.x} y; ${bounds.y} width: ${bounds.width} height: ${bounds.height}}';
     }
 }

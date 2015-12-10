@@ -68,7 +68,7 @@ class AttributedSpan
 
     public function toString(): String
     {
-        return '{id: $id, range: ${range.index}[${range.length}] str: $string font: $font}';
+        return '{id: $id, range: ${range.index}[${range.length}] str: $string font: $font attachment: $attachment}';
     }
 
     private inline function choose<T>(dst: T, src: T)
