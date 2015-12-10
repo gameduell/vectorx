@@ -87,6 +87,7 @@ class TextLine
         var currentLine = new TextLine();
         output.push(currentLine);
 
+        trace('text line:');
         string.attributeStorage.eachSpanInRange(function(span: AttributedSpan)
         {
             var fontEngine: FontEngine = span.font.internalFont;
@@ -95,42 +96,59 @@ class TextLine
             var kern = span.kern == null ? 0 : span.kern;
             kern *= pixelRatio;
 
-            for (i in 0 ... Utf8.length(spanString))
+            var strLen: Int = Utf8.length(spanString);
+            var len: Int = strLen;
+
+            if (span.attachment != null)
+            {
+                len++;
+            }
+
+            for (i in 0 ... len)
             {
                 //trace('i: $i pos: $pos string: $spanString');
-                var code: Int = Utf8.charCodeAt(spanString, i);
+
                 var advance: Float = 0;
 
                 var needNewLine: Bool = false;
+                var code: Int = 0;
 
-                switch(code)
+                //simulate attachment as one last character
+                if (i < strLen)
                 {
-                    case SPACE | TAB:
-                        {
-                            //trace('space: $pos');
-                            currentLine.breakAt = pos;
-                            currentLine.charAtBreakPos = code;
-                            currentLine.width = currentWidth;
-                        }
-                    case NEWLINE:
-                        {
-                            //trace('newline: $pos');
-                            needNewLine = true;
-                        }
-                    default:
-                        {
-                            var face = fontEngine.getFace(code);
-                            advance = face.glyph.advanceWidth * scale + kern;
-                            if (currentWidth + advance > textWidth)
+                    code = Utf8.charCodeAt(spanString, i);
+                    switch(code)
+                    {
+                        case SPACE | TAB:
                             {
-                                //trace('pos: $pos currentWidth: $currentWidth advance: $advance textWidth: $textWidth');
+                                //trace('space: $pos');
+                                currentLine.breakAt = pos;
+                                currentLine.charAtBreakPos = code;
+                                currentLine.width = currentWidth;
+                            }
+                        case NEWLINE:
+                            {
+                                //trace('newline: $pos');
                                 needNewLine = true;
                             }
-                        }
+                        default:
+                            {
+                                var face = fontEngine.getFace(code);
+                                advance = face.glyph.advanceWidth * scale + kern;
+                                trace('+${Utf8.sub(spanString, i, 1)} advance $advance = ${currentWidth + advance}');
+                            }
+                    }
+                }
+                else
+                {
+                    code = 0x1F601;
+                    advance = span.attachment.bounds.width + kern;
+                    trace('+attachment advance $advance = ${currentWidth + advance}');
                 }
 
-                if (needNewLine)
+                if (needNewLine || currentWidth + advance > textWidth)
                 {
+                    trace('text line at: $currentWidth');
                     if (currentLine.breakAt == -1)
                     {
                         currentLine.breakAt = pos;

@@ -26,6 +26,10 @@
 
 package tests.fontTest;
 
+import vectorx.font.FontAttachment;
+import lib.ha.core.math.Calc;
+import lib.ha.aggx.RenderingBuffer;
+import lib.ha.core.memory.MemoryAccess;
 import types.Color4F;
 import haxe.CallStack;
 import lib.ha.core.utils.Debug;
@@ -47,6 +51,9 @@ import types.Data;
 import gl.GL;
 import gl.GLDefines;
 
+import lib.ha.core.memory.RgbaReaderWriter;
+using lib.ha.core.memory.RgbaReaderWriter;
+
 class FontTest extends OpenGLTest
 {
     inline private static var IMAGE_PATH = "libraryTest/images/lena.png";
@@ -56,6 +63,7 @@ class FontTest extends OpenGLTest
 
     inline private static var VERTEXSHADER_PATH = "common/shaders/ScreenSpace_PosColorTex.vsh";
     inline private static var FRAGMENTSHADER_PATH = "common/shaders/ScreenSpace_PosColorTex.fsh";
+
 
     private var textureShader: Shader;
     private var animatedMesh: AnimatedMesh;
@@ -185,11 +193,39 @@ class FontTest extends OpenGLTest
         GL.deleteTexture(texture);
     }
 
+    private function renderAttachment(): ColorStorage
+    {
+        var colorStorage: ColorStorage = new ColorStorage(70, 70);
+
+        MemoryAccess.select(colorStorage.data);
+        var rbuf: RenderingBuffer = new RenderingBuffer(colorStorage.width, colorStorage.height, ColorStorage.COMPONENTS * colorStorage.width);
+
+        for (i in 2 ... 63)
+        {
+            var row = rbuf.getRowPtr(i);
+            for (j in 2 ... 63)
+            {
+                var ptr = row + j * ColorStorage.COMPONENTS;
+                if ((j + i) % 5 != 0)
+                {
+                    ptr.setFull(255, 255, 255, 255);
+                }
+                else
+                {
+                    ptr.setFull(255, 0, 0, 255);
+                }
+            }
+        }
+
+        MemoryAccess.select(null);
+        return colorStorage;
+    }
+
     private function testFontCreation()
     {
         var ttfData: Data = AssetLoader.getDataFromFile(FONT_PATH_JAPAN);
 
-        var string0 = "QabcdefghjiklmnopqrstuvwxyzabcdefghjiklmnopqrstuvwxyzabcdefghjiklmnopqrstuvwxyzabcdefghjiklmnopqrstuvwxyzabcdefghjiklmnopqrstuvwxyzabcdefghjiklmnopqrstuvwxyzQ";
+        var string0 = "QabcdefghjiklmnopqrstuvwxyzabcdefghjiklmnopqrstuvwxyzQ";
         var string1 = "ABCDE FGHJIKLMNOPQRSTUVWXYZ";
         var string2 = "abcdefghjiklmnopqrstuvwxyz";
         var string3 = "1234567890";
@@ -222,30 +258,36 @@ class FontTest extends OpenGLTest
         var lightGrey: Color4F = new Color4F();
         lightGrey.setRGBA(0.8, 0.8, 0.8, 1);
 
-        var stringAttributes: StringAttributes = {range: new Range(), font: font, backgroundColor: lightGrey};
+        var attachmentColorStorage = renderAttachment();
+        var attachment = new FontAttachment(attachmentColorStorage, 0, 0, 70, 32);
+
+        var stringAttributes: StringAttributes = {range: new Range(), font: font, backgroundColor: lightGrey, attachment: attachment};
         var attributedString: AttributedString = new AttributedString(string0, stringAttributes);
 
         //trace('test inside case');
-        var stringAttributes2: StringAttributes = {range: new Range(10, 10), font: font2, foregroundColor: red, backgroundColor: white, kern: -10};
+        var stringAttributes2: StringAttributes = {range: new Range(10, 10), font: font2, foregroundColor: red, backgroundColor: white, kern: -10, attachment: attachment};
         attributedString.applyAttributes(stringAttributes2);
         //trace(attributedString);
 
         //trace('test left-right case');
-        var stringAttributes3: StringAttributes = {range: new Range(5, 10), font: font3, foregroundColor: green};
+        var stringAttributes3: StringAttributes = {range: new Range(5, 10), font: font3, foregroundColor: green, attachment: attachment};
         attributedString.applyAttributes(stringAttributes3);
         //trace(attributedString);
 
         //trace('full cover');
-        var stringAttributes4: StringAttributes = {range: new Range(5, 10), font: font4, foregroundColor: blue};
+        var stringAttributes4: StringAttributes = {range: new Range(5, 10), font: font4, foregroundColor: blue, attachment: attachment};
         attributedString.applyAttributes(stringAttributes4);
         //trace(attributedString);
 
-        var stringAttributes5: StringAttributes = {range: new Range(24, 3), backgroundColor: white};
+        var stringAttributes5: StringAttributes = {range: new Range(24, 3), backgroundColor: white, attachment: attachment};
         attributedString.applyAttributes(stringAttributes5);
         //trace(attributedString);
 
-        var stringAttributes6: StringAttributes = {range: new Range(2, 10), strokeWidth: -3, strokeColor: green};
+        var stringAttributes6: StringAttributes = {range: new Range(2, 10), strokeWidth: -3, strokeColor: green, attachment: attachment};
         attributedString.applyAttributes(stringAttributes6);
+
+        var stringAttributes7: StringAttributes = {range: new Range(27, 131), attachment: attachment};
+        attributedString.applyAttributes(stringAttributes7);
         trace(attributedString);
 
         var colorStorage: ColorStorage = new ColorStorage(pixelBufferWidth, pixelBufferHeight);

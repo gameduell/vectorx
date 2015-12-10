@@ -26,6 +26,11 @@
 
 package vectorx.font;
 
+import lib.ha.aggx.renderer.BlenderBase;
+import lib.ha.core.memory.Pointer;
+import lib.ha.core.memory.Byte;
+import types.DataType;
+import lib.ha.core.math.Calc;
 import types.RectI;
 import haxe.Utf8;
 import lib.ha.aggx.vectorial.converters.ConvStroke;
@@ -64,7 +69,6 @@ class FontContext
 {
     private var scanline: Scanline;
     private var rasterizer: ScanlineRasterizer;
-    private var fontCache: FontCache;
     private var debugPath: VectorPath = new VectorPath();
     private var path: VectorPath = new VectorPath();
     private var debugPathStroke: ConvStroke;
@@ -90,10 +94,8 @@ class FontContext
     {
         rasterizer = new ScanlineRasterizer();
         scanline = new Scanline();
-        var ttfData: Data = AssetLoader.getDataFromFile("libraryTest/fonts/arial.ttf");
-        fontCache = new FontCache(ttfData);
         debugPathStroke = new ConvStroke(debugPath);
-        debugPathStroke.width = 2;
+        debugPathStroke.width = 1;
     }
 
     /// TODO add docu
@@ -117,9 +119,9 @@ class FontContext
 
         var cleanUpList: Array<FontEngine> = [];
 
-        clippingRenderer.setClippingBounds(outStorage.selectedRect.x, outStorage.selectedRect.y,
+        /*clippingRenderer.setClippingBounds(outStorage.selectedRect.x, outStorage.selectedRect.y,
             outStorage.selectedRect.x + outStorage.selectedRect.width,
-            outStorage.selectedRect.y + outStorage.selectedRect.height);
+            outStorage.selectedRect.y + outStorage.selectedRect.height);*/
 
         //debugBox(outStorage.selectedRect.x, outStorage.selectedRect.y, outStorage.selectedRect.width, outStorage.selectedRect.height);
 
@@ -131,13 +133,13 @@ class FontContext
 
         for (line in textLayout.lines)
         {
-            //trace('rendering line: $line');
+            trace('rendering line: $line');
 
             var x: Float = textLayout.alignX(line);
 
             attrString.attributeStorage.eachSpanInRange(function(span: AttributedSpan): Void
             {
-                //trace('rendering span: $span');
+                trace('rendering span: $span');
 
                 var fontEngine: FontEngine = span.font.internalFont;
                 cleanUpList.push(fontEngine);
@@ -158,6 +160,12 @@ class FontContext
 
                 var kern = span.kern == null ? 0 : span.kern;
                 kern *= pixelRatio;
+
+                var attachmentWidth: Float = 0;
+                if (span.attachment != null)
+                {
+                    attachmentWidth = span.attachment.bounds.width + kern;
+                }
 
                 var bboxX = x;
                 for (i in 0 ... Utf8.length(spanString))
@@ -181,7 +189,7 @@ class FontContext
                 {
                     scanlineRenderer.color.setFromColor4F(span.backgroundColor);
                     //trace('bg: ${scanlineRenderer.color}');
-                    box(path, x, y, measureX + 1, line.maxBgHeight + 1);
+                    box(path, x, y, measureX + 1 + attachmentWidth, line.maxBgHeight + 1);
                     rasterizer.reset();
                     rasterizer.addPath(path);
                     SolidScanlineRenderer.renderScanlines(rasterizer, scanline, scanlineRenderer);
@@ -217,6 +225,60 @@ class FontContext
                 }
 
                 x += measureX;
+
+                if (span.attachment != null)
+                {
+                    var attachment = span.attachment;
+                    var dstX: Int = Math.ceil(x);
+
+                    var distanceToBorder: Int = outStorage.selectedRect.x + outStorage.selectedRect.width - dstX;
+                    var width: Int = Calc.min(distanceToBorder, span.attachment.bounds.width);
+                    var height: Int = span.attachment.bounds.height;
+
+                    var srcData = attachment.image.data;
+                    var dstData = outStorage.data;
+
+                    var srcOffset = srcData.offset;
+                    var dstOffset = dstData.offset;
+
+                    var alignY: Float = line.maxSpanHeight - attachment.bounds.height;
+                    for (i in 0 ... height)
+                    {
+                        var srcYOffset: Int = i + attachment.bounds.y + Math.ceil(baseLineOffset);
+                        var src: Int = (attachment.image.width * srcYOffset + attachment.bounds.x) * ColorStorage.COMPONENTS;
+
+                        var dstY: Pointer = Math.ceil(y + alignY + baseLineOffset);
+                        if (dstY >= outStorage.selectedRect.x + outStorage.selectedRect.height)
+                        {
+                            break;
+                        }
+
+                        var dst: Int = (outStorage.width * (i + dstY) + dstX) * ColorStorage.COMPONENTS;
+
+                        srcData.offset = src;
+
+                        for (j in 0 ... width)
+                        {
+                            var r: Byte = srcData.readUInt8();
+                            srcData.offset++;
+                            var g: Byte = srcData.readUInt8();
+                            srcData.offset++;
+                            var b: Byte = srcData.readUInt8();
+                            srcData.offset++;
+                            var a: Byte = srcData.readUInt8();
+                            srcData.offset++;
+
+                            BlenderBase.blendPix(dst, r, g, b, a);
+
+                            dst += ColorStorage.COMPONENTS;
+                        }
+                    }
+
+                    srcData.offset = srcOffset;
+                    dstData.offset = dstOffset;
+
+                    x += attachment.bounds.width;
+                }
 
             }, line.begin, line.lenght);
 
