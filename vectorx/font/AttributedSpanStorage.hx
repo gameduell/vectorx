@@ -182,20 +182,26 @@ class AttributedSpanStorage
             trace('spanEnd: $spanEnd');*/
 
             tempSpan.setFromSpan(span);
+            var attachment = tempSpan.attachment;
+            tempSpan.attachment = null;
 
-            if (begin < spanBegin)
+            if (begin <= spanBegin)
             {
                 //trace('left');
                 var len = end - spanBegin;
                 tempSpan.range.index = spanBegin;
                 tempSpan.range.length = len;
             }
-            else if (end > spanEnd)
+            else if (end >= spanEnd)
             {
                 //trace('right');
                 var len = spanEnd - begin;
                 tempSpan.range.index = begin;
                 tempSpan.range.length = len;
+                if (end == spanEnd)
+                {
+                    tempSpan.attachment = attachment;
+                }
             }
             else
             {
