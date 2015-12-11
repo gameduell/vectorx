@@ -208,7 +208,7 @@ class FontTest extends OpenGLTest
                 var ptr = row + j * ColorStorage.COMPONENTS;
                 if ((j + i) % 5 != 0)
                 {
-                    ptr.setFull(255, 255, 255, 255);
+                    ptr.setFull(255, 255, 255, 128);
                 }
                 else
                 {

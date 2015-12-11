@@ -83,6 +83,7 @@ class AttributedSpanStorage
                 spanRange.length -= coverLenght;
                 var coverSpan: AttributedSpan = new AttributedSpan(span.baseString, newSpanRange.index, coverLenght);
                 coverSpan.apply(span);
+                span.attachment = null;
                 coverSpan.apply(newSpan);
                 generatedSpans.push(coverSpan);
                 span.updateString();
@@ -95,14 +96,15 @@ class AttributedSpanStorage
                 var tempSpan = new AttributedSpan("");
                 tempSpan.setFromSpan(newSpan);
                 tempSpan.applyBefore(span);
-                trace(tempSpan);
+                //trace(tempSpan);
                 generatedSpans.push(tempSpan);
                 //generatedSpans.push(newSpan);
                 var spanRangeLength = newSpanRange.index - spanRange.index;
                 var remainderSpan: AttributedSpan = new AttributedSpan(span.baseString, newSpanRightBound, spanRange.length - spanRangeLength - newSpanRange.length);
-                trace('remainderSpan: $remainderSpan');
+                //trace('remainderSpan: $remainderSpan');
                 spanRange.length = spanRangeLength;
                 remainderSpan.apply(span);
+                span.attachment = null;
                 generatedSpans.push(remainderSpan);
                 span.updateString();
                 continue;
@@ -194,14 +196,12 @@ class AttributedSpanStorage
             }
             else if (end >= spanEnd)
             {
-                //trace('right');
                 var len = spanEnd - begin;
                 tempSpan.range.index = begin;
                 tempSpan.range.length = len;
-                if (end == spanEnd)
-                {
-                    tempSpan.attachment = attachment;
-                }
+                tempSpan.attachment = attachment;
+
+                //trace('right end: $end spanEnd: $spanEnd tempSpan: $tempSpan');
             }
             else
             {

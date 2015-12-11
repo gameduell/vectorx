@@ -12,6 +12,8 @@ class TextLine
     public var maxSpanHeight(default, null): Float = 0;
     public var maxBgHeight(default, null): Float = 0;
 
+    public var spans: Array<AttributedSpan> = [];
+
     private var breakAt: Int = -1;
     private var charAtBreakPos: Int = 0;
 
@@ -78,112 +80,81 @@ class TextLine
         }
     }
 
+    private static var currentWidth: Float = 0;
+    private static var pos: Int = 0;
+    private static var currentLine: TextLine = null;
+
     public static function calculate(string: AttributedString, textWidth: Float, pixelRatio: Float = 1.0): Array<TextLine>
     {
         var output: Array<TextLine> = [];
-        var currentWidth: Float = 0;
 
-        var pos: Int = 0;
+        currentWidth = 0;
+        pos = 0;
 
-        var currentLine = new TextLine();
+        currentLine = new TextLine();
         output.push(currentLine);
 
-        trace('text line:');
-        string.attributeStorage.eachSpanInRange(function(span: AttributedSpan)
+        var spanIterator = string.attributeStorage.iterator();
+        while (spanIterator.hasNext())
         {
+            var span: AttributedSpan = spanIterator.next();
+            trace(span);
+
             var fontEngine: FontEngine = span.font.internalFont;
             var spanString: String = span.string;
             var scale = fontEngine.getScale(span.font.sizeInPt) * pixelRatio;
             var kern = span.kern == null ? 0 : span.kern;
             kern *= pixelRatio;
 
-            var strLen: Int = Utf8.length(spanString);
-            var len: Int = strLen;
-
-            if (span.attachment != null)
+            for (i in 0 ... Utf8.length(spanString))
             {
-                len++;
-            }
-
-            var dbgSpanWidth: Float = 0.0;
-
-            for (i in 0 ... len)
-            {
-                //trace('i: $i pos: $pos string: $spanString');
-
                 var advance: Float = 0;
-
                 var needNewLine: Bool = false;
-                var code: Int = 0;
+                var code: Int = Utf8.charCodeAt(spanString, i);
 
-                //simulate attachment as one last character
-                if (i < strLen)
+                if (code == NEWLINE)
                 {
-                    code = Utf8.charCodeAt(spanString, i);
-                    switch(code)
-                    {
-                        case SPACE | TAB:
-                            {
-                                //trace('space: $pos');
-                                currentLine.breakAt = pos;
-                                currentLine.charAtBreakPos = code;
-                                currentLine.width = currentWidth;
-                            }
-                        case NEWLINE:
-                            {
-                                //trace('newline: $pos');
-                                needNewLine = true;
-                            }
-                        default:
-                            {
-                                var face = fontEngine.getFace(code);
-                                advance = face.glyph.advanceWidth * scale + kern;
-                                dbgSpanWidth += advance;
-                                //trace('+${Utf8.sub(spanString, i, 1)} advance $advance = ${currentWidth + advance} pos: $pos');
-                            }
-                    }
+                    newLine(code, output);
                 }
                 else
                 {
-                    code = 0x1F601;
-                    advance = span.attachment.bounds.width + kern + 2;
-                    //trace('+attachment advance $advance = ${currentWidth + advance}');
-                }
-
-                if (needNewLine || currentWidth + advance > textWidth)
-                {
-                    trace('text line at: $currentWidth');
-                    if (currentLine.breakAt == -1)
+                    if (code == SPACE || code == TAB)
                     {
+                        //trace('space: $pos');
                         currentLine.breakAt = pos;
                         currentLine.charAtBreakPos = code;
                         currentLine.width = currentWidth;
                     }
-                    currentWidth -= currentLine.width;
 
-                    var startAt: Int = currentLine.breakAt;
-                    switch (currentLine.charAtBreakPos)
-                    {
-                        case SPACE | TAB | NEWLINE: startAt++;
-                        default:
-                    }
-
-                    trace(currentLine);
-                    currentLine = new TextLine(startAt);
-                    output.push(currentLine);
+                    var face = fontEngine.getFace(code);
+                    advance = face.glyph.advanceWidth * scale + kern;
+                    trace('+${Utf8.sub(spanString, i, 1)} advance $advance = ${currentWidth + advance} pos: $pos');
                 }
 
-                if (i < strLen)
+                if (currentWidth + advance > textWidth)
                 {
-                    pos++;
+                    newLine(code, output);
+                }
+
+                currentWidth += advance;
+                pos++;
+            }
+
+            if (span.attachment != null)
+            {
+                var code: Int = 0x1F601;
+                var advance: Float = span.attachment.bounds.width + kern + 2;
+                trace('+attachment advance $advance = ${currentWidth + advance}');
+
+                if (currentWidth + advance > textWidth)
+                {
+                    newLine(code, output);
                 }
 
                 currentWidth += advance;
             }
 
-            Debug.assert(Math.abs(dbgSpanWidth) - Math.abs(span.getMeasure().x * pixelRatio) < 0.001, 'span width calculation');
-        });
-
+        }
 
         output[output.length - 1].breakAt = -1;
         output[output.length - 1].width = currentWidth;
@@ -204,6 +175,30 @@ class TextLine
             line.maxBgHeight *= pixelRatio;
         }
 
+
+
         return output;
+    }
+
+    private static function newLine(code: Int, output: Array<TextLine>)
+    {
+        if (currentLine.breakAt == -1)
+        {
+            currentLine.breakAt = pos;
+            currentLine.charAtBreakPos = code;
+            currentLine.width = currentWidth;
+        }
+        currentWidth -= currentLine.width;
+
+        var startAt: Int = currentLine.breakAt;
+        switch (currentLine.charAtBreakPos)
+        {
+            case SPACE | TAB | NEWLINE: startAt++;
+            default:
+        }
+
+        trace(currentLine);
+        currentLine = new TextLine(startAt);
+        output.push(currentLine);
     }
 }

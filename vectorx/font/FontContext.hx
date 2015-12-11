@@ -26,6 +26,7 @@
 
 package vectorx.font;
 
+import lib.ha.core.utils.Debug;
 import lib.ha.aggx.renderer.BlenderBase;
 import lib.ha.core.memory.Pointer;
 import lib.ha.core.memory.Byte;
@@ -153,7 +154,7 @@ class FontContext
                 var measureY = measure.y * pixelRatio;
 
                 var alignY: Float = line.maxSpanHeight - measureY;
-                debugBox(x, y + alignY, measureX, measureY);
+                //debugBox(x, y + alignY, measureX, measureY);
 
                 var baseLineOffset = span.baselineOffset == null ? defaultAttributes.baselineOffset : span.baselineOffset;
                 baseLineOffset *= pixelRatio;
@@ -164,9 +165,10 @@ class FontContext
                 var attachmentWidth: Float = 0;
                 if (span.attachment != null)
                 {
-                    attachmentWidth = span.attachment.bounds.width + kern;
+                    attachmentWidth = span.attachment.bounds.width + kern + 2;
                 }
 
+                var dbgSpanWidth: Float = 0.0;
                 var bboxX = x;
                 for (i in 0 ... Utf8.length(spanString))
                 {
@@ -179,11 +181,17 @@ class FontContext
                         var w = (face.glyph.bounds.x2 - face.glyph.bounds.x1) * scale;
                         var h = (-face.glyph.bounds.y2 - -face.glyph.bounds.y1) * scale;
                         //trace('h: $h y: ${measureY + by + alignY} max: $maxSpanHeight');
+                        trace('${Utf8.sub(spanString, i, 1)} w: $w h: $h advance: ${face.glyph.advanceWidth * scale} kern: $kern bboxX: ${bboxX + face.glyph.advanceWidth * scale + kern - textLayout.alignX(line)}');
                         debugBox(bboxX + bx, y + measureY + by + alignY + baseLineOffset, w, h);
+                        debugBox(bboxX, y + measureY + by + alignY + baseLineOffset, face.glyph.advanceWidth * scale + kern, line.maxSpanHeight);
                     }
 
                     bboxX += face.glyph.advanceWidth * scale + kern;
+                    dbgSpanWidth += face.glyph.advanceWidth * scale + kern;
+                    //trace('bboxX: $bboxX');
                 }
+
+                Debug.assert(Math.abs(dbgSpanWidth) - Math.abs(measureX) < 0.001, 'span width calculation');
 
                 if (span.backgroundColor != null)
                 {
@@ -229,7 +237,7 @@ class FontContext
                 if (span.attachment != null)
                 {
                     var attachment = span.attachment;
-                    var dstX: Int = Math.ceil(x);
+                    var dstX: Int = Math.ceil(x) + 1;
 
                     var distanceToBorder: Int = outStorage.selectedRect.x + outStorage.selectedRect.width - dstX;
                     var width: Int = Calc.min(distanceToBorder, span.attachment.bounds.width);
@@ -242,6 +250,7 @@ class FontContext
                     var dstOffset = dstData.offset;
 
                     var alignY: Float = line.maxSpanHeight - attachment.bounds.height;
+                    debugBox(dstX, y + alignY + baseLineOffset, width, height);
                     for (i in 0 ... height)
                     {
                         var srcYOffset: Int = i + attachment.bounds.y + Math.ceil(baseLineOffset);
@@ -277,7 +286,7 @@ class FontContext
                     srcData.offset = srcOffset;
                     dstData.offset = dstOffset;
 
-                    x += attachment.bounds.width;
+                    x += attachment.bounds.width + 1 + kern;
                 }
 
             }, line.begin, line.lenght);
