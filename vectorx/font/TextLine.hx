@@ -23,7 +23,14 @@ class TextLine
 
     public function toString(): String
     {
-        return '{begin: $begin breakAt: $breakAt len: $lenght width: $width}';
+        var str: StringBuf = new StringBuf();
+        str.add('{begin: $begin breakAt: $breakAt len: $lenght width: $width spans:\n {');
+        for (span in spans)
+        {
+            str.add('{$span}\n');
+        }
+        str.add("}");
+        return str.toString();
     }
 
     private function new(begin: Int = 0)
@@ -81,15 +88,17 @@ class TextLine
     }
 
     private static var currentWidth: Float = 0;
+    private static var textWidth: Float = 0;
     private static var pos: Int = 0;
     private static var currentLine: TextLine = null;
 
-    public static function calculate(string: AttributedString, textWidth: Float, pixelRatio: Float = 1.0): Array<TextLine>
+    public static function calculate(string: AttributedString, width: Float, pixelRatio: Float = 1.0): Array<TextLine>
     {
         var output: Array<TextLine> = [];
 
         currentWidth = 0;
         pos = 0;
+        textWidth = width;
 
         currentLine = new TextLine();
         output.push(currentLine);
@@ -98,6 +107,7 @@ class TextLine
         while (spanIterator.hasNext())
         {
             var span: AttributedSpan = spanIterator.next();
+            currentLine.spans.push(span);
             trace(span);
 
             var fontEngine: FontEngine = span.font.internalFont;
@@ -114,7 +124,8 @@ class TextLine
 
                 if (code == NEWLINE)
                 {
-                    newLine(code, output);
+                    var force: Bool = true;
+                    span = newLine(code, output, 0, force);
                 }
                 else
                 {
@@ -131,12 +142,7 @@ class TextLine
                     trace('+${Utf8.sub(spanString, i, 1)} advance $advance = ${currentWidth + advance} pos: $pos');
                 }
 
-                if (currentWidth + advance > textWidth)
-                {
-                    newLine(code, output);
-                }
-
-                currentWidth += advance;
+                span = newLine(code, output, advance);
                 pos++;
             }
 
@@ -145,15 +151,8 @@ class TextLine
                 var code: Int = 0x1F601;
                 var advance: Float = span.attachment.bounds.width + kern + 2;
                 trace('+attachment advance $advance = ${currentWidth + advance}');
-
-                if (currentWidth + advance > textWidth)
-                {
-                    newLine(code, output);
-                }
-
-                currentWidth += advance;
+                span = newLine(code, output, advance);
             }
-
         }
 
         output[output.length - 1].breakAt = -1;
@@ -175,30 +174,56 @@ class TextLine
             line.maxBgHeight *= pixelRatio;
         }
 
-
-
         return output;
     }
 
-    private static function newLine(code: Int, output: Array<TextLine>)
+    private static function newLine(code: Int, output: Array<TextLine>, advance: Float, force: Bool = false): AttributedSpan
     {
-        if (currentLine.breakAt == -1)
-        {
-            currentLine.breakAt = pos;
-            currentLine.charAtBreakPos = code;
-            currentLine.width = currentWidth;
-        }
-        currentWidth -= currentLine.width;
+        var currentSpan = currentLine.spans[currentLine.spans.length - 1];
 
-        var startAt: Int = currentLine.breakAt;
-        switch (currentLine.charAtBreakPos)
+        if (currentWidth + advance > textWidth || force)
         {
-            case SPACE | TAB | NEWLINE: startAt++;
-            default:
+
+            if (currentLine.breakAt == -1)
+            {
+                currentLine.breakAt = pos;
+                currentLine.charAtBreakPos = code;
+                currentLine.width = currentWidth;
+            }
+            currentWidth -= currentLine.width;
+
+            var startAt: Int = currentLine.breakAt;
+            switch (currentLine.charAtBreakPos)
+            {
+                case SPACE | TAB | NEWLINE: startAt++;
+                default:
+            }
+
+            var rightBound = currentSpan.range.index + currentSpan.range.length;
+            trace('rightBound: $rightBound startAt: $startAt');
+            if (rightBound >= startAt || (rightBound == startAt && currentSpan.attachment != null))
+            {
+                currentLine.spans.pop();
+                var leftSpan: AttributedSpan = new AttributedSpan("");
+                leftSpan.setFromSpan(currentSpan);
+                leftSpan.attachment = null;
+                leftSpan.range.length = startAt - leftSpan.range.index;
+                leftSpan.updateString();
+
+                var rightSpan: AttributedSpan = new AttributedSpan("");
+                rightSpan.setFromSpan(currentSpan);
+                rightSpan.range.index = startAt;
+                rightSpan.range.length = currentSpan.range.length - leftSpan.range.length;
+                rightSpan.updateString();
+
+                currentSpan = rightSpan;
+            }
+            trace(currentLine);
+            currentLine = new TextLine(startAt);
+            output.push(currentLine);
         }
 
-        trace(currentLine);
-        currentLine = new TextLine(startAt);
-        output.push(currentLine);
+        currentWidth += advance;
+        return currentSpan;
     }
 }
