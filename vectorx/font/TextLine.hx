@@ -1,5 +1,6 @@
 package vectorx.font;
 
+import lib.ha.core.utils.Debug;
 import lib.ha.aggx.typography.FontEngine;
 import haxe.Utf8;
 
@@ -104,6 +105,8 @@ class TextLine
                 len++;
             }
 
+            var dbgSpanWidth: Float = 0.0;
+
             for (i in 0 ... len)
             {
                 //trace('i: $i pos: $pos string: $spanString');
@@ -135,15 +138,16 @@ class TextLine
                             {
                                 var face = fontEngine.getFace(code);
                                 advance = face.glyph.advanceWidth * scale + kern;
-                                trace('+${Utf8.sub(spanString, i, 1)} advance $advance = ${currentWidth + advance}');
+                                dbgSpanWidth += advance;
+                                //trace('+${Utf8.sub(spanString, i, 1)} advance $advance = ${currentWidth + advance} pos: $pos');
                             }
                     }
                 }
                 else
                 {
                     code = 0x1F601;
-                    advance = span.attachment.bounds.width + kern;
-                    trace('+attachment advance $advance = ${currentWidth + advance}');
+                    advance = span.attachment.bounds.width + kern + 2;
+                    //trace('+attachment advance $advance = ${currentWidth + advance}');
                 }
 
                 if (needNewLine || currentWidth + advance > textWidth)
@@ -164,14 +168,20 @@ class TextLine
                         default:
                     }
 
+                    trace(currentLine);
                     currentLine = new TextLine(startAt);
                     output.push(currentLine);
                 }
 
+                if (i < strLen)
+                {
+                    pos++;
+                }
+
                 currentWidth += advance;
-                pos++;
             }
 
+            Debug.assert(Math.abs(dbgSpanWidth) - Math.abs(span.getMeasure().x * pixelRatio) < 0.001, 'span width calculation');
         });
 
 
