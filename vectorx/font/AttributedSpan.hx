@@ -68,7 +68,7 @@ class AttributedSpan
 
     public function toString(): String
     {
-        return '{id: $id, range: ${range.index}[${range.length}] str: $string font: $font attachment: $attachment}';
+        return '{id: $id, range: ${range.index}[${range.length}] str: $string font: $font backgroud: $backgroundColor measure: {x: ${measure.x} y: ${measure.y}} attachment: $attachment}';
     }
 
     private inline function choose<T>(dst: T, src: T)
@@ -137,8 +137,16 @@ class AttributedSpan
     {
         if (!measured)
         {
-            var kern = this.kern == null ? 0 : this.kern;
-            font.internalFont.measureString(string, font.sizeInPt, measure, kern);
+            if (range.length == 0)
+            {
+                measure.setXY(0, 0);
+            }
+            else
+            {
+                var kern = this.kern == null ? 0 : this.kern;
+                font.internalFont.measureString(string, font.sizeInPt, measure, kern);
+            }
+
             measured = true;
         }
 

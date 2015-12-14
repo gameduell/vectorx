@@ -67,7 +67,7 @@ class TextLayout
             iteration++;
         }
 
-        //trace('found ratio: $pixelRatio in $iteration');
+        trace('found ratio: $pixelRatio in $iteration');
     }
 
     private static function textFits(lines: Array<TextLine>, height: Float, rect: RectI): Bool

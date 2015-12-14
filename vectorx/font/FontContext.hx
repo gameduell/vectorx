@@ -124,7 +124,7 @@ class FontContext
             outStorage.selectedRect.x + outStorage.selectedRect.width,
             outStorage.selectedRect.y + outStorage.selectedRect.height);*/
 
-        //debugBox(outStorage.selectedRect.x, outStorage.selectedRect.y, outStorage.selectedRect.width, outStorage.selectedRect.height);
+        debugBox(outStorage.selectedRect.x, outStorage.selectedRect.y, outStorage.selectedRect.width, outStorage.selectedRect.height);
 
         var textLayout = new TextLayout(attrString, layoutConfig, outStorage.selectedRect);
         var pixelRatio: Float = textLayout.pixelRatio;
@@ -134,13 +134,13 @@ class FontContext
 
         for (line in textLayout.lines)
         {
-            trace('rendering line: $line');
+            //trace('rendering line: $line');
 
             var x: Float = textLayout.alignX(line);
 
-            attrString.attributeStorage.eachSpanInRange(function(span: AttributedSpan): Void
+            for (span in line.spans)
             {
-                trace('rendering span: $span');
+                //trace('rendering span: $span');
 
                 var fontEngine: FontEngine = span.font.internalFont;
                 cleanUpList.push(fontEngine);
@@ -154,7 +154,6 @@ class FontContext
                 var measureY = measure.y * pixelRatio;
 
                 var alignY: Float = line.maxSpanHeight - measureY;
-                //debugBox(x, y + alignY, measureX, measureY);
 
                 var baseLineOffset = span.baselineOffset == null ? defaultAttributes.baselineOffset : span.baselineOffset;
                 baseLineOffset *= pixelRatio;
@@ -165,8 +164,10 @@ class FontContext
                 var attachmentWidth: Float = 0;
                 if (span.attachment != null)
                 {
-                    attachmentWidth = span.attachment.bounds.width + kern + 2;
+                    attachmentWidth = span.attachment.bounds.width + 2;
                 }
+
+                //debugBox(x, y + alignY, measureX + attachmentWidth, measureY);
 
                 var dbgSpanWidth: Float = 0.0;
                 var bboxX = x;
@@ -181,9 +182,9 @@ class FontContext
                         var w = (face.glyph.bounds.x2 - face.glyph.bounds.x1) * scale;
                         var h = (-face.glyph.bounds.y2 - -face.glyph.bounds.y1) * scale;
                         //trace('h: $h y: ${measureY + by + alignY} max: $maxSpanHeight');
-                        trace('${Utf8.sub(spanString, i, 1)} w: $w h: $h advance: ${face.glyph.advanceWidth * scale} kern: $kern bboxX: ${bboxX + face.glyph.advanceWidth * scale + kern - textLayout.alignX(line)}');
-                        debugBox(bboxX + bx, y + measureY + by + alignY + baseLineOffset, w, h);
-                        debugBox(bboxX, y + measureY + by + alignY + baseLineOffset, face.glyph.advanceWidth * scale + kern, line.maxSpanHeight);
+                        //trace('${Utf8.sub(spanString, i, 1)} w: $w h: $h advance: ${face.glyph.advanceWidth * scale} kern: $kern bboxX: ${bboxX + face.glyph.advanceWidth * scale + kern - textLayout.alignX(line)}');
+                        //debugBox(bboxX + bx, y + measureY + by + alignY + baseLineOffset, w, h);
+                        ////debugBox(bboxX, y + measureY + by + alignY + baseLineOffset, face.glyph.advanceWidth * scale + kern, line.maxSpanHeight);
                     }
 
                     bboxX += face.glyph.advanceWidth * scale + kern;
@@ -251,13 +252,14 @@ class FontContext
 
                     var alignY: Float = line.maxSpanHeight - attachment.bounds.height;
                     debugBox(dstX, y + alignY + baseLineOffset, width, height);
+
                     for (i in 0 ... height)
                     {
                         var srcYOffset: Int = i + attachment.bounds.y + Math.ceil(baseLineOffset);
                         var src: Int = (attachment.image.width * srcYOffset + attachment.bounds.x) * ColorStorage.COMPONENTS;
 
-                        var dstY: Pointer = Math.ceil(y + alignY + baseLineOffset);
-                        if (dstY >= outStorage.selectedRect.x + outStorage.selectedRect.height)
+                        var dstY: Int = Math.ceil(y + alignY + baseLineOffset);
+                        if (dstY >= outStorage.selectedRect.y + outStorage.selectedRect.height)
                         {
                             break;
                         }
@@ -286,10 +288,10 @@ class FontContext
                     srcData.offset = srcOffset;
                     dstData.offset = dstOffset;
 
-                    x += attachment.bounds.width + 1 + kern;
+                    x += attachment.bounds.width + 1;
                 }
 
-            }, line.begin, line.lenght);
+            };
 
             y += line.maxBgHeight;
         }

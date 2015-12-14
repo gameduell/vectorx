@@ -24,7 +24,7 @@ class TextLine
     public function toString(): String
     {
         var str: StringBuf = new StringBuf();
-        str.add('{begin: $begin breakAt: $breakAt len: $lenght width: $width spans:\n {');
+        str.add('{begin: $begin breakAt: $breakAt len: $lenght width: $width height: $maxSpanHeight spans:\n {');
         for (span in spans)
         {
             str.add('{$span}\n');
@@ -53,10 +53,20 @@ class TextLine
         var fontEngine: FontEngine = span.font.internalFont;
         var spanString: String = span.string;
         var measure = span.getMeasure();
-
+        //trace('mx: ${measure.x} my: ${measure.y}');
         if (measure.y > maxSpanHeight)
         {
             maxSpanHeight = measure.y;
+        }
+
+        //trace('mh: $maxSpanHeight');
+        if (span.attachment != null)
+        {
+            //trace('ah: ${span.attachment.bounds.height}');
+            if (span.attachment.bounds.height > maxSpanHeight)
+            {
+                maxSpanHeight = span.attachment.bounds.height;
+            }
         }
     }
 
@@ -85,6 +95,8 @@ class TextLine
                 maxBgHeight = ext;
             }
         }
+
+        maxBgHeight = Math.max(maxSpanHeight, maxBgHeight);
     }
 
     private static var currentWidth: Float = 0;
@@ -108,7 +120,7 @@ class TextLine
         {
             var span: AttributedSpan = spanIterator.next();
             currentLine.spans.push(span);
-            trace(span);
+            //trace(span);
 
             var fontEngine: FontEngine = span.font.internalFont;
             var spanString: String = span.string;
@@ -139,7 +151,7 @@ class TextLine
 
                     var face = fontEngine.getFace(code);
                     advance = face.glyph.advanceWidth * scale + kern;
-                    trace('+${Utf8.sub(spanString, i, 1)} advance $advance = ${currentWidth + advance} pos: $pos');
+                    //trace('+${Utf8.sub(spanString, i, 1)} advance $advance = ${currentWidth + advance} pos: $pos');
                 }
 
                 span = newLine(code, output, advance);
@@ -149,8 +161,8 @@ class TextLine
             if (span.attachment != null)
             {
                 var code: Int = 0x1F601;
-                var advance: Float = span.attachment.bounds.width + kern + 2;
-                trace('+attachment advance $advance = ${currentWidth + advance}');
+                var advance: Float = span.attachment.bounds.width + 2;
+                //trace('+attachment advance $advance = ${currentWidth + advance}');
                 span = newLine(code, output, advance);
             }
         }
@@ -160,20 +172,21 @@ class TextLine
 
         for(line in output)
         {
-            string.attributeStorage.eachSpanInRange(function(span: AttributedSpan)
+            for (span in line.spans)
             {
                 line.calculateMaxSpanHeight(span);
-            }, line.begin, line.lenght);
+            }
 
-            string.attributeStorage.eachSpanInRange(function(span: AttributedSpan)
+            for (span in line.spans)
             {
                 line.calculateMaxBgHeight(span);
-            }, line.begin, line.lenght);
+            }
 
             line.maxSpanHeight *= pixelRatio;
             line.maxBgHeight *= pixelRatio;
         }
 
+        currentLine = null;
         return output;
     }
 
@@ -200,15 +213,19 @@ class TextLine
             }
 
             var rightBound = currentSpan.range.index + currentSpan.range.length;
-            trace('rightBound: $rightBound startAt: $startAt');
+            //trace('rightBound: $rightBound startAt: $startAt');
             if (rightBound >= startAt || (rightBound == startAt && currentSpan.attachment != null))
             {
                 currentLine.spans.pop();
                 var leftSpan: AttributedSpan = new AttributedSpan("");
                 leftSpan.setFromSpan(currentSpan);
                 leftSpan.attachment = null;
-                leftSpan.range.length = startAt - leftSpan.range.index;
+                leftSpan.range.length = startAt - leftSpan.range.index;//TODO opt
                 leftSpan.updateString();
+                if (leftSpan.range.length > 0)
+                {
+                    currentLine.spans.push(leftSpan);
+                }
 
                 var rightSpan: AttributedSpan = new AttributedSpan("");
                 rightSpan.setFromSpan(currentSpan);
@@ -218,8 +235,10 @@ class TextLine
 
                 currentSpan = rightSpan;
             }
-            trace(currentLine);
+            //trace(currentLine);
+            //trace('currentSpan: $currentSpan');
             currentLine = new TextLine(startAt);
+            currentLine.spans.push(currentSpan);
             output.push(currentLine);
         }
 

@@ -225,7 +225,7 @@ class FontTest extends OpenGLTest
     {
         var ttfData: Data = AssetLoader.getDataFromFile(FONT_PATH_JAPAN);
 
-        var string0 = "QabcdefghjiklmnopqrstuvwxyzabcdefghjiklmnopqrstuvwxyzQ";
+        var string0 = "QabcdefghjiklmnopqrstuvwxyzabcdefghjiklmnopqrstuvwxyzabcdefghjiklmnopqrstuvwxyzabcdefghjiklmnopqrstuvwxyzabcdefghjiklmnopqrstuvwxyzQ";
         var string1 = "ABCDE FGHJIKLMNOPQRSTUVWXYZ";
         var string2 = "abcdefghjiklmnopqrstuvwxyz";
         var string3 = "1234567890";
