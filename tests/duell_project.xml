@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+
+	<app title="VectorX Tests" package="com.gameduell.tests" version="0.0.1" company="GameDuell GmbH" />
+
+	<duelllib name="duellkit" version="6.0.0+" />
+	<duelllib name="unittest" version="5.0.0+" />
+	<duelllib name="vectorx" version="master" />
+
+	<main name="MainTester" />
+
+	<source path="Source" />
+
+</project>

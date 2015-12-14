@@ -5,7 +5,7 @@ import lib.ha.core.utils.Debug;
 
 class AttributedSpanStorage
 {
-    private var spans: Array<AttributedSpan> = [];
+    public var spans(default, null): Array<AttributedSpan> = [];
     private var tempSpan: AttributedSpan;
 
     public function new()
