@@ -214,23 +214,24 @@ class TextLine
 
             var rightBound = currentSpan.range.index + currentSpan.range.length;
             //trace('rightBound: $rightBound startAt: $startAt');
+            var leftSpanLength: Int = startAt - currentSpan.range.index;
             if (rightBound >= startAt || (rightBound == startAt && currentSpan.attachment != null))
             {
                 currentLine.spans.pop();
-                var leftSpan: AttributedSpan = new AttributedSpan("");
-                leftSpan.setFromSpan(currentSpan);
-                leftSpan.attachment = null;
-                leftSpan.range.length = startAt - leftSpan.range.index;//TODO opt
-                leftSpan.updateString();
-                if (leftSpan.range.length > 0)
+                if (leftSpanLength > 0)
                 {
+                    var leftSpan: AttributedSpan = new AttributedSpan("");
+                    leftSpan.setFromSpan(currentSpan);
+                    leftSpan.attachment = null;
+                    leftSpan.range.length = leftSpanLength;
+                    leftSpan.updateString();
                     currentLine.spans.push(leftSpan);
                 }
 
                 var rightSpan: AttributedSpan = new AttributedSpan("");
                 rightSpan.setFromSpan(currentSpan);
                 rightSpan.range.index = startAt;
-                rightSpan.range.length = currentSpan.range.length - leftSpan.range.length;
+                rightSpan.range.length = currentSpan.range.length - leftSpanLength;
                 rightSpan.updateString();
 
                 currentSpan = rightSpan;
