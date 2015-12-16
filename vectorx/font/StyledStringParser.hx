@@ -27,6 +27,7 @@ class StyledStringParser
     private function reset(): Void
     {
         attributesStack = new Array<StringAttributes>();
+        resultAttributes = new Array<StringAttributes>();
         currentString = new StringBuf();
         currentCharIndex = 0;
         sourceString = null;
@@ -47,7 +48,6 @@ class StyledStringParser
             code.add(currentChar);
         }
 
-        nextChar();
         return code.toString();
     }
 
@@ -62,9 +62,10 @@ class StyledStringParser
             return;
         }
 
-        var range: AttributedRange = new AttributedRange(currentString.length - 1);
-        var attr: StringAttributes;
+        var range: AttributedRange = new AttributedRange(currentString.length, 0);
+        var attr: StringAttributes = null;
 
+        trace('k: ${kv[0]} v: ${kv[1]}');
 
         switch(kv[0])
         {
@@ -75,12 +76,16 @@ class StyledStringParser
             case "kern": attr = {range: range, kern: Std.parseFloat(kv[1])};
             case "strokeWidth": attr = {range: range, strokeWidth: Std.parseFloat(kv[1])};
             case "strokeColor": attr = {range: range, strokeColor: colors.get(kv[1])};
+            default: trace('undefined code "$currentChar""');
         }
 
+        pushAttribute(attr);
     }
 
     private function pushAttribute(attribute: StringAttributes): StringAttributes
     {
+        trace('pushAttribute $attribute');
+
         attributesStack.push(attribute);
         currentAttribute = attribute;
         return currentAttribute;
@@ -89,6 +94,8 @@ class StyledStringParser
     private function popAttribute(): StringAttributes
     {
         var attr = attributesStack.pop();
+        trace('popAttribute $attr');
+
         resultAttributes.push(attr);
         if (attributesStack.length > 0)
         {
@@ -126,13 +133,14 @@ class StyledStringParser
             else
             {
                 currentString.add(currentChar);
+                trace(currentString);
+                updateAttributes();
             }
 
-            currentString.add(currentChar);
-            updateAttributes();
             nextChar();
         }
 
+        trace(resultAttributes);
         var attrString = new AttributedString(currentString.toString());
         for (attr in resultAttributes)
         {
