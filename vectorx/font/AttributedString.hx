@@ -89,11 +89,10 @@ class AttributedString
     public function new (string: String, attributes: StringAttributes = null)
     {
         var index: Int  = 0;
-        var length: Int = 0;
+        var length: Int = string.length;
 
         // Convert string to internal representation.
         this.string = string;
-        var range: AttributedRange = new AttributedRange(0, string.length);
 
         if (attributes != null)
         {
