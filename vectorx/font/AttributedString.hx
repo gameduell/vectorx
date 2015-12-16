@@ -33,7 +33,7 @@ import types.Range;
 typedef StringAttributes =
 {
     /** Range to apply the attributes on the string **/
-    var range: Range; // Default entire string range
+    var range: AttributedRange; // Default entire string range
 
     /** Font from FontCache **/
     @:optional var font: Font; // Defaul null (default font)

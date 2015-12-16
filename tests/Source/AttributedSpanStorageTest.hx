@@ -1,3 +1,4 @@
+import haxe.macro.Expr.ExprOf;
 import vectorx.font.AttributedSpan;
 import vectorx.font.AttributedSpanStorage;
 

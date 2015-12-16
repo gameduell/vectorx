@@ -35,7 +35,7 @@ class StyledStringParser
 
     private function nextChar(): String
     {
-        currentChar = Utf8.charCodeAt(sourceString, ++currentCharIndex);
+        currentChar = Utf8.sub(sourceString, ++currentCharIndex, 1);
         return currentChar;
     }
 
@@ -62,8 +62,9 @@ class StyledStringParser
             return;
         }
 
-        var range: Range = new Range(currentString.length - 1);
+        var range: AttributedRange = new AttributedRange(currentString.length - 1);
         var attr: StringAttributes;
+
 
         switch(kv[0])
         {
@@ -89,6 +90,16 @@ class StyledStringParser
     {
         var attr = attributesStack.pop();
         resultAttributes.push(attr);
+        if (attributesStack.length > 0)
+        {
+            currentAttribute = attributesStack[attributesStack.length - 1];
+        }
+        else
+        {
+            currentAttribute = null;
+        }
+
+        return currentAttribute;
     }
 
     private function updateAttributes()
@@ -99,7 +110,7 @@ class StyledStringParser
         }
     }
 
-    public function toAttributedString(styledString: String, fontAliases: FontAliasesStorage, colors: StringMap<Color4F>): AttributedString
+    public function toAttributedString(styledString: String, fontAliases: FontAliasesStorage, fontCache: FontCache, colors: StringMap<Color4F>): AttributedString
     {
         reset();
 
@@ -110,11 +121,11 @@ class StyledStringParser
         {
             if (currentChar == '[')
             {
-                parseCode(fontAliases, colors);
+                parseCode(fontAliases, fontCache, colors);
             }
             else
             {
-                currentString.add(currentChar)
+                currentString.add(currentChar);
             }
 
             currentString.add(currentChar);
