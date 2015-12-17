@@ -9,6 +9,18 @@ import StringTools;
 
 using StringTools;
 
+class StyledStringAttribute
+{
+    public var stringAttributes: StringAttributes;
+    public var priority: Int;
+
+    public function new(attr: StringAttributes, priority: Int)
+    {
+        this.stringAttributes = attr;
+        this.priority = priority;
+    }
+}
+
 class StyledStringParser
 {
     private var attributesStack: Array<StringAttributes>;
@@ -17,7 +29,7 @@ class StyledStringParser
     private var sourceString: String;
     private var currentCharIndex: Int;
     private var currentChar: String;
-    private var resultAttributes: Array<StringAttributes>;
+    private var resultAttributes: Array<StyledStringAttribute>;
 
     public function new()
     {
@@ -27,7 +39,7 @@ class StyledStringParser
     private function reset(): Void
     {
         attributesStack = new Array<StringAttributes>();
-        resultAttributes = new Array<StringAttributes>();
+        resultAttributes = new Array<StyledStringAttribute>();
         currentString = new StringBuf();
         currentCharIndex = 0;
         sourceString = null;
@@ -76,7 +88,7 @@ class StyledStringParser
             case "kern": attr = {range: range, kern: Std.parseFloat(kv[1])};
             case "strokeWidth": attr = {range: range, strokeWidth: Std.parseFloat(kv[1])};
             case "strokeColor": attr = {range: range, strokeColor: colors.get(kv[1])};
-            default: trace('undefined code "$currentChar""');
+            default: throw('undefined code "$currentChar""');
         }
 
         pushAttribute(attr);
@@ -93,10 +105,11 @@ class StyledStringParser
 
     private function popAttribute(): StringAttributes
     {
+        var priority = attributesStack.length;
         var attr = attributesStack.pop();
         trace('popAttribute $attr');
 
-        resultAttributes.push(attr);
+        resultAttributes.push(new StyledStringAttribute(attr, priority));
         if (attributesStack.length > 0)
         {
             currentAttribute = attributesStack[attributesStack.length - 1];
@@ -140,11 +153,25 @@ class StyledStringParser
             nextChar();
         }
 
+        resultAttributes.sort(function(a: StyledStringAttribute, b: StyledStringAttribute) : Int
+        {
+            if (a.priority == b.priority)
+            {
+                return 0;
+            }
+            if (a.priority > b.priority)
+            {
+                return 1;
+            }
+
+            return -1;
+        });
+
         trace(resultAttributes);
         var attrString = new AttributedString(currentString.toString());
         for (attr in resultAttributes)
         {
-            attrString.applyAttributes(attr);
+            attrString.applyAttributes(attr.stringAttributes);
         }
 
         reset();
