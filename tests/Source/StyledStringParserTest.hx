@@ -18,7 +18,16 @@ class StyledStringParserTest extends unittest.TestCase
         var attributedString = StyledString.toAttributedString(string, aliases, fontCache, colors);
 
         trace(attributedString.attributeStorage.spans);
+
         assertTrue(attributedString.attributeStorage.spans.length == 2);
+
+        assertTrue(attributedString.attributeStorage.spans[0].font.sizeInPt == 12);
+        assertTrue(attributedString.attributeStorage.spans[0].range.index == 0);
+        assertTrue(attributedString.attributeStorage.spans[0].range.length == 3);
+
+        assertTrue(attributedString.attributeStorage.spans[1].font.sizeInPt == 14);
+        assertTrue(attributedString.attributeStorage.spans[1].range.index == 3);
+        assertTrue(attributedString.attributeStorage.spans[1].range.length == 3);
     }
 
     private function initFontCache(): FontCache
