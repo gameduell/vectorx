@@ -77,7 +77,7 @@ class StyledStringParser
         var range: AttributedRange = new AttributedRange(currentString.length, 0);
         var attr: StringAttributes = null;
 
-        trace('k: ${kv[0]} v: ${kv[1]}');
+        //trace('k: ${kv[0]} v: ${kv[1]}');
 
         switch(kv[0])
         {
@@ -88,7 +88,7 @@ class StyledStringParser
             case "kern": attr = {range: range, kern: Std.parseFloat(kv[1])};
             case "strokeWidth": attr = {range: range, strokeWidth: Std.parseFloat(kv[1])};
             case "strokeColor": attr = {range: range, strokeColor: colors.get(kv[1])};
-            default: throw('undefined code "$currentChar""');
+            default: throw('undefined code "${kv[0]}""');
         }
 
         pushAttribute(attr);
@@ -96,7 +96,7 @@ class StyledStringParser
 
     private function pushAttribute(attribute: StringAttributes): StringAttributes
     {
-        trace('pushAttribute $attribute');
+        //trace('pushAttribute $attribute');
 
         attributesStack.push(attribute);
         currentAttribute = attribute;
@@ -107,7 +107,7 @@ class StyledStringParser
     {
         var priority = attributesStack.length;
         var attr = attributesStack.pop();
-        trace('popAttribute $attr');
+        //trace('popAttribute $attr');
 
         resultAttributes.push(new StyledStringAttribute(attr, priority));
         if (attributesStack.length > 0)
@@ -146,7 +146,7 @@ class StyledStringParser
             else
             {
                 currentString.add(currentChar);
-                trace(currentString);
+                //trace(currentString);
                 updateAttributes();
             }
 
@@ -167,7 +167,7 @@ class StyledStringParser
             return -1;
         });
 
-        trace(resultAttributes);
+        //trace(resultAttributes);
         var attrString = new AttributedString(currentString.toString());
         for (attr in resultAttributes)
         {

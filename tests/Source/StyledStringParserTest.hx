@@ -20,6 +20,7 @@ class StyledStringParserTest extends unittest.TestCase
         trace(attributedString.attributeStorage.spans);
 
         assertTrue(attributedString.attributeStorage.spans.length == 2);
+        assertTrue(attributedString.string == "abcdef");
 
         assertTrue(attributedString.attributeStorage.spans[0].font.sizeInPt == 12);
         assertTrue(attributedString.attributeStorage.spans[0].range.index == 0);
@@ -28,6 +29,33 @@ class StyledStringParserTest extends unittest.TestCase
         assertTrue(attributedString.attributeStorage.spans[1].font.sizeInPt == 14);
         assertTrue(attributedString.attributeStorage.spans[1].range.index == 3);
         assertTrue(attributedString.attributeStorage.spans[1].range.length == 3);
+    }
+
+    public function testNested(): Void
+    {
+        var fontCache = initFontCache();
+        var colors: StringMap<Color4F> = initColors();
+        var aliases: FontAliasesStorage = initFontAliases();
+        var string = "[f=arial_12]a[f=arial_14]bc[/f]def[/f]";
+        var attributedString = StyledString.toAttributedString(string, aliases, fontCache, colors);
+
+        trace(attributedString.attributeStorage.spans);
+
+        assertTrue(attributedString.attributeStorage.spans.length == 3);
+        assertTrue(attributedString.string == "abcdef");
+
+        assertTrue(attributedString.attributeStorage.spans[0].font.sizeInPt == 12);
+        assertTrue(attributedString.attributeStorage.spans[0].range.index == 0);
+        assertTrue(attributedString.attributeStorage.spans[0].range.length == 1);
+
+        assertTrue(attributedString.attributeStorage.spans[1].font.sizeInPt == 14);
+        assertTrue(attributedString.attributeStorage.spans[1].range.index == 1);
+        assertTrue(attributedString.attributeStorage.spans[1].range.length == 2);
+
+        assertTrue(attributedString.attributeStorage.spans[2].font.sizeInPt == 12);
+        assertTrue(attributedString.attributeStorage.spans[2].range.index == 3);
+        assertTrue(attributedString.attributeStorage.spans[2].range.length == 3);
+
     }
 
     private function initFontCache(): FontCache
