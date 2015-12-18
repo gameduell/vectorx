@@ -81,8 +81,26 @@ class StyledStringParser
 
         switch(kv[0])
         {
-            case "f" | "font": attr = {range: range, font: aliases.getFont(kv[1], cache)};
-            case "c" | "color": attr = {range: range, foregroundColor: colors.get(kv[1])};
+            case "f" | "font":
+                {
+                    var font = aliases.getFont(kv[1], cache);
+                    if (font == null)
+                    {
+                        throw 'Font alias ${kv[1]} is not found';
+                    }
+
+                    attr = {range: range, font: font};
+                }
+
+            case "c" | "color":
+                {
+                    var color = colors.get(kv[1]);
+                    if (color == null)
+                    {
+                        throw 'Color ${kv[1]} is not found';
+                    }
+                    attr = {range: range, foregroundColor:color };
+                }
             case "bg" | "background": attr = {range: range, backgroundColor: colors.get(kv[1])};
             case "basline": attr = {range: range, baselineOffset: Std.parseFloat(kv[1])};
             case "kern": attr = {range: range, kern: Std.parseFloat(kv[1])};
@@ -171,6 +189,7 @@ class StyledStringParser
         var attrString = new AttributedString(currentString.toString());
         for (attr in resultAttributes)
         {
+            //trace(attr);
             attrString.applyAttributes(attr.stringAttributes);
         }
 
