@@ -165,7 +165,7 @@ class FontContext
                     attachmentWidth = span.attachment.bounds.width + 2;
                 }
 
-                //debugBox(x, y + alignY, measureX + attachmentWidth, measureY);
+                debugBox(x, y + alignY, measureX + attachmentWidth, measureY);
 
                 var dbgSpanWidth: Float = 0.0;
                 var bboxX = x;
@@ -181,7 +181,7 @@ class FontContext
                         var h = (-face.glyph.bounds.y2 - -face.glyph.bounds.y1) * scale;
                         //trace('h: $h y: ${measureY + by + alignY} max: $maxSpanHeight');
                         //trace('${Utf8.sub(spanString, i, 1)} w: $w h: $h advance: ${face.glyph.advanceWidth * scale} kern: $kern bboxX: ${bboxX + face.glyph.advanceWidth * scale + kern - textLayout.alignX(line)}');
-                        //debugBox(bboxX + bx, y + measureY + by + alignY + baseLineOffset, w, h);
+                        debugBox(bboxX + bx, y + measureY + by + alignY + baseLineOffset, w, h);
                         ////debugBox(bboxX, y + measureY + by + alignY + baseLineOffset, face.glyph.advanceWidth * scale + kern, line.maxSpanHeight);
                     }
 
@@ -306,11 +306,13 @@ class FontContext
 
     private function renderDebugPath(renderer: SolidScanlineRenderer)
     {
-        rasterizer.addPath(debugPathStroke);
-        renderer.color = SVGColors.get("hotpink");
-        SolidScanlineRenderer.renderScanlines(rasterizer, scanline, renderer);
-        rasterizer.reset();
-        debugPath.removeAll();
+        #if vectorDebugDraw
+            rasterizer.addPath(debugPathStroke);
+            renderer.color = SVGColors.get("hotpink");
+            SolidScanlineRenderer.renderScanlines(rasterizer, scanline, renderer);
+            rasterizer.reset();
+            debugPath.removeAll();
+        #end
     }
 
     private static function box(target: VectorPath, x: Float, y: Float, w: Float, h: Float)
@@ -324,6 +326,8 @@ class FontContext
 
     private function debugBox(x: Float, y: Float, w: Float, h: Float)
     {
-        box(debugPath, x, y, w, h);
+        #if vectorDebugDraw
+            box(debugPath, x, y, w, h);
+        #end
     }
 }
