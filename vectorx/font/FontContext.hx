@@ -44,8 +44,6 @@ import types.Color4F;
 import vectorx.font.AttributedString.StringAttributes;
 import lib.ha.core.memory.MemoryAccess;
 import lib.ha.rfpx.TrueTypeCollection;
-import lib.ha.rfpx.TrueTypeCollection;
-import tests.utils.AssetLoader;
 import lib.ha.aggx.color.RgbaColor;
 import lib.ha.aggx.typography.FontEngine;
 import lib.ha.aggx.renderer.SolidScanlineRenderer;
@@ -76,7 +74,7 @@ class FontContext
 
     private static var defaultAttributes: StringAttributes =
     {
-        range: new Range(),
+        range: new AttributedRange(),
         foregroundColor: new Color4F(),
         baselineOffset: 0,
         strokeWidth: 0,
