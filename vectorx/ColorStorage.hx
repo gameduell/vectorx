@@ -67,7 +67,7 @@ class ColorStorage
     {
         this.width = width;
         this.height = height;
-        this.data = new Data(width * height * COMPONENTS * 4);
+        this.data = new Data(width * height * COMPONENTS);
         this.selectedRect = new RectI();
         this.selectedRect.width = width;
         this.selectedRect.height = height;
