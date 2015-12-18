@@ -26,6 +26,7 @@
 
 package tests.fontTest;
 
+import vectorx.font.AttributedRange;
 import vectorx.font.FontAttachment;
 import lib.ha.core.math.Calc;
 import lib.ha.aggx.RenderingBuffer;
@@ -71,8 +72,8 @@ class FontTest extends OpenGLTest
     static private var texture: GLTexture;
 
     //---------------------------------------------------------------------------------------------------
-    static var pixelBufferWidth:UInt = 1024;
-    static var pixelBufferHeight:UInt = 768;
+    static var pixelBufferWidth:UInt = 500;
+    static var pixelBufferHeight:UInt = 500;
     static var pixelBufferSize:UInt = pixelBufferWidth * pixelBufferHeight * ColorStorage.COMPONENTS;
     //---------------------------------------------------------------------------------------------------
     static var data: Data;
@@ -261,32 +262,32 @@ class FontTest extends OpenGLTest
         var attachmentColorStorage = renderAttachment();
         var attachment = new FontAttachment(attachmentColorStorage, 0, 0, 70, 32);
 
-        var stringAttributes: StringAttributes = {range: new Range(), font: font, backgroundColor: lightGrey, attachment: attachment};
+        var stringAttributes: StringAttributes = {range: new AttributedRange(), font: font, backgroundColor: lightGrey, attachment: attachment};
         var attributedString: AttributedString = new AttributedString(string0, stringAttributes);
 
         //trace('test inside case');
-        var stringAttributes2: StringAttributes = {range: new Range(10, 10), font: font2, foregroundColor: red, backgroundColor: white, kern: -10, attachment: attachment};
+        var stringAttributes2: StringAttributes = {range: new AttributedRange(10, 10), font: font2, foregroundColor: red, backgroundColor: white, kern: -10, attachment: attachment};
         attributedString.applyAttributes(stringAttributes2);
         //trace(attributedString);
 
         //trace('test left-right case');
-        var stringAttributes3: StringAttributes = {range: new Range(5, 10), font: font3, foregroundColor: green, attachment: attachment};
+        var stringAttributes3: StringAttributes = {range: new AttributedRange(5, 10), font: font3, foregroundColor: green, attachment: attachment};
         attributedString.applyAttributes(stringAttributes3);
         //trace(attributedString);
 
         //trace('full cover');
-        var stringAttributes4: StringAttributes = {range: new Range(5, 10), font: font4, foregroundColor: blue, attachment: attachment};
+        var stringAttributes4: StringAttributes = {range: new AttributedRange(5, 10), font: font4, foregroundColor: blue, attachment: attachment};
         attributedString.applyAttributes(stringAttributes4);
         //trace(attributedString);
 
-        var stringAttributes5: StringAttributes = {range: new Range(24, 3), backgroundColor: white, attachment: attachment};
+        var stringAttributes5: StringAttributes = {range: new AttributedRange(24, 3), backgroundColor: white, attachment: attachment};
         attributedString.applyAttributes(stringAttributes5);
         //trace(attributedString);
 
-        var stringAttributes6: StringAttributes = {range: new Range(2, 10), strokeWidth: -3, strokeColor: green, attachment: attachment};
+        var stringAttributes6: StringAttributes = {range: new AttributedRange(2, 10), strokeWidth: -3, strokeColor: green, attachment: attachment};
         attributedString.applyAttributes(stringAttributes6);
 
-        var stringAttributes7: StringAttributes = {range: new Range(27, 131), attachment: attachment};
+        var stringAttributes7: StringAttributes = {range: new AttributedRange(27, 131), attachment: attachment};
         attributedString.applyAttributes(stringAttributes7);
         trace(attributedString);
 
