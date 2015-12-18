@@ -146,9 +146,12 @@ class AttributedString
     public function applyAttributes(attributes: StringAttributes)
     {
         //trace("AttributedString::applyAttributes");
+        //trace('string: $string');
         var span: AttributedSpan = new AttributedSpan(string, attributes.range.index, attributes.range.length);
         span.applyAttributes(attributes);
+        //trace('adding span: $span');
         attributeStorage.addSpan(span);
+        //trace('spans: ${attributeStorage.spans}');
     }
 
     public function endEditing()
