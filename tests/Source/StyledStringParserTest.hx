@@ -37,7 +37,7 @@ class StyledStringParserTest extends unittest.TestCase
         var colors: StringMap<Color4F> = initColors();
         var aliases: FontAliasesStorage = initFontAliases();
         var string = "[f=arial_12]a[f=arial_14]bc[/f]def[/f]";
-        var attributedString = StyledString.toAttributedString(string, aliases, fontCache, colors);
+        var attributedString = StyledString.toAttributedStringWithParameters(string, aliases, fontCache, colors);
 
         trace(attributedString.attributeStorage.spans);
 

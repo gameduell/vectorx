@@ -1,5 +1,6 @@
 package vectorx.font;
 
+import logger.Logger;
 import types.Color4F;
 import haxe.ds.StringMap;
 import types.Range;
@@ -209,6 +210,7 @@ class StyledStringParser
         }
         catch(ex: String)
         {
+            Logger.print(ex);
             reset();
             ex = '!!$ex!!';
             var attrString = new AttributedString(ex);
