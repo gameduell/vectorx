@@ -67,55 +67,59 @@ class StyledStringParser
     private function parseCode(aliases: FontAliasesStorage, cache: FontCache, colors: StringMap<Color4F>): Void
     {
         var code = readCode();
-        var kv = code.split('=');
-
-        if (kv[0].startsWith("/"))
-        {
-            popAttribute();
-            return;
-        }
-
+        var codes = code.split(",");
         var range: AttributedRange = new AttributedRange(currentString.length, 0);
-        var attr: StringAttributes = null;
+        var attr: StringAttributes = {range: range};
 
-        //trace('k: ${kv[0]} v: ${kv[1]}');
-
-        switch(kv[0])
+        for (code in codes)
         {
-            case "f" | "font":
-                {
-                    var font = aliases.getFont(kv[1], cache);
-                    if (font == null)
+            var kv = code.trim().split('=');
+
+            if (kv[0].startsWith("/"))
+            {
+                popAttribute();
+                return;
+            }
+
+            //trace('k: ${kv[0]} v: ${kv[1]}');
+
+            switch(kv[0])
+            {
+                case "f" | "font":
                     {
-                        throw 'Font alias ${kv[1]} is not found';
+                        var font = aliases.getFont(kv[1], cache);
+                        if (font == null)
+                        {
+                            throw 'Font alias ${kv[1]} is not found';
+                        }
+
+                        attr.font = font;
                     }
 
-                    attr = {range: range, font: font};
-                }
-
-            case "c" | "color":
-                {
-                    var color = colors.get(kv[1]);
-                    if (color == null)
+                case "c" | "color":
                     {
-                        throw 'Color ${kv[1]} is not found';
+                        var color = colors.get(kv[1]);
+                        if (color == null)
+                        {
+                            throw 'Color ${kv[1]} is not found';
+                        }
+                        attr.foregroundColor = color;
                     }
-                    attr = {range: range, foregroundColor:color };
-                }
-            case "bg" | "background":
-                {
-                    var color = colors.get(kv[1]);
-                    if (color == null)
+                case "bg" | "background":
                     {
-                        throw 'Background color ${kv[1]} is not found';
+                        var color = colors.get(kv[1]);
+                        if (color == null)
+                        {
+                            throw 'Background color ${kv[1]} is not found';
+                        }
+                        attr.backgroundColor = color;
                     }
-                    attr = {range: range, backgroundColor:color };
-                }
-            case "basline": attr = {range: range, baselineOffset: Std.parseFloat(kv[1])};
-            case "kern": attr = {range: range, kern: Std.parseFloat(kv[1])};
-            case "strokeWidth": attr = {range: range, strokeWidth: Std.parseFloat(kv[1])};
-            case "strokeColor": attr = {range: range, strokeColor: colors.get(kv[1])};
-            default: throw('undefined code "${kv[0]}""');
+                case "basline": attr.baselineOffset = Std.parseFloat(kv[1]);
+                case "kern": attr.kern = Std.parseFloat(kv[1]);
+                case "strokeWidth": attr.strokeWidth = Std.parseFloat(kv[1]);
+                case "strokeColor": attr.strokeColor = colors.get(kv[1]);
+                default: throw('undefined code "${kv[0]}""');
+            }
         }
 
         pushAttribute(attr);
