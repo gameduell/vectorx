@@ -152,49 +152,71 @@ class StyledStringParser
     {
         reset();
 
-        sourceString = styledString;
-        currentChar = Utf8.sub(styledString, currentCharIndex, 1);
-
-        while (currentCharIndex < Utf8.length(styledString))
+        try
         {
-            if (currentChar == '[')
+            sourceString = styledString;
+            currentChar = Utf8.sub(styledString, currentCharIndex, 1);
+
+            while (currentCharIndex < Utf8.length(styledString))
             {
-                parseCode(fontAliases, fontCache, colors);
-            }
-            else
-            {
-                currentString.add(currentChar);
-                //trace(currentString);
-                updateAttributes();
+                if (currentChar == '[')
+                {
+                    parseCode(fontAliases, fontCache, colors);
+                }
+                else
+                {
+                    currentString.add(currentChar);
+//trace(currentString);
+                    updateAttributes();
+                }
+
+                nextChar();
             }
 
-            nextChar();
+            resultAttributes.sort(function(a: StyledStringAttribute, b: StyledStringAttribute) : Int
+            {
+                if (a.priority == b.priority)
+                {
+                    return 0;
+                }
+                if (a.priority > b.priority)
+                {
+                    return 1;
+                }
+
+                return -1;
+            });
+
+//trace(resultAttributes);
+            var attrString = new AttributedString(currentString.toString());
+            for (attr in resultAttributes)
+            {
+//trace(attr);
+                attrString.applyAttributes(attr.stringAttributes);
+            }
+
+            reset();
+
+            return attrString;
+        }
+        catch(ex: String)
+        {
+            reset();
+            ex = '!!$ex!!';
+            var attrString = new AttributedString(ex);
+            var font = fontCache.createFontWithNameAndSize(null, 25);
+            var attr =
+            {
+                font: font,
+                range: new AttributedRange(0, ex.length),
+                foregroundColor: new Color4F(1, 0.5, 0.8, 1.0),
+                strokeWidth: -3.0,
+                strokeColor: new Color4F(0.0, 0.0, 0.0, 1.0)
+            };
+            attrString.applyAttributes(attr);
+
+            return attrString;
         }
 
-        resultAttributes.sort(function(a: StyledStringAttribute, b: StyledStringAttribute) : Int
-        {
-            if (a.priority == b.priority)
-            {
-                return 0;
-            }
-            if (a.priority > b.priority)
-            {
-                return 1;
-            }
-
-            return -1;
-        });
-
-        //trace(resultAttributes);
-        var attrString = new AttributedString(currentString.toString());
-        for (attr in resultAttributes)
-        {
-            //trace(attr);
-            attrString.applyAttributes(attr.stringAttributes);
-        }
-
-        reset();
-
-        return attrString;
     }
 }
