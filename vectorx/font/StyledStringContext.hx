@@ -26,7 +26,6 @@ class StyledStringContext
     public static function create(configJson: String, loadFontFunc: String -> Data): StyledStringContext
     {
         var json: StyledStringContextConfing = Json.parse(configJson);
-        trace(json);
 
         var defaultFont: String = json.defaultFont;
         if (defaultFont == null)
@@ -37,14 +36,11 @@ class StyledStringContext
         var fontCache = new FontCache(loadFontFunc(defaultFont));
         var context = new StyledStringContext(fontCache);
 
-        trace(json.colors);
         if (json.colors != null)
         {
             for (name in Reflect.fields(json.colors))
             {
-                trace(name);
                 var colorValue: String = Reflect.field(json.colors, name);
-                trace(colorValue);
                 var color = SVGStringParsers.parseColor(colorValue);
                 context.colors.set(name, new Color4F(color.r / 255.0, color.g / 255.0, color.b / 255.0, color.a / 255.0));
             }
