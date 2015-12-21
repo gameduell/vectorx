@@ -101,7 +101,15 @@ class StyledStringParser
                     }
                     attr = {range: range, foregroundColor:color };
                 }
-            case "bg" | "background": attr = {range: range, backgroundColor: colors.get(kv[1])};
+            case "bg" | "background":
+                {
+                    var color = colors.get(kv[1]);
+                    if (color == null)
+                    {
+                        throw 'Background color ${kv[1]} is not found';
+                    }
+                    attr = {range: range, backgroundColor:color };
+                }
             case "basline": attr = {range: range, baselineOffset: Std.parseFloat(kv[1])};
             case "kern": attr = {range: range, kern: Std.parseFloat(kv[1])};
             case "strokeWidth": attr = {range: range, strokeWidth: Std.parseFloat(kv[1])};
@@ -166,7 +174,7 @@ class StyledStringParser
                 else
                 {
                     currentString.add(currentChar);
-//trace(currentString);
+                    //trace(currentString);
                     updateAttributes();
                 }
 
@@ -187,11 +195,11 @@ class StyledStringParser
                 return -1;
             });
 
-//trace(resultAttributes);
+            //trace(resultAttributes);
             var attrString = new AttributedString(currentString.toString());
             for (attr in resultAttributes)
             {
-//trace(attr);
+                //trace(attr);
                 attrString.applyAttributes(attr.stringAttributes);
             }
 
