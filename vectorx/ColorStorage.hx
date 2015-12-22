@@ -63,11 +63,18 @@ class ColorStorage
     **/
     public var selectedRect(default, null): RectI;
 
-    public function new (width: Int, height: Int)
+    public function new (width: Int, height: Int, ?data: Data)
     {
         this.width = width;
         this.height = height;
-        this.data = new Data(width * height * COMPONENTS);
+        if (data != null)
+        {
+            this.data = data;
+        }
+        else
+        {
+            this.data = new Data(width * height * COMPONENTS);
+        }
         this.selectedRect = new RectI();
         this.selectedRect.width = width;
         this.selectedRect.height = height;

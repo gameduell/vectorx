@@ -11,20 +11,22 @@ typedef StyledStringContextConfing = {defaultFont: String, colors: Array<Dynamic
 
 class StyledStringContext
 {
-
     public var fontCache(default, null): FontCache;
+    public var fontAttachments(default, null): FontAttachmentStorage;
     public var fontAliases(default, null): FontAliasesStorage;
     public var colors(default, null): StringMap<Color4F>;
 
     public function new(fontCache: FontCache)
     {
         this.fontCache = fontCache;
+        fontAttachments = new FontAttachmentStorage();
         fontAliases = new FontAliasesStorage();
         colors = new StringMap<Color4F>();
     }
 
-    public static function create(configJson: String, loadFontFunc: String -> Data): StyledStringContext
+    public static function create(configJson: String, loadFontFunc: String -> Data, loadImage: String -> ColorStorage): StyledStringContext
     {
+
         var json: StyledStringContextConfing = Json.parse(configJson);
 
         var defaultFont: String = json.defaultFont;
@@ -35,6 +37,7 @@ class StyledStringContext
 
         var fontCache = new FontCache(loadFontFunc(defaultFont));
         var context = new StyledStringContext(fontCache);
+        context.fontAttachments.loadImage = loadImage;
 
         if (json.colors != null)
         {

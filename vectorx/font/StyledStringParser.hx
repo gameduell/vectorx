@@ -82,6 +82,44 @@ class StyledStringParser
         return code.toString();
     }
 
+    private function readAttachment(): String
+    {
+        var attachment: StringBuf = new StringBuf();
+        while (nextChar() != "}")
+        {
+            attachment.add(currentChar);
+        }
+
+        return attachment.toString();
+    }
+
+    private function parseAttachment(fontAttachments: FontAttachmentStorage): Void
+    {
+        var attachmentName = readAttachment();
+        var range: AttributedRange = new AttributedRange(currentString.length, 0);
+        var attr: StringAttributes =
+        {
+            range: range,
+            font: currentAttribute.font,
+            foregroundColor: currentAttribute.foregroundColor,
+            backgroundColor: currentAttribute.backgroundColor,
+            baselineOffset: currentAttribute.baselineOffset,
+            kern: currentAttribute.kern,
+            strokeWidth: currentAttribute.strokeWidth,
+            strokeColor: currentAttribute.strokeColor
+        };
+
+        var attachment = fontAttachments.getAttachment(attachmentName);
+        if (attachment == null)
+        {
+            throw 'Attachment $attachmentName is not found';
+        }
+        currentAttribute.attachment = attachment;
+
+        popAttribute();
+        pushAttribute(attr);
+    }
+
     private function parseCode(aliases: FontAliasesStorage, cache: FontCache, colors: StringMap<Color4F>): Void
     {
         var code = readCode();
@@ -179,7 +217,7 @@ class StyledStringParser
         }
     }
 
-    public function toAttributedString(styledString: String, fontAliases: FontAliasesStorage, fontCache: FontCache, colors: StringMap<Color4F>): AttributedString
+    public function toAttributedString(styledString: String, fontAliases: FontAliasesStorage, fontCache: FontCache, fontAttachments: FontAttachmentStorage, colors: StringMap<Color4F>): AttributedString
     {
         reset();
 
@@ -193,6 +231,10 @@ class StyledStringParser
                 if (currentChar == '[' && !isEscapeChar)
                 {
                     parseCode(fontAliases, fontCache, colors);
+                }
+                else if (currentChar == '{' && !isEscapeChar)
+                {
+                    parseAttachment(fontAttachments);
                 }
                 else
                 {
