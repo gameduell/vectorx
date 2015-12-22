@@ -201,7 +201,15 @@ class StyledStringParser
             });
 
             //trace(resultAttributes);
+
             var attrString = new AttributedString(currentString.toString());
+            var defaultAttr =
+            {
+                font: fontCache.createFontWithNameAndSize(null, 25),
+                range: new AttributedRange(0, currentString.length)
+            };
+            attrString.applyAttributes(defaultAttr);
+
             for (attr in resultAttributes)
             {
                 //trace(attr);
