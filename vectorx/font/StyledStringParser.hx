@@ -31,6 +31,7 @@ class StyledStringParser
     private var currentCharIndex: Int;
     private var currentChar: String;
     private var resultAttributes: Array<StyledStringAttribute>;
+    private var isEscapeChar: Bool = false;
 
     public function new()
     {
@@ -49,7 +50,24 @@ class StyledStringParser
 
     private function nextChar(): String
     {
+        isEscapeChar = false;
+        if (currentCharIndex >= sourceString.length)
+        {
+            throw "unexpected end of string";
+        }
+
         currentChar = Utf8.sub(sourceString, ++currentCharIndex, 1);
+        if (currentChar == "\\")
+        {
+            var char = nextChar();
+            isEscapeChar = true;
+            switch (char)
+            {
+                case "n": currentChar = "\n";
+                case "t": currentChar = "\t";
+            }
+        }
+
         return currentChar;
     }
 
@@ -172,7 +190,7 @@ class StyledStringParser
 
             while (currentCharIndex < Utf8.length(styledString))
             {
-                if (currentChar == '[')
+                if (currentChar == '[' && !isEscapeChar)
                 {
                     parseCode(fontAliases, fontCache, colors);
                 }

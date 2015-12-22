@@ -85,7 +85,16 @@ class StyledStringParserTest extends unittest.TestCase
         assertTrue(attributedString.attributeStorage.spans[2].range.index == 3);
         assertTrue(attributedString.attributeStorage.spans[2].range.length == 3);
         assertTrue(attributedString.attributeStorage.spans[2].foregroundColor.isEqual(colors.get("red")));
+    }
 
+    public function testEscapeChars(): Void
+    {
+        var fontCache = initFontCache();
+        var colors: StringMap<Color4F> = initColors();
+        var aliases: FontAliasesStorage = initFontAliases();
+        var string = "abc\\[\\]";
+        var attributedString = StyledString.toAttributedStringWithParameters(string, aliases, fontCache, colors);
+        assertTrue(attributedString.string == "abc[]");
     }
 
     private function initFontCache(): FontCache

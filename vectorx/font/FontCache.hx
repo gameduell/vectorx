@@ -26,6 +26,7 @@
 
 package vectorx.font;
 
+import logger.Logger;
 import lib.ha.core.utils.Debug;
 import lib.ha.aggx.typography.FontEngine;
 import lib.ha.rfpx.TrueTypeCollection;
@@ -47,16 +48,15 @@ class FontCache
             var fontEngine: FontEngine = new FontEngine(ttc);
             fonts.set(fontEngine.currentFont.getName(), fontEngine);
             this.defaultFont = fontEngine.currentFont.getName();
-            trace('FontCache::new() Loaded default font ${this.defaultFont}');
+            Logger.print('FontCache::new() Loaded default font ${this.defaultFont}');
         }
     }
 
     public function preloadFontFromTTFData(data: Data)
     {
-        trace('FontCache:preloadFontFromTTFData');
         var ttc: TrueTypeCollection = TrueTypeCollection.create(data);
         var fontEngine: FontEngine = new FontEngine(ttc);
-        trace('Loaded font: ${fontEngine.currentFont.getName()}');
+        Logger.print('Loaded font: ${fontEngine.currentFont.getName()}');
         fonts.set(fontEngine.currentFont.getName(), fontEngine);
     }
 
