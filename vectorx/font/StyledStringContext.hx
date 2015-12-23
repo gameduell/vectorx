@@ -7,7 +7,7 @@ import types.Color4F;
 import haxe.ds.StringMap;
 
 typedef FontAliasConfig = {font: String, size: Int, alias: String};
-typedef StyledStringContextConfing = {defaultFont: String, colors: Array<Dynamic>, fonts: Array<FontAliasConfig>};
+typedef StyledStringContextConfing = {defaultFont: String, colors: Array<Dynamic>, fontAliases: Array<FontAliasConfig>, loadFonts: Array<String>};
 
 class StyledStringContext
 {
@@ -49,9 +49,17 @@ class StyledStringContext
             }
         }
 
-        if (json.fonts != null)
+        if (json.loadFonts != null)
         {
-            for (fontValue in json.fonts)
+            for (fontName in json.loadFonts)
+            {
+                fontCache.preloadFontFromTTFData(loadFontFunc(fontName));
+            }
+        }
+
+        if (json.fontAliases != null)
+        {
+            for (fontValue in json.fontAliases)
             {
                 context.fontAliases.addAlias(fontValue.alias, fontValue.font, fontValue.size);
             }
