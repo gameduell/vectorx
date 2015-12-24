@@ -18,20 +18,20 @@ typedef AttachmentConfig =
 {
     name: String,
     image: String,
-    x: Int,
-    y: Int,
+    ?x: Int,
+    ?y: Int,
     width: Int,
     height: Int,
-    anchorPoint: Float
+    ?anchorPoint: Float
 };
 
 typedef StyledStringContextConfing =
 {
     defaultFont: String,
-    colors: Array<Dynamic>,
-    fontAliases: Array<FontAliasConfig>,
-    loadFonts: Array<String>,
-    attachments: Array<AttachmentConfig>
+    ?colors: Array<Dynamic>,
+    ?fontAliases: Array<FontAliasConfig>,
+    ?loadFonts: Array<String>,
+    ?attachments: Array<AttachmentConfig>
 };
 
 class StyledStringContext
@@ -99,7 +99,8 @@ class StyledStringContext
                 rect.width = attachment.width;
                 rect.height = attachment.height;
 
-                context.fontAttachments.addAttachment(attachment.name, attachment.image, rect, attachment.anchorPoint);
+                var anchorPoint: Float = attachment.anchorPoint == null ? 0 : attachment.anchorPoint;
+                context.fontAttachments.addAttachment(attachment.name, attachment.image, rect, anchorPoint);
             }
         }
 
