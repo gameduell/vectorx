@@ -26,7 +26,6 @@ class StyledStringContext
 
     public static function create(configJson: String, loadFontFunc: String -> Data, loadImage: String -> ColorStorage): StyledStringContext
     {
-
         var json: StyledStringContextConfing = Json.parse(configJson);
 
         var defaultFont: String = json.defaultFont;

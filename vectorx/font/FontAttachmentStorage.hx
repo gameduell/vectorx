@@ -19,7 +19,7 @@ class FontAttachmentStorage
         return attachments.get(name);
     }
 
-    public function addAttachment(name: String, imageFile: String, bounds: RectI): Void
+    public function addAttachment(name: String, imageFile: String, bounds: RectI, anchorPoint: Float = 0): Void
     {
         var image = images.get(imageFile);
         if (image == null)
@@ -28,6 +28,7 @@ class FontAttachmentStorage
         }
 
         var attachment = new FontAttachment(image, bounds.x, bounds.y, bounds.width, bounds.height);
+        attachment.anchorPoint = anchorPoint;
         attachments.set(name, attachment);
     }
 }

@@ -40,7 +40,9 @@ class FontAttachment
     /** Defines the layout bounds of the receiver's graphical representation in the text coordinate system. (pts) **/
     public var bounds(default, null): RectI; // Default zero uses the selectedRect of the image
 
-    public function new(image: ColorStorage, x: Int, y: Int, width: Int, height: Int)
+    public var anchorPoint: Float;
+
+    public function new(image: ColorStorage, x: Int, y: Int, width: Int, height: Int, anchorPoint: Float = 0)
     {
         this.image = image;
         this.bounds = new RectI();
@@ -48,6 +50,7 @@ class FontAttachment
         this.bounds.y = y;
         this.bounds.width = width;
         this.bounds.height = height;
+        this.anchorPoint = anchorPoint;
     }
 
     public function toString(): String
