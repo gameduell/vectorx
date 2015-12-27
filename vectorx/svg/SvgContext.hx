@@ -75,9 +75,3 @@ class SvgContext
 
     }
 }
-
-
-class VectorBin
-{
-
-}

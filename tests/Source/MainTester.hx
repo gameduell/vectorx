@@ -24,6 +24,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+
 import vectorx.font.StyledStringParser;
 import types.haxeinterop.HaxeInputInteropStream;
 
@@ -37,6 +38,7 @@ import duellkit.DuellKit;
 
 import AttributedSpanStorageTest;
 import StyledStringParserTest;
+import SvgSerializerTest;
 
 class MainTester
 {
@@ -52,6 +54,7 @@ class MainTester
         r = new TestRunner(testComplete, DuellKit.instance().onError);
         r.add(new AttributedSpanStorageTest());
         r.add(new StyledStringParserTest());
+        r.add(new SvgSerializerTest());
 
         #if test
 
