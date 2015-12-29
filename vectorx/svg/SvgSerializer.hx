@@ -179,7 +179,11 @@ class SvgSerializer
             throw "String is too long";
         }
 
-        var encoded: String = utf8Encode(value);
+        #if !cpp
+            var encoded: String = utf8Encode(value);
+        #else
+            var encoded: String = value;
+        #end
 
         data.writeUInt16(encoded.length);
         data.offset += 2;
@@ -207,7 +211,11 @@ class SvgSerializer
             buf.addChar(char);
         }
 
-        return utf8Decode(buf.toString());
+        #if !cpp
+            return utf8Decode(buf.toString());
+        #else
+            return buf.toString();
+        #end
     }
 
     /*public static function readGradient(data: Data, value: SVGGradient): SVGGradient
