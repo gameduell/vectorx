@@ -1,5 +1,10 @@
 package vectorx.svg;
 
+import lib.ha.core.memory.Ref;
+import lib.ha.aggx.color.GradientRadialFocus;
+import lib.ha.aggx.color.SpanGradient.SpreadMethod;
+import lib.ha.aggx.color.RgbaColor;
+import lib.ha.aggxtest.AATest.ColorArray;
 import haxe.Utf8;
 import lib.ha.core.math.Calc;
 import haxe.Utf8;
@@ -174,6 +179,12 @@ class SvgSerializer
 
     public static function writeString(data: Data, value: String): Void
     {
+        if (value == null)
+        {
+            data.writeUInt16(0);
+            data.offset += 2;
+        }
+
         if (value.length > 0xfffe)
         {
             throw "String is too long";
@@ -218,13 +229,194 @@ class SvgSerializer
         #end
     }
 
-    /*public static function readGradient(data: Data, value: SVGGradient): SVGGradient
-    {
 
+    public static function writeRgbaColor(data: Data, value: RgbaColor): Void
+    {
+        data.writeUInt8(value.r);
+        data.offset++;
+        data.writeUInt8(value.g);
+        data.offset++;
+        data.writeUInt8(value.b);
+        data.offset++;
+        data.writeUInt8(value.a);
+        data.offset++;
     }
+
+    public static function readRgbaColor(data: Data, value: RgbaColor): Void
+    {
+        value.r = data.readUInt8();
+        data.offset++;
+        value.g = data.readUInt8();
+        data.offset++;
+        value.b = data.readUInt8();
+        data.offset++;
+        value.a = data.readUInt8();
+        data.offset++;
+    }
+
+    public static function writeColorArray(data: Data, value: ColorArray): Void
+    {
+        data.writeUInt16(value.size);
+        data.offset += 2;
+        for (i in 0 ... value.size)
+        {
+            writeRgbaColor(data, value.get(i));
+        }
+    }
+
+    public static function readColorArray(data: Data): ColorArray
+    {
+        var size: Int = data.readInt16();
+        data.offset += 2;
+        var value = new ColorArray(size);
+
+        for (i in 0 ... value.size)
+        {
+            var color = new RgbaColor();
+            readRgbaColor(data, color);
+            value.set(color, i);
+        }
+
+        return value;
+    }
+
+    public static function writeSvgStop(data: Data, value: SVGStop): Void
+    {
+        writeRgbaColor(data, value.color);
+        data.writeFloat32(value.offset);
+
+        data.offset += 4;
+    }
+
+    public static function readSvgStop(data: Data, value: SVGStop): Void
+    {
+        readRgbaColor(data, value.color);
+        value.offset = data.readFloat32();
+        data.offset += 4;
+    }
+
+    private static var isRadialGradient: Int = 1;
+    private static var isPad: Int = 1 << 1;
+    private static var isReflect: Int = 1 << 2;
+    private static var isRepeat: Int = 1 << 3;
+    private static var isUserSpace: Int = 1 << 4;
 
     public static function writeGradient(data: Data, value: SVGGradient): Void
     {
+        var flags: Int = 0;
+        if (value.type == GradientType.Radial)
+        {
+            flags |= isRadialGradient;
+        }
 
-    }*/
+        if (value.userSpace == true)
+        {
+            flags |= isUserSpace;
+        }
+
+        switch (value.spreadMethod)
+        {
+            case SpreadMethod.Pad: flags |= isPad;
+            case SpreadMethod.Repeat: flags |= isRepeat;
+            case SpreadMethod.Reflect: flags |= isReflect;
+        }
+
+        trace(flags);
+        data.writeUInt8(flags);
+        data.offset++;
+
+        writeString(data, value.id);
+        writeString(data, value.link);
+
+        data.writeInt16(value.stops.length);
+        for (i in value.stops)
+        {
+            writeSvgStop(data, i);
+        }
+
+        if (value.type == GradientType.Radial)
+        {
+            for (i in value.focalGradientParameters)
+            {
+                data.writeFloat32(i.value);
+                data.offset += 4;
+            }
+        }
+        else if (value.type == GradientType.Linear)
+        {
+            for (i in value.gradientVector)
+            {
+                data.writeFloat32(i.value);
+                data.offset += 4;
+            }
+        }
+    }
+
+    public static function readGradient(data: Data, value: SVGGradient)
+    {
+        var flags: Int = data.readUInt8();
+        trace(flags);
+        data.offset++;
+
+        if (flags | isRadialGradient != 0)
+        {
+            value.type = GradientType.Radial;
+        }
+        else
+        {
+            value.type = GradientType.Linear;
+        }
+
+        value.userSpace = flags | isUserSpace != 0;
+
+        if (flags | isPad != 0)
+        {
+            value.spreadMethod = SpreadMethod.Pad;
+        }
+        else if (flags | isRepeat != 0)
+        {
+            value.spreadMethod = SpreadMethod.Repeat;
+        }
+        else if (flags | isReflect != 0)
+        {
+            value.spreadMethod = SpreadMethod.Reflect;
+        }
+
+        value.id = readString(data);
+        var stops: Int = data.readInt16();
+        data.offset += 2;
+        for (i in 0 ... stops)
+        {
+            var stop = new SVGStop();
+            readSvgStop(data, stop);
+            value.stops.push(stop);
+        }
+
+        if (value.type == GradientType.Radial)
+        {
+            for (i in 0 ... value.focalGradientParameters.length)
+            {
+                if (value.focalGradientParameters[i] == null)
+                {
+                    value.focalGradientParameters[i] = Ref.getFloat();
+                }
+
+                value.focalGradientParameters[i].value = data.readFloat32();
+                data.offset += 4;
+            }
+        }
+        else if (value.type == GradientType.Linear)
+        {
+            for (i in 0 ... value.gradientVector.length)
+            {
+                if (value.gradientVector[i] == null)
+                {
+                    value.gradientVector[i] = Ref.getFloat();
+                }
+
+                value.gradientVector[i].value = data.readFloat32();
+                data.offset += 4;
+            }
+        }
+    }
 }
