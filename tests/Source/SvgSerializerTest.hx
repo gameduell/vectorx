@@ -1,3 +1,4 @@
+import lib.ha.core.geometry.AffineTransformer;
 import lib.ha.core.memory.Ref;
 import lib.ha.aggx.color.SpanGradient.SpreadMethod;
 import lib.ha.aggx.color.RgbaColor;
@@ -44,6 +45,41 @@ class SvgSerializerTest extends unittest.TestCase
         assertEquals(a.offset, b.offset);
     }
 
+    private function assertEqualsFloat(a: Float, b: Float)
+    {
+        if (Math.abs(a - b) > 0.000001)
+        {
+            trace('$a is not equals $b');
+        }
+
+        assertTrue(Math.abs(a - b) < 0.000001);
+    }
+
+    private function assertEqualsTransform(transform1: AffineTransformer, transform2: AffineTransformer)
+    {
+        assertEqualsFloat(transform1.sx, transform2.sx);
+        assertEqualsFloat(transform1.shy, transform2.shy);
+        assertEqualsFloat(transform1.shx, transform2.shx);
+        assertEqualsFloat(transform1.sy, transform2.sy);
+        assertEqualsFloat(transform1.tx, transform2.tx);
+        assertEqualsFloat(transform1.ty, transform2.ty);
+    }
+
+    public function testAffineTransformer(): Void
+    {
+        var data = new Data(1024);
+        ////return '{$sx, $shy, $shx, $sy, $tx, $ty}';
+        var transform1 = new AffineTransformer(0.1, 0.2, 0.3, 0.4, 0.5, 0.6);
+        SvgSerializer.writeAffineTransformer(data, transform1);
+
+        data.offset = 0;
+
+        var transform2 = new AffineTransformer();
+        SvgSerializer.readAffineTransformer(data, transform2);
+
+        assertEqualsTransform(transform1, transform2);
+    }
+
     public function testGradients(): Void
     {
         var data: Data = new Data(2048);
@@ -58,6 +94,7 @@ class SvgSerializerTest extends unittest.TestCase
 
         var gradient1: SVGGradient = new SVGGradient();
         gradient1.type = GradientType.Linear;
+        gradient1.transform = new AffineTransformer(0.1, 0.2, 0.3, 0.4, 0.5, 0.6);
         gradient1.stops.push(stop1);
         gradient1.stops.push(stop2);
         gradient1.id = "gradient1";
@@ -72,6 +109,7 @@ class SvgSerializerTest extends unittest.TestCase
 
         var gradient2: SVGGradient = new SVGGradient();
         gradient2.type = GradientType.Radial;
+        gradient2.transform = new AffineTransformer(0.7, 0.8, 0.9, 1, 1.1, 1.2);
         gradient2.stops.push(stop1);
         gradient2.stops.push(stop2);
         gradient2.id = "gradient2";
@@ -100,21 +138,30 @@ class SvgSerializerTest extends unittest.TestCase
         assertEquals(gradient1.id, gradient3.id);
         assertEquals(gradient1.userSpace, gradient3.userSpace);
         assertEquals(gradient1.spreadMethod, gradient3.spreadMethod);
-        assertEquals(gradient1.gradientVector[0], gradient3.gradientVector[0]);
-        assertEquals(gradient1.gradientVector[1], gradient3.gradientVector[1]);
-        assertEquals(gradient1.gradientVector[2], gradient3.gradientVector[2]);
         stopsEquals(gradient1.stops[0], stop1);
         stopsEquals(gradient1.stops[1], stop2);
+
+        assertEqualsTransform(gradient1.transform, gradient3.transform);
+
+        assertEqualsFloat(gradient1.gradientVector[0].value, gradient3.gradientVector[0].value);
+        assertEqualsFloat(gradient1.gradientVector[1].value, gradient3.gradientVector[1].value);
+        assertEqualsFloat(gradient1.gradientVector[2].value, gradient3.gradientVector[2].value);
+        assertEqualsFloat(gradient1.gradientVector[3].value, gradient3.gradientVector[3].value);
 
         assertEquals(gradient2.type, gradient4.type);
         assertEquals(gradient2.id, gradient4.id);
         assertEquals(gradient2.link, gradient4.link);
         assertEquals(gradient2.userSpace, gradient4.userSpace);
         assertEquals(gradient2.spreadMethod, gradient4.spreadMethod);
-        assertEquals(gradient2.gradientVector[0], gradient4.gradientVector[0]);
-        assertEquals(gradient2.gradientVector[1], gradient4.gradientVector[1]);
-        assertEquals(gradient2.gradientVector[2], gradient4.gradientVector[2]);
         stopsEquals(gradient2.stops[0], stop1);
         stopsEquals(gradient2.stops[1], stop2);
+
+        assertEqualsTransform(gradient2.transform, gradient4.transform);
+
+        assertEqualsFloat(gradient2.focalGradientParameters[0].value, gradient4.focalGradientParameters[0].value);
+        assertEqualsFloat(gradient2.focalGradientParameters[1].value, gradient4.focalGradientParameters[1].value);
+        assertEqualsFloat(gradient2.focalGradientParameters[2].value, gradient4.focalGradientParameters[2].value);
+        assertEqualsFloat(gradient2.focalGradientParameters[3].value, gradient4.focalGradientParameters[3].value);
+        assertEqualsFloat(gradient2.focalGradientParameters[4].value, gradient4.focalGradientParameters[4].value);
     }
 }

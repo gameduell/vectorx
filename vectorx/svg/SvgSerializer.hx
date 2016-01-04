@@ -1,5 +1,6 @@
 package vectorx.svg;
 
+import lib.ha.core.geometry.AffineTransformer;
 import lib.ha.core.memory.Ref;
 import lib.ha.aggx.color.GradientRadialFocus;
 import lib.ha.aggx.color.SpanGradient.SpreadMethod;
@@ -183,6 +184,7 @@ class SvgSerializer
         {
             data.writeUInt16(0);
             data.offset += 2;
+            return;
         }
 
         if (value.length > 0xfffe)
@@ -290,8 +292,44 @@ class SvgSerializer
 
     public static function readSvgStop(data: Data, value: SVGStop): Void
     {
+        if (value.color == null)
+        {
+            value.color = new RgbaColor();
+        }
         readRgbaColor(data, value.color);
         value.offset = data.readFloat32();
+        data.offset += 4;
+    }
+
+    public static function writeAffineTransformer(data: Data, value: AffineTransformer): Void
+    {
+        data.writeFloat32(value.sx);
+        data.offset += 4;
+        data.writeFloat32(value.shy);
+        data.offset += 4;
+        data.writeFloat32(value.shx);
+        data.offset += 4;
+        data.writeFloat32(value.sy);
+        data.offset += 4;
+        data.writeFloat32(value.tx);
+        data.offset += 4;
+        data.writeFloat32(value.ty);
+        data.offset += 4;
+    }
+
+    public static function readAffineTransformer(data: Data, value: AffineTransformer): Void
+    {
+        value.sx = data.readFloat32();
+        data.offset += 4;
+        value.shy = data.readFloat32();
+        data.offset += 4;
+        value.shx = data.readFloat32();
+        data.offset += 4;
+        value.sy = data.readFloat32();
+        data.offset += 4;
+        value.tx = data.readFloat32();
+        data.offset += 4;
+        value.ty = data.readFloat32();
         data.offset += 4;
     }
 
@@ -303,6 +341,7 @@ class SvgSerializer
 
     public static function writeGradient(data: Data, value: SVGGradient): Void
     {
+        //trace('writeGradient()');
         var flags: Int = 0;
         if (value.type == GradientType.Radial)
         {
@@ -321,21 +360,31 @@ class SvgSerializer
             case SpreadMethod.Reflect: flags |= isReflect;
         }
 
-        trace(flags);
+        //trace('offset: ${data.offset} flags: $flags');
         data.writeUInt8(flags);
         data.offset++;
 
+        //trace('offset: ${data.offset} id: ${value.id}');
         writeString(data, value.id);
+
+        //trace('offset: ${data.offset} link: ${value.link}');
         writeString(data, value.link);
 
+        //trace('offset: ${data.offset} stops: ${value.stops}');
         data.writeInt16(value.stops.length);
+        data.offset += 2;
+
         for (i in value.stops)
         {
             writeSvgStop(data, i);
         }
 
+        //trace('offset: ${data.offset} stops: ${value.transform}');
+        writeAffineTransformer(data, value.transform);
+
         if (value.type == GradientType.Radial)
         {
+            //trace('focal ${value.focalGradientParameters}');
             for (i in value.focalGradientParameters)
             {
                 data.writeFloat32(i.value);
@@ -344,6 +393,7 @@ class SvgSerializer
         }
         else if (value.type == GradientType.Linear)
         {
+            //trace('linear ${value.gradientVector}');
             for (i in value.gradientVector)
             {
                 data.writeFloat32(i.value);
@@ -354,11 +404,12 @@ class SvgSerializer
 
     public static function readGradient(data: Data, value: SVGGradient)
     {
+        //trace('readGradient()');
         var flags: Int = data.readUInt8();
-        trace(flags);
+        //trace('offset: ${data.offset} flags: ${flags}');
         data.offset++;
 
-        if (flags | isRadialGradient != 0)
+        if (flags & isRadialGradient != 0)
         {
             value.type = GradientType.Radial;
         }
@@ -367,30 +418,49 @@ class SvgSerializer
             value.type = GradientType.Linear;
         }
 
-        value.userSpace = flags | isUserSpace != 0;
+        value.userSpace = flags & isUserSpace != 0;
 
-        if (flags | isPad != 0)
+        if (flags & isPad != 0)
         {
             value.spreadMethod = SpreadMethod.Pad;
         }
-        else if (flags | isRepeat != 0)
+        else if (flags & isRepeat != 0)
         {
             value.spreadMethod = SpreadMethod.Repeat;
         }
-        else if (flags | isReflect != 0)
+        else if (flags & isReflect != 0)
         {
             value.spreadMethod = SpreadMethod.Reflect;
         }
 
+        //trace('offset: ${data.offset} id:');
         value.id = readString(data);
+        //trace(value.id);
+        //trace('offset: ${data.offset} link:');
+        value.link = readString(data);
+        //trace(value.link);
+
+        //trace('offset: ${data.offset} stops:');
         var stops: Int = data.readInt16();
         data.offset += 2;
+        //trace('$stops');
+
         for (i in 0 ... stops)
         {
             var stop = new SVGStop();
             readSvgStop(data, stop);
             value.stops.push(stop);
         }
+        //trace('stops: ${value.stops}');
+
+
+        //trace('offset: ${data.offset} transform:');
+        if (value.transform == null)
+        {
+            value.transform = new AffineTransformer();
+        }
+        readAffineTransformer(data, value.transform);
+        //trace(value.transform);
 
         if (value.type == GradientType.Radial)
         {
@@ -404,6 +474,8 @@ class SvgSerializer
                 value.focalGradientParameters[i].value = data.readFloat32();
                 data.offset += 4;
             }
+
+            //trace('focal ${value.focalGradientParameters}');
         }
         else if (value.type == GradientType.Linear)
         {
@@ -417,6 +489,10 @@ class SvgSerializer
                 value.gradientVector[i].value = data.readFloat32();
                 data.offset += 4;
             }
+
+            //trace('linear ${value.gradientVector}');
         }
+
+        value.calculateColorArray(value.stops);
     }
 }
