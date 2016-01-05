@@ -231,6 +231,18 @@ class SvgSerializer
         #end
     }
 
+    public static inline function writeFloat(data: Data, value: Float)
+    {
+        data.writeFloat32(value);
+        data.offset += 4;
+    }
+
+    public static inline function readFloat(data: Data): Float
+    {
+        var ret = data.readFloat32();
+        data.offset += 4;
+        return ret;
+    }
 
     public static function writeRgbaColor(data: Data, value: RgbaColor): Void
     {
@@ -285,9 +297,7 @@ class SvgSerializer
     public static function writeSvgStop(data: Data, value: SVGStop): Void
     {
         writeRgbaColor(data, value.color);
-        data.writeFloat32(value.offset);
-
-        data.offset += 4;
+        writeFloat(data, value.offset);
     }
 
     public static function readSvgStop(data: Data, value: SVGStop): Void
@@ -296,41 +306,29 @@ class SvgSerializer
         {
             value.color = new RgbaColor();
         }
+
         readRgbaColor(data, value.color);
-        value.offset = data.readFloat32();
-        data.offset += 4;
+        value.offset = readFloat(data);
     }
 
     public static function writeAffineTransformer(data: Data, value: AffineTransformer): Void
     {
-        data.writeFloat32(value.sx);
-        data.offset += 4;
-        data.writeFloat32(value.shy);
-        data.offset += 4;
-        data.writeFloat32(value.shx);
-        data.offset += 4;
-        data.writeFloat32(value.sy);
-        data.offset += 4;
-        data.writeFloat32(value.tx);
-        data.offset += 4;
-        data.writeFloat32(value.ty);
-        data.offset += 4;
+        writeFloat(data, value.sx);
+        writeFloat(data, value.shy);
+        writeFloat(data, value.shx);
+        writeFloat(data, value.sy);
+        writeFloat(data, value.tx);
+        writeFloat(data, value.ty);
     }
 
     public static function readAffineTransformer(data: Data, value: AffineTransformer): Void
     {
-        value.sx = data.readFloat32();
-        data.offset += 4;
-        value.shy = data.readFloat32();
-        data.offset += 4;
-        value.shx = data.readFloat32();
-        data.offset += 4;
-        value.sy = data.readFloat32();
-        data.offset += 4;
-        value.tx = data.readFloat32();
-        data.offset += 4;
-        value.ty = data.readFloat32();
-        data.offset += 4;
+        value.sx = readFloat(data);
+        value.shy = readFloat(data);
+        value.shx = readFloat(data);
+        value.sy = readFloat(data);
+        value.tx = readFloat(data);
+        value.ty = readFloat(data);
     }
 
     private static var isRadialGradient: Int = 1;
@@ -387,8 +385,7 @@ class SvgSerializer
             //trace('focal ${value.focalGradientParameters}');
             for (i in value.focalGradientParameters)
             {
-                data.writeFloat32(i.value);
-                data.offset += 4;
+                writeFloat(data, i.value);
             }
         }
         else if (value.type == GradientType.Linear)
@@ -396,8 +393,7 @@ class SvgSerializer
             //trace('linear ${value.gradientVector}');
             for (i in value.gradientVector)
             {
-                data.writeFloat32(i.value);
-                data.offset += 4;
+                writeFloat(data, i.value);
             }
         }
     }
@@ -471,8 +467,7 @@ class SvgSerializer
                     value.focalGradientParameters[i] = Ref.getFloat();
                 }
 
-                value.focalGradientParameters[i].value = data.readFloat32();
-                data.offset += 4;
+                value.focalGradientParameters[i].value = readFloat(data);
             }
 
             //trace('focal ${value.focalGradientParameters}');
@@ -486,8 +481,7 @@ class SvgSerializer
                     value.gradientVector[i] = Ref.getFloat();
                 }
 
-                value.gradientVector[i].value = data.readFloat32();
-                data.offset += 4;
+                value.gradientVector[i].value = readFloat(data);
             }
 
             //trace('linear ${value.gradientVector}');
