@@ -1,3 +1,5 @@
+import vectorx.svg.SvgElementSerializer;
+import lib.ha.svg.SVGElement;
 import lib.ha.core.geometry.AffineTransformer;
 import lib.ha.core.memory.Ref;
 import lib.ha.aggx.color.SpanGradient.SpreadMethod;
@@ -31,7 +33,7 @@ class SvgSerializerTest extends unittest.TestCase
         assertEquals(srcString, dstString);
     }
 
-    private function colorsEuals(a: RgbaColor, b: RgbaColor)
+    private function assertEqualColors(a: RgbaColor, b: RgbaColor)
     {
         assertEquals(a.r, b.r);
         assertEquals(a.g, b.g);
@@ -39,9 +41,9 @@ class SvgSerializerTest extends unittest.TestCase
         assertEquals(a.a, b.a);
     }
 
-    private function stopsEquals(a: SVGStop, b: SVGStop)
+    private function assertEqualStops(a: SVGStop, b: SVGStop)
     {
-        colorsEuals(a.color, b.color);
+        assertEqualColors(a.color, b.color);
         assertEquals(a.offset, b.offset);
     }
 
@@ -138,8 +140,8 @@ class SvgSerializerTest extends unittest.TestCase
         assertEquals(gradient1.id, gradient3.id);
         assertEquals(gradient1.userSpace, gradient3.userSpace);
         assertEquals(gradient1.spreadMethod, gradient3.spreadMethod);
-        stopsEquals(gradient1.stops[0], stop1);
-        stopsEquals(gradient1.stops[1], stop2);
+        assertEqualStops(gradient1.stops[0], stop1);
+        assertEqualStops(gradient1.stops[1], stop2);
 
         assertEqualsTransform(gradient1.transform, gradient3.transform);
 
@@ -153,8 +155,8 @@ class SvgSerializerTest extends unittest.TestCase
         assertEquals(gradient2.link, gradient4.link);
         assertEquals(gradient2.userSpace, gradient4.userSpace);
         assertEquals(gradient2.spreadMethod, gradient4.spreadMethod);
-        stopsEquals(gradient2.stops[0], stop1);
-        stopsEquals(gradient2.stops[1], stop2);
+        assertEqualStops(gradient2.stops[0], stop1);
+        assertEqualStops(gradient2.stops[1], stop2);
 
         assertEqualsTransform(gradient2.transform, gradient4.transform);
 
@@ -163,5 +165,55 @@ class SvgSerializerTest extends unittest.TestCase
         assertEqualsFloat(gradient2.focalGradientParameters[2].value, gradient4.focalGradientParameters[2].value);
         assertEqualsFloat(gradient2.focalGradientParameters[3].value, gradient4.focalGradientParameters[3].value);
         assertEqualsFloat(gradient2.focalGradientParameters[4].value, gradient4.focalGradientParameters[4].value);
+    }
+
+    public function assertEqualsElement(a: SVGElement, b: SVGElement)
+    {
+        assertEquals(a.index, b.index);
+        assertEqualsTransform(a.transform, b.transform);
+        assertEquals(a.gradientId, b.gradientId);
+
+        assertEquals(a.fill_flag, b.fill_flag);
+        if (a.fill_flag)
+        {
+            assertEqualColors(a.fill_color, b.fill_color);
+            assertEqualsFloat(a.fill_opacity, b.fill_opacity);
+        }
+
+        if (a.stroke_flag)
+        {
+            assertEqualColors(a.stroke_color, b.stroke_color);
+            assertEqualsFloat(a.stroke_width, b.stroke_width);
+        }
+
+        assertEquals(a.even_odd_flag, b.even_odd_flag);
+        assertEquals(a.line_join, b.line_join);
+        assertEquals(a.line_cap, b.line_cap);
+        assertEqualsFloat(a.miter_limit, b.miter_limit);
+    }
+
+    public function testElements(): Void
+    {
+        var data: Data = new Data(2048);
+        var element1 = SVGElement.create();
+        element1.index = 11;
+        element1.transform = new AffineTransformer(0.1, 0.2, 0.3, 0.4, 0.5, 0.6);
+        element1.gradientId = "g1";
+        element1.fill(new RgbaColor(10, 20, 30, 40));
+        element1.stroke(new RgbaColor(50, 60, 70, 80));
+        element1.stroke_width = 0.2;
+        element1.even_odd_flag = true;
+        element1.line_join = 1;
+        element1.line_cap = 2;
+        element1.miter_limit = 0.5;
+
+        SvgElementSerializer.writeSVGElement(data, element1);
+
+        var element2 = SVGElement.create();
+
+        data.offset = 0;
+        SvgElementSerializer.readSVGElement(data, element2);
+
+        assertEqualsElement(element1, element2);
     }
 }
