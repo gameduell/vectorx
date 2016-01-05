@@ -1,5 +1,6 @@
 package vectorx.svg;
 
+import lib.ha.svg.SVGStringParsers;
 import lib.ha.aggx.color.RgbaColor;
 import lib.ha.svg.SVGElement;
 import types.Data;
@@ -45,10 +46,23 @@ class SvgElementSerializer
             SvgSerializer.writeRgbaColor(data, element.fill_color);
             if (element.fill_opacity != null)
             {
-                data.writeFloat32(element.fill_opacity);
-                data.offset += 4;
+                SvgSerializer.writeFloat(data, element.fill_opacity);
             }
         }
+
+        if (element.stroke_flag)
+        {
+            SvgSerializer.writeRgbaColor(element.stroke_color);
+            SvgSerializer.writeFloat(data, element.stroke_width);
+        }
+
+        data.writeUInt8(element.line_join);
+        data.offset++;
+
+        data.writeUInt8(element.line_cap);
+        data.offset++;
+
+        SvgSerializer.writeFloat(element.miter_limit);
     }
 
     public static function readSVGElement(data: Data, element: SVGElement)
@@ -56,6 +70,15 @@ class SvgElementSerializer
         var flags: Int = 0;
         flags = data.readUInt8();
         data.offset += 1;
+
+        if (flags & flagEvenOdd != 0)
+        {
+            element.even_odd_flag = true;
+        }
+        else
+        {
+            element.even_odd_flag = false;
+        }
 
         element.index = data.readInt32();
         data.offset += 4;
@@ -69,8 +92,7 @@ class SvgElementSerializer
                 SvgSerializer.readRgbaColor(element.fill_color);
                 if (flags & flagFillOpacity != 0)
                 {
-                    element.fill_opacity = data.readFloat32();
-                    data.offset += 4;
+                    element.fill_opacity = SvgSerializer.readFloat(data);
                 }
             }
             else
@@ -78,6 +100,34 @@ class SvgElementSerializer
                 element.fill_opacity = null;
             }
         }
+        else
+        {
+            element.fill_flag = false;
+        }
+
+        if (flags & flagStroke != 0)
+        {
+            element.stroke_flag = true;
+            if (element.stroke_color == null)
+            {
+                element.stroke_color = new RgbaColor();
+            }
+
+            SvgSerializer.readRgbaColor(data, element.stroke_color);
+            element.stroke_width = SvgSerializer.readFloat(data);
+        }
+        else
+        {
+            element.stroke_flag = false;
+        }
+
+        element.line_join = data.readUInt8();
+        data.offset++;
+
+        element.line_cap = data.readUInt8();
+        data.offset++;
+
+        element.miter_limit = SvgSerializer.readFloat(data);
     }
 
 }
