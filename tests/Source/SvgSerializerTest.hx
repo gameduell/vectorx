@@ -1,3 +1,4 @@
+import vectorx.svg.SvgGradientSerializer;
 import lib.ha.aggx.vectorial.VertexBlockStorage;
 import vectorx.svg.SvgElementSerializer;
 import lib.ha.svg.SVGElement;
@@ -126,16 +127,16 @@ class SvgSerializerTest extends unittest.TestCase
             gradient2.focalGradientParameters[i] = ref;
         }
 
-        SvgSerializer.writeGradient(data, gradient1);
-        SvgSerializer.writeGradient(data, gradient2);
+        SvgGradientSerializer.writeGradient(data, gradient1);
+        SvgGradientSerializer.writeGradient(data, gradient2);
 
         data.offset = 0;
 
         var gradient3: SVGGradient = new SVGGradient();
         var gradient4: SVGGradient = new SVGGradient();
 
-        SvgSerializer.readGradient(data, gradient3);
-        SvgSerializer.readGradient(data, gradient4);
+        SvgGradientSerializer.readGradient(data, gradient3);
+        SvgGradientSerializer.readGradient(data, gradient4);
 
         assertEquals(gradient1.type, gradient3.type);
         assertEquals(gradient1.id, gradient3.id);
