@@ -1,3 +1,4 @@
+import lib.ha.aggx.vectorial.VertexBlockStorage;
 import vectorx.svg.SvgElementSerializer;
 import lib.ha.svg.SVGElement;
 import lib.ha.core.geometry.AffineTransformer;
@@ -215,5 +216,44 @@ class SvgSerializerTest extends unittest.TestCase
         SvgElementSerializer.readSVGElement(data, element2);
 
         assertEqualsElement(element1, element2);
+    }
+
+    public function testVertexBlockStorage(): Void
+    {
+        var data: Data = new Data(2048);
+        var storage = new VertexBlockStorage();
+        storage.addVertex(0.1, 0.2, 0);
+        storage.addVertex(0.2, 0.4, 1);
+        storage.addVertex(0.3, 0.6, 2);
+        storage.addVertex(0.4, 0.8, 3);
+
+        storage.save(data);
+        data.offset = 0;
+
+        var storage2 = new VertexBlockStorage();
+        storage2.load(data);
+
+        assertEquals(storage.verticesCount, storage2.verticesCount);
+
+        var x1: FloatRef = Ref.getFloat();
+        var y1: FloatRef = Ref.getFloat();
+        var x2: FloatRef = Ref.getFloat();
+        var y2: FloatRef = Ref.getFloat();
+        var cmd1: Int = 0;
+        var cmd2: Int = 0;
+
+        for (i in 0 ... storage.verticesCount)
+        {
+            cmd1 = storage.getVertex(i, x1, y1);
+            cmd2 = storage2.getVertex(i, x2, y2);
+            assertEquals(cmd1, cmd2);
+            assertEqualsFloat(x1.value, x2.value);
+            assertEqualsFloat(y1.value, y2.value);
+        }
+
+        Ref.putFloat(x1);
+        Ref.putFloat(y1);
+        Ref.putFloat(x2);
+        Ref.putFloat(y2);
     }
 }
