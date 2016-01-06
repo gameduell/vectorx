@@ -1,5 +1,7 @@
 package vectorx.svg;
 
+import lib.ha.svg.SVGElement;
+import lib.ha.svg.SVGData;
 import lib.ha.core.geometry.AffineTransformer;
 import lib.ha.core.memory.Ref;
 import lib.ha.aggx.color.GradientRadialFocus;
@@ -312,5 +314,56 @@ class SvgSerializer
         value.sy = readFloat(data);
         value.tx = readFloat(data);
         value.ty = readFloat(data);
+    }
+
+    public static function writeSvgData(data: Data, value: SVGData): Void
+    {
+        SvgVectorPathSerializer.writeVectorPath(value.storage);
+        data.writeUInt32(value.elementStorage.length);
+        data.offset += 4;
+        for(i in 0 ... value.elementStorage.length)
+        {
+            SvgElementSerializer.writeSVGElement(data, value.elementStorage[i]);
+        }
+
+        data.writeUInt32(value.gradientManager.getCount());
+        data.offset += 4;
+        for (grad in value.gradientManager)
+        {
+            SvgGradientSerializer.writeGradient(data, grad);
+        }
+
+        data.writeInt32(value.expandValue);
+        data.offset += 4;
+    }
+
+    public static function readSvgData(data: Data, value: SVGData): Void
+    {
+        SvgVectorPathSerializer.readVectorData(value.storage);
+        var elements: Int = data.readUInt32();
+        data.offset += 4;
+
+        value.elementStorage = [];
+        for (i in 0 ... elements)
+        {
+            var element = new SVGElement();
+            SvgElementSerializer.readSVGElement(data, elements);
+            value.elementStorage.push(element);
+        }
+
+        var gradients: Int = data.readUInt32();
+        data.offset += 4;
+
+        value.gradientManager.removeAll();
+
+        for (i in 0 ... gradients)
+        {
+            var gradient = new SVGGradient();
+            SvgGradientSerializer.readGradient(data, gradient);
+            value.gradientManager.addGradient(gradient);
+        }
+
+        value.expandValue = data.readInt32();
+        data.offset += 4;
     }
 }
