@@ -318,7 +318,7 @@ class SvgSerializer
 
     public static function writeSvgData(data: Data, value: SVGData): Void
     {
-        SvgVectorPathSerializer.writeVectorPath(value.storage);
+        SvgVectorPathSerializer.writeVectorPath(data, value.storage);
         data.writeUInt32(value.elementStorage.length);
         data.offset += 4;
         for(i in 0 ... value.elementStorage.length)
@@ -333,21 +333,23 @@ class SvgSerializer
             SvgGradientSerializer.writeGradient(data, grad);
         }
 
-        data.writeInt32(value.expandValue);
+        data.writeFloat32(value.expandValue);
         data.offset += 4;
     }
 
     public static function readSvgData(data: Data, value: SVGData): Void
     {
-        SvgVectorPathSerializer.readVectorData(value.storage);
+        SvgVectorPathSerializer.readVectorData(data, value.storage);
+
         var elements: Int = data.readUInt32();
         data.offset += 4;
 
         value.elementStorage = [];
         for (i in 0 ... elements)
         {
-            var element = new SVGElement();
-            SvgElementSerializer.readSVGElement(data, elements);
+            var element = SVGElement.create();
+            element.calculateBoundingBox(value.storage);
+            SvgElementSerializer.readSVGElement(data, element);
             value.elementStorage.push(element);
         }
 
@@ -363,7 +365,7 @@ class SvgSerializer
             value.gradientManager.addGradient(gradient);
         }
 
-        value.expandValue = data.readInt32();
+        value.expandValue = data.readFloat32();
         data.offset += 4;
     }
 }
