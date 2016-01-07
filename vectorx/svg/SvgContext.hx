@@ -26,26 +26,52 @@
 
 package vectorx.svg;
 
+import lib.ha.core.math.Calc;
+import lib.ha.core.geometry.AffineTransformer;
+import lib.ha.svg.SVGData;
+import lib.ha.svg.SVGDataBuilder;
+import lib.ha.svg.SVGParser;
+import lib.ha.svg.SVGRenderer;
+import lib.ha.aggx.rasterizer.ScanlineRasterizer;
+import lib.ha.aggx.rasterizer.Scanline;
+import lib.ha.aggx.renderer.SolidScanlineRenderer;
+import lib.ha.aggx.renderer.ClippingRenderer;
+import lib.ha.aggx.renderer.PixelFormatRenderer;
+import lib.ha.aggx.RenderingBuffer;
+import lib.ha.core.memory.MemoryAccess;
 import haxe.io.Bytes;
 import types.Data;
 class SvgContext
 {
-    // TODO
+    private var scanline: Scanline;
+    private var rasterizer: ScanlineRasterizer;
+    private var svgRenderer: SVGRenderer;
+    private var transform: AffineTransformer;
 
     public function new()
     {
+        rasterizer = new ScanlineRasterizer();
+        scanline = new Scanline();
+        svgRenderer = new SVGRenderer();
+        transform = new AffineTransformer();
     }
 
     // Compile time // Unit tests // This function should be compiled to a standalone
     // application which serves the artist as a checker if their provides svg are correct.
     // Further it is used in a buildstep to convert all svg assets to our binary format.
-    public function convertSvgToVectorBin(inSvg: Xml, outVectorBin: Bytes)
+    public static function convertSvgToVectorBin(inSvg: Xml, outVectorBin: Data)
     {
         // Checks svg for compliance and parses the svg into our intermediate format which is binary.
 
         // Compliance should include TODO
         // Every SVG must specify width and height in Points
         // Check throws/logs error if features are used which are not supported
+
+        var builder = new SVGDataBuilder();
+        var parser = new SVGParser(builder);
+        parser.processXML(inSvg);
+
+        SvgSerializer.writeSvgData(outVectorBin, builder.data);
     }
 
     /*
@@ -64,14 +90,26 @@ class SvgContext
 
     
     // RunTime // Unit tests TODO
-    public function deserializeVectorBin(inVectorBin: Data, outVectorBin: VectorBin)
+    public static function deserializeVectorBin(inVectorBin: Data, outVectorBin: SVGData)
     {
-
+        SvgSerializer.readSvgData(inVectorBin, outVectorBin);
     }
 
     // RunTime TODO
-    public function renderVectorBinToColorStorage(inVectorBin: VectorBin, outStorage: ColorStorage): Void
+    public function renderVectorBinToColorStorage(inVectorBin: SVGData, outStorage: ColorStorage): Void
     {
+        MemoryAccess.select(outStorage.data);
 
+        var renderingBuffer = new RenderingBuffer(outStorage.width, outStorage.height, ColorStorage.COMPONENTS * outStorage.width);
+        var pixelFormatRenderer = new PixelFormatRenderer(renderingBuffer);
+        var clippingRenderer = new ClippingRenderer(pixelFormatRenderer);
+        var scanlineRenderer = new SolidScanlineRenderer(clippingRenderer);
+
+        inVectorBin.expandValue = 0.1;
+        var alpha = 1.0;
+        transform = AffineTransformer.translator(100.0, 100.0);
+        svgRenderer.render(inVectorBin, rasterizer, scanline, clippingRenderer, transform, alpha);
+
+        MemoryAccess.select(null);
     }
 }

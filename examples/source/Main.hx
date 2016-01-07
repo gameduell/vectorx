@@ -63,7 +63,7 @@ class Main
 
         configureInput();
 
-        testArray = [tests.fontTest.FontTest];
+        testArray = [tests.fontTest.FontTest, tests.fontTest.SvgSerializeTest];
 
         currentTestNumber = testArray.length - 1;
         switchToTest(currentTestNumber);

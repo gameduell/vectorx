@@ -110,7 +110,7 @@ class SvgElementSerializer
 
         if (flags & flagFill != 0)
         {
-            trace('fill');
+            //trace('fill');
             element.fill_flag = true;
 
             if (element.fill_color == null)
