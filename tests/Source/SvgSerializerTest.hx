@@ -1,3 +1,4 @@
+import vectorx.svg.SvgDataWrapper;
 import vectorx.svg.SvgGradientSerializer;
 import lib.ha.aggx.vectorial.VertexBlockStorage;
 import vectorx.svg.SvgElementSerializer;
@@ -25,11 +26,11 @@ class SvgSerializerTest extends unittest.TestCase
     public function testBasicString(): Void
     {
         var srcString = "абвгдеёжзийклмнопрстуфхчцэюя";
-        var data: Data = new Data(1024);
+        var data = new SvgDataWrapper(new Data(1024));
 
         SvgSerializer.writeString(data, srcString);
 
-        data.offset = 0;
+        data.data.offset = 0;
         var dstString = SvgSerializer.readString(data);
 
         assertEquals(srcString, dstString);
@@ -71,12 +72,12 @@ class SvgSerializerTest extends unittest.TestCase
 
     public function testAffineTransformer(): Void
     {
-        var data = new Data(1024);
+        var data = new SvgDataWrapper(new Data(1024));
         ////return '{$sx, $shy, $shx, $sy, $tx, $ty}';
         var transform1 = new AffineTransformer(0.1, 0.2, 0.3, 0.4, 0.5, 0.6);
         SvgSerializer.writeAffineTransformer(data, transform1);
 
-        data.offset = 0;
+        data.data.offset = 0;
 
         var transform2 = new AffineTransformer();
         SvgSerializer.readAffineTransformer(data, transform2);
@@ -86,7 +87,7 @@ class SvgSerializerTest extends unittest.TestCase
 
     public function testGradients(): Void
     {
-        var data: Data = new Data(2048);
+        var data = new SvgDataWrapper(new Data(1024));
 
         var stop1: SVGStop = new SVGStop();
         stop1.offset = 0.1;
@@ -130,7 +131,7 @@ class SvgSerializerTest extends unittest.TestCase
         SvgGradientSerializer.writeGradient(data, gradient1);
         SvgGradientSerializer.writeGradient(data, gradient2);
 
-        data.offset = 0;
+        data.data.offset = 0;
 
         var gradient3: SVGGradient = new SVGGradient();
         var gradient4: SVGGradient = new SVGGradient();
@@ -196,7 +197,8 @@ class SvgSerializerTest extends unittest.TestCase
 
     public function testElements(): Void
     {
-        var data: Data = new Data(2048);
+        var data = new SvgDataWrapper(new Data(1024));
+
         var element1 = SVGElement.create();
         element1.index = 11;
         element1.transform = new AffineTransformer(0.1, 0.2, 0.3, 0.4, 0.5, 0.6);
@@ -213,7 +215,7 @@ class SvgSerializerTest extends unittest.TestCase
 
         var element2 = SVGElement.create();
 
-        data.offset = 0;
+        data.data.offset = 0;
         SvgElementSerializer.readSVGElement(data, element2);
 
         assertEqualsElement(element1, element2);
@@ -221,7 +223,8 @@ class SvgSerializerTest extends unittest.TestCase
 
     public function testVertexBlockStorage(): Void
     {
-        var data: Data = new Data(2048);
+        var data = new Data(1024);
+
         var storage = new VertexBlockStorage();
         storage.addVertex(0.1, 0.2, 0);
         storage.addVertex(0.2, 0.4, 1);

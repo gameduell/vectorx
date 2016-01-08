@@ -180,12 +180,11 @@ class SvgSerializer
         return buf.toString();
     }
 
-    public static function writeString(data: Data, value: String): Void
+    public static function writeString(data: SvgDataWrapper, value: String): Void
     {
         if (value == null)
         {
             data.writeUInt16(0);
-            data.offset += 2;
             return;
         }
 
@@ -201,28 +200,23 @@ class SvgSerializer
         #end
 
         data.writeUInt16(encoded.length);
-        data.offset += 2;
 
         for (i in 0 ... encoded.length)
         {
             var char: Int = encoded.charCodeAt(i);
             data.writeUInt8(char);
-            data.offset++;
         }
     }
 
-    public static function readString(data: Data): String
+    public static function readString(data: SvgDataWrapper): String
     {
-        var len = data.readInt16();
-        data.offset += 2;
+        var len = data.readUInt16();
 
         var buf: StringBuf = new StringBuf();
 
         for (i in 0 ... len)
         {
             var char: UInt = data.readUInt8();
-            data.offset++;
-
             buf.addChar(char);
         }
 
@@ -233,57 +227,34 @@ class SvgSerializer
         #end
     }
 
-    public static inline function writeFloat(data: Data, value: Float)
-    {
-        data.writeFloat32(value);
-        data.offset += 4;
-    }
-
-    public static inline function readFloat(data: Data): Float
-    {
-        var ret = data.readFloat32();
-        data.offset += 4;
-        return ret;
-    }
-
-    public static function writeRgbaColor(data: Data, value: RgbaColor): Void
+    public static function writeRgbaColor(data: SvgDataWrapper, value: RgbaColor): Void
     {
         data.writeUInt8(value.r);
-        data.offset++;
         data.writeUInt8(value.g);
-        data.offset++;
         data.writeUInt8(value.b);
-        data.offset++;
         data.writeUInt8(value.a);
-        data.offset++;
     }
 
-    public static function readRgbaColor(data: Data, value: RgbaColor): Void
+    public static function readRgbaColor(data: SvgDataWrapper, value: RgbaColor): Void
     {
         value.r = data.readUInt8();
-        data.offset++;
         value.g = data.readUInt8();
-        data.offset++;
         value.b = data.readUInt8();
-        data.offset++;
         value.a = data.readUInt8();
-        data.offset++;
     }
 
-    public static function writeColorArray(data: Data, value: ColorArray): Void
+    public static function writeColorArray(data: SvgDataWrapper, value: ColorArray): Void
     {
         data.writeUInt16(value.size);
-        data.offset += 2;
         for (i in 0 ... value.size)
         {
             writeRgbaColor(data, value.get(i));
         }
     }
 
-    public static function readColorArray(data: Data): ColorArray
+    public static function readColorArray(data: SvgDataWrapper): ColorArray
     {
-        var size: Int = data.readInt16();
-        data.offset += 2;
+        var size: Int = data.readUInt16();
         var value = new ColorArray(size);
 
         for (i in 0 ... value.size)
@@ -296,53 +267,50 @@ class SvgSerializer
         return value;
     }
 
-    public static function writeAffineTransformer(data: Data, value: AffineTransformer): Void
+    public static function writeAffineTransformer(data: SvgDataWrapper, value: AffineTransformer): Void
     {
-        writeFloat(data, value.sx);
-        writeFloat(data, value.shy);
-        writeFloat(data, value.shx);
-        writeFloat(data, value.sy);
-        writeFloat(data, value.tx);
-        writeFloat(data, value.ty);
+
+        data.writeFloat32(value.sx);
+        data.writeFloat32(value.shy);
+        data.writeFloat32(value.shx);
+        data.writeFloat32(value.sy);
+        data.writeFloat32(value.tx);
+        data.writeFloat32(value.ty);
     }
 
-    public static function readAffineTransformer(data: Data, value: AffineTransformer): Void
+    public static function readAffineTransformer(data: SvgDataWrapper, value: AffineTransformer): Void
     {
-        value.sx = readFloat(data);
-        value.shy = readFloat(data);
-        value.shx = readFloat(data);
-        value.sy = readFloat(data);
-        value.tx = readFloat(data);
-        value.ty = readFloat(data);
+        value.sx = data.readFloat32();
+        value.shy = data.readFloat32();
+        value.shx = data.readFloat32();
+        value.sy = data.readFloat32();
+        value.tx = data.readFloat32();
+        value.ty = data.readFloat32();
     }
 
-    public static function writeSvgData(data: Data, value: SVGData): Void
+    public static function writeSvgData(data: SvgDataWrapper, value: SVGData): Void
     {
         SvgVectorPathSerializer.writeVectorPath(data, value.storage);
         data.writeUInt32(value.elementStorage.length);
-        data.offset += 4;
         for(i in 0 ... value.elementStorage.length)
         {
             SvgElementSerializer.writeSVGElement(data, value.elementStorage[i]);
         }
 
         data.writeUInt32(value.gradientManager.getCount());
-        data.offset += 4;
         for (grad in value.gradientManager)
         {
             SvgGradientSerializer.writeGradient(data, grad);
         }
 
         data.writeFloat32(value.expandValue);
-        data.offset += 4;
     }
 
-    public static function readSvgData(data: Data, value: SVGData): Void
+    public static function readSvgData(data: SvgDataWrapper, value: SVGData): Void
     {
         SvgVectorPathSerializer.readVectorData(data, value.storage);
 
         var elements: Int = data.readUInt32();
-        data.offset += 4;
 
         value.elementStorage = [];
         for (i in 0 ... elements)
@@ -354,7 +322,6 @@ class SvgSerializer
         }
 
         var gradients: Int = data.readUInt32();
-        data.offset += 4;
 
         value.gradientManager.removeAll();
 
@@ -366,6 +333,5 @@ class SvgSerializer
         }
 
         value.expandValue = data.readFloat32();
-        data.offset += 4;
     }
 }

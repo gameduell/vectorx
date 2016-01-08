@@ -17,13 +17,13 @@ class SvgGradientSerializer
     private static var isRepeat: Int = 1 << 3;
     private static var isUserSpace: Int = 1 << 4;
 
-    public static function writeSvgStop(data: Data, value: SVGStop): Void
+    public static function writeSvgStop(data: SvgDataWrapper, value: SVGStop): Void
     {
         SvgSerializer.writeRgbaColor(data, value.color);
-        SvgSerializer.writeFloat(data, value.offset);
+        data.writeFloat32(value.offset);
     }
 
-    public static function readSvgStop(data: Data, value: SVGStop): Void
+    public static function readSvgStop(data: SvgDataWrapper, value: SVGStop): Void
     {
         if (value.color == null)
         {
@@ -31,10 +31,10 @@ class SvgGradientSerializer
         }
 
         SvgSerializer.readRgbaColor(data, value.color);
-        value.offset = SvgSerializer.readFloat(data);
+        value.offset = data.readFloat32();
     }
 
-    public static function writeGradient(data: Data, value: SVGGradient): Void
+    public static function writeGradient(data: SvgDataWrapper, value: SVGGradient): Void
     {
         //trace('writeGradient()');
         var flags: Int = 0;
@@ -57,7 +57,6 @@ class SvgGradientSerializer
 
         //trace('offset: ${data.offset} flags: $flags');
         data.writeUInt8(flags);
-        data.offset++;
 
         //trace('offset: ${data.offset} id: ${value.id}');
         SvgSerializer.writeString(data, value.id);
@@ -66,8 +65,7 @@ class SvgGradientSerializer
         SvgSerializer.writeString(data, value.link);
 
         //trace('offset: ${data.offset} stops: ${value.stops}');
-        data.writeInt16(value.stops.length);
-        data.offset += 2;
+        data.writeUInt16(value.stops.length);
 
         for (i in value.stops)
         {
@@ -82,7 +80,7 @@ class SvgGradientSerializer
             //trace('focal ${value.focalGradientParameters}');
             for (i in value.focalGradientParameters)
             {
-                SvgSerializer.writeFloat(data, i.value);
+                data.writeFloat32(i.value);
             }
         }
         else if (value.type == GradientType.Linear)
@@ -90,17 +88,16 @@ class SvgGradientSerializer
             //trace('linear ${value.gradientVector}');
             for (i in value.gradientVector)
             {
-                SvgSerializer.writeFloat(data, i.value);
+                data.writeFloat32(i.value);
             }
         }
     }
 
-    public static function readGradient(data: Data, value: SVGGradient)
+    public static function readGradient(data: SvgDataWrapper, value: SVGGradient)
     {
         //trace('readGradient()');
         var flags: Int = data.readUInt8();
         //trace('offset: ${data.offset} flags: ${flags}');
-        data.offset++;
 
         if (flags & isRadialGradient != 0)
         {
@@ -134,8 +131,7 @@ class SvgGradientSerializer
         //trace(value.link);
 
         //trace('offset: ${data.offset} stops:');
-        var stops: Int = data.readInt16();
-        data.offset += 2;
+        var stops: Int = data.readUInt16();
         //trace('$stops');
 
         for (i in 0 ... stops)
@@ -164,7 +160,7 @@ class SvgGradientSerializer
                     value.focalGradientParameters[i] = Ref.getFloat();
                 }
 
-                value.focalGradientParameters[i].value = SvgSerializer.readFloat(data);
+                value.focalGradientParameters[i].value = data.readFloat32();
             }
 
             //trace('focal ${value.focalGradientParameters}');
@@ -178,7 +174,7 @@ class SvgGradientSerializer
                     value.gradientVector[i] = Ref.getFloat();
                 }
 
-                value.gradientVector[i].value = SvgSerializer.readFloat(data);
+                value.gradientVector[i].value = data.readFloat32();
             }
 
             //trace('linear ${value.gradientVector}');

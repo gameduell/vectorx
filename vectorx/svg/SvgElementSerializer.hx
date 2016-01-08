@@ -12,7 +12,7 @@ class SvgElementSerializer
     private static var flagStroke: Int = 1 << 2;
     private static var flagEvenOdd: Int = 1 << 3;
 
-    public static function writeSVGElement(data: Data, element: SVGElement)
+    public static function writeSVGElement(data: SvgDataWrapper, element: SVGElement)
     {
         //trace('writeSVGElement');
         var flags: Int = 0;
@@ -38,10 +38,8 @@ class SvgElementSerializer
         }
 
         data.writeUInt8(flags);
-        data.offset += 1;
 
-        data.writeInt32(element.index);
-        data.offset += 4;
+        data.writeUInt32(element.index);
 
         //trace('off: ${data.offset} flags: $flags, index: ${element.index}');
 
@@ -58,34 +56,28 @@ class SvgElementSerializer
 
             if (element.fill_opacity != null)
             {
-                SvgSerializer.writeFloat(data, element.fill_opacity);
+                data.writeFloat32(element.fill_opacity);
             }
         }
 
         if (element.stroke_flag)
         {
             SvgSerializer.writeRgbaColor(data, element.stroke_color);
-            SvgSerializer.writeFloat(data, element.stroke_width);
+            data.writeFloat32(element.stroke_width);
         }
 
         data.writeUInt8(element.line_join);
-        data.offset++;
-
         data.writeUInt8(element.line_cap);
-        data.offset++;
-
-        SvgSerializer.writeFloat(data, element.miter_limit);
+        data.writeFloat32(element.miter_limit);
     }
 
-    public static function readSVGElement(data: Data, element: SVGElement)
+    public static function readSVGElement(data: SvgDataWrapper, element: SVGElement)
     {
         //trace('readSVGElement');
         var flags: Int = 0;
         flags = data.readUInt8();
-        data.offset += 1;
 
         element.index = data.readUInt32();
-        data.offset += 4;
 
         //trace('off: ${data.offset} flags: $flags, index: ${element.index}');
 
@@ -124,7 +116,7 @@ class SvgElementSerializer
 
             if (flags & flagFillOpacity != 0)
             {
-                element.fill_opacity = SvgSerializer.readFloat(data);
+                element.fill_opacity = data.readFloat32();
             }
 
             else
@@ -146,7 +138,7 @@ class SvgElementSerializer
             }
 
             SvgSerializer.readRgbaColor(data, element.stroke_color);
-            element.stroke_width = SvgSerializer.readFloat(data);
+            element.stroke_width = data.readFloat32();
         }
         else
         {
@@ -154,12 +146,8 @@ class SvgElementSerializer
         }
 
         element.line_join = data.readUInt8();
-        data.offset++;
-
         element.line_cap = data.readUInt8();
-        data.offset++;
-
-        element.miter_limit = SvgSerializer.readFloat(data);
+        element.miter_limit = data.readFloat32();
     }
 
 }

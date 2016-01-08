@@ -41,12 +41,15 @@ import lib.ha.aggx.RenderingBuffer;
 import lib.ha.core.memory.MemoryAccess;
 import haxe.io.Bytes;
 import types.Data;
+
 class SvgContext
 {
     private var scanline: Scanline;
     private var rasterizer: ScanlineRasterizer;
     private var svgRenderer: SVGRenderer;
     private var transform: AffineTransformer;
+
+    private static var dataWrapper: SvgDataWrapper = new SvgDataWrapper();
 
     public function new()
     {
@@ -71,7 +74,9 @@ class SvgContext
         var parser = new SVGParser(builder);
         parser.processXML(inSvg);
 
-        SvgSerializer.writeSvgData(outVectorBin, builder.data);
+        dataWrapper.data = outVectorBin;
+        SvgSerializer.writeSvgData(dataWrapper, builder.data);
+        dataWrapper.data = null;
     }
 
     /*
@@ -92,7 +97,9 @@ class SvgContext
     // RunTime // Unit tests TODO
     public static function deserializeVectorBin(inVectorBin: Data, outVectorBin: SVGData)
     {
-        SvgSerializer.readSvgData(inVectorBin, outVectorBin);
+        dataWrapper.data = inVectorBin;
+        SvgSerializer.readSvgData(dataWrapper, outVectorBin);
+        dataWrapper.data = null;
     }
 
     // RunTime TODO
