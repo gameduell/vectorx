@@ -201,11 +201,12 @@ class SvgSerializeTest extends OpenGLTest
     {
         var svgSrcData = AssetLoader.getDataFromFile(SVG_PATH_TIGER);
 
-        var svgBinData = new Data(1024 * 100);
+        var svgBinData = new Data(1024);
         var svgXml = Xml.parse(svgSrcData.readString());
         var svgData = new SVGData();
 
         SvgContext.convertSvgToVectorBin(svgXml, svgBinData);
+
         svgBinData.offset = 0;
         SvgContext.deserializeVectorBin(svgBinData, svgData);
 
