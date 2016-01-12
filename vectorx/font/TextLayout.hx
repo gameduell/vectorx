@@ -14,22 +14,22 @@ class TextLayout
     public var rect(default, null): RectI;
     public var pixelRatio(default, null): Float;
 
-    public function new(string: AttributedString, layoutConfing: TextLayoutConfig, rect: RectI)
+    public function new(string: AttributedString, layoutConfing: TextLayoutConfig, rect: RectI, attachmentResolver: String -> Float -> FontAttachment)
     {
         this.config = layoutConfing;
         this.rect = rect;
         this.pixelRatio = config.pointsToPixelRatio;
 
-        lines = TextLine.calculate(string, rect.width, config.pointsToPixelRatio);
+        lines = TextLine.calculate(string, rect.width, attachmentResolver, config.pointsToPixelRatio);
         height = calculateTextHeight(lines, string.string);
 
         if (config.layoutBehaviour == LayoutBehaviour.AlwaysFit)
         {
-            fitPixelRatio(string);
+            fitPixelRatio(string, attachmentResolver);
         }
     }
 
-    private function fitPixelRatio(string: AttributedString)
+    private function fitPixelRatio(string: AttributedString, attachmentResolver: String -> Float -> FontAttachment)
     {
         //trace('fitPixelRatio');
         if (textFits(lines, height, rect))
@@ -47,7 +47,7 @@ class TextLayout
         while(end - begin > 0.05)
         {
             lastRatio = (begin + end) / 2;
-            var lines = TextLine.calculate(string, rect.width, lastRatio);
+            var lines = TextLine.calculate(string, rect.width, attachmentResolver, lastRatio);
             var height = calculateTextHeight(lines, string.string);
 
             if (textFits(lines, height, rect))

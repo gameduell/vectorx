@@ -17,6 +17,7 @@ class AttributedSpan
     public var strokeColor: Color4F = null;
     public var shadow: FontShadow = null;
     public var attachment: FontAttachment = null;
+    public var attachmentId: String = null;
 
     public var baseString(default, null): String;
     public var string(default, null): String;
@@ -40,6 +41,7 @@ class AttributedSpan
         this.strokeColor = other.strokeColor;
         this.shadow = other.shadow;
         this.attachment = other.attachment;
+        this.attachmentId = other.attachmentId;
         this.baseString = other.baseString;
         this.string = other.string;
         this.measured = false;
@@ -103,6 +105,7 @@ class AttributedSpan
         strokeColor = chooseBefore(strokeColor, source.strokeColor);
         shadow = chooseBefore(shadow, source.shadow);
         attachment = chooseBefore(attachment, source.attachment);
+        attachmentId = chooseBefore(attachmentId, source.attachmentId);
         measured = false;
     }
 
@@ -117,6 +120,7 @@ class AttributedSpan
         strokeColor = choose(strokeColor, source.strokeColor);
         shadow = choose(shadow, source.shadow);
         attachment = choose(attachment, source.attachment);
+        attachmentId = choose(attachmentId, source.attachmentId);
         measured = false;
     }
 
@@ -130,7 +134,7 @@ class AttributedSpan
         strokeWidth = choose(strokeWidth, source.strokeWidth);
         strokeColor = choose(strokeColor, source.strokeColor);
         shadow = choose(shadow, source.shadow);
-        attachment = choose(attachment, source.attachment);
+        attachmentId = choose(attachmentId, source.attachmentId);
         measured = false;
     }
 

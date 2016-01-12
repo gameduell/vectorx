@@ -261,33 +261,34 @@ class FontTest extends OpenGLTest
 
         var attachmentColorStorage = renderAttachment();
         var attachment = new FontAttachment(attachmentColorStorage, 0, 0, 70, 32);
+        var attachments = ["a1" => String => FontAttachment];
 
-        var stringAttributes: StringAttributes = {range: new AttributedRange(), font: font, backgroundColor: lightGrey, attachment: attachment};
+        var stringAttributes: StringAttributes = {range: new AttributedRange(), font: font, backgroundColor: lightGrey, attachmentId: "a1"};
         var attributedString: AttributedString = new AttributedString(string0, stringAttributes);
 
         //trace('test inside case');
-        var stringAttributes2: StringAttributes = {range: new AttributedRange(10, 10), font: font2, foregroundColor: red, backgroundColor: white, kern: -10, attachment: attachment};
+        var stringAttributes2: StringAttributes = {range: new AttributedRange(10, 10), font: font2, foregroundColor: red, backgroundColor: white, kern: -10, attachmentId: "a1"};
         attributedString.applyAttributes(stringAttributes2);
         //trace(attributedString);
 
         //trace('test left-right case');
-        var stringAttributes3: StringAttributes = {range: new AttributedRange(5, 10), font: font3, foregroundColor: green, attachment: attachment};
+        var stringAttributes3: StringAttributes = {range: new AttributedRange(5, 10), font: font3, foregroundColor: green, attachmentId: "a1"};
         attributedString.applyAttributes(stringAttributes3);
         //trace(attributedString);
 
         //trace('full cover');
-        var stringAttributes4: StringAttributes = {range: new AttributedRange(5, 10), font: font4, foregroundColor: blue, attachment: attachment};
+        var stringAttributes4: StringAttributes = {range: new AttributedRange(5, 10), font: font4, foregroundColor: blue, attachmentId: "a1"};
         attributedString.applyAttributes(stringAttributes4);
         //trace(attributedString);
 
-        var stringAttributes5: StringAttributes = {range: new AttributedRange(24, 3), backgroundColor: white, attachment: attachment};
+        var stringAttributes5: StringAttributes = {range: new AttributedRange(24, 3), backgroundColor: white, attachmentId: "a1"};
         attributedString.applyAttributes(stringAttributes5);
         //trace(attributedString);
 
-        var stringAttributes6: StringAttributes = {range: new AttributedRange(2, 10), strokeWidth: -3, strokeColor: green, attachment: attachment};
+        var stringAttributes6: StringAttributes = {range: new AttributedRange(2, 10), strokeWidth: -3, strokeColor: green, attachmentId: "a1"};
         attributedString.applyAttributes(stringAttributes6);
 
-        var stringAttributes7: StringAttributes = {range: new AttributedRange(27, 131), attachment: attachment};
+        var stringAttributes7: StringAttributes = {range: new AttributedRange(27, 131), attachmentId: "a1"};
         attributedString.applyAttributes(stringAttributes7);
         trace(attributedString);
 
@@ -303,7 +304,8 @@ class FontTest extends OpenGLTest
                                               verticalAlignment: VerticalAlignment.Top,
                                               layoutBehaviour: LayoutBehaviour.AlwaysFit};
 
-        fontContext.renderStringToColorStorage(attributedString, colorStorage, layoutConfig);
+        var attachmentResolver = function(id: String) {return attachments.get(id);};
+        fontContext.renderStringToColorStorage(attributedString, colorStorage, layoutConfig,  attachmentResolver);
     }
 
     private function update(deltaTime: Float, currentTime: Float)

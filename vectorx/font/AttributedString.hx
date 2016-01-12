@@ -78,7 +78,10 @@ typedef StringAttributes =
     @:optional var shadow: FontShadow; // null (no shadow)
 
     /** Attachment object **/
-    @:optional var attachment: FontAttachment; // null (no attachment)
+    //@:optional var attachment: FontAttachment; // null (no attachment)
+
+    @:optional var attachmentId: String; // null (no attachment)
+
 }
 
 class AttributedString

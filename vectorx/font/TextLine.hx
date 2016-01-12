@@ -104,7 +104,7 @@ class TextLine
     private static var pos: Int = 0;
     private static var currentLine: TextLine = null;
 
-    public static function calculate(string: AttributedString, width: Float, pixelRatio: Float = 1.0): Array<TextLine>
+    public static function calculate(string: AttributedString, width: Float, attachmentResolver: String -> FontAttachment, pixelRatio: Float = 1.0): Array<TextLine>
     {
         var output: Array<TextLine> = [];
 
@@ -119,6 +119,10 @@ class TextLine
         while (spanIterator.hasNext())
         {
             var span: AttributedSpan = spanIterator.next();
+            if (span.attachmentId != null)
+            {
+                span.attachment = attachmentResolver(span.attachmentId);
+            }
             currentLine.spans.push(span);
             //trace(span);
 

@@ -101,8 +101,9 @@ class FontContext
     /// Implement text layouting and glyph rasterization using aggx library
     /// and move / seperate necessary logic
     public function renderStringToColorStorage(attrString: AttributedString,
-                                                      outStorage: ColorStorage,
-                                                      layoutConfig: TextLayoutConfig = null): Void
+                                                        outStorage: ColorStorage,
+                                                        ?layoutConfig: TextLayoutConfig,
+                                                        ?attachmentResolver: String -> Float -> FontAttachment): Void
     {
         MemoryAccess.select(outStorage.data);
 
@@ -124,7 +125,7 @@ class FontContext
 
         debugBox(outStorage.selectedRect.x, outStorage.selectedRect.y, outStorage.selectedRect.width, outStorage.selectedRect.height);
 
-        var textLayout = new TextLayout(attrString, layoutConfig, outStorage.selectedRect);
+        var textLayout = new TextLayout(attrString, layoutConfig, outStorage.selectedRect, attachmentResolver);
         var pixelRatio: Float = textLayout.pixelRatio;
         var y: Float = textLayout.alignY();
 
