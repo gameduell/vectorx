@@ -26,6 +26,7 @@
 
 package tests.fontTest;
 
+import haxe.ds.StringMap;
 import vectorx.font.AttributedRange;
 import vectorx.font.FontAttachment;
 import lib.ha.core.math.Calc;
@@ -261,7 +262,7 @@ class FontTest extends OpenGLTest
 
         var attachmentColorStorage = renderAttachment();
         var attachment = new FontAttachment(attachmentColorStorage, 0, 0, 70, 32);
-        var attachments = ["a1" => String => FontAttachment];
+        var attachments: StringMap<FontAttachment> = ["a1" => attachment];
 
         var stringAttributes: StringAttributes = {range: new AttributedRange(), font: font, backgroundColor: lightGrey, attachmentId: "a1"};
         var attributedString: AttributedString = new AttributedString(string0, stringAttributes);
@@ -304,7 +305,11 @@ class FontTest extends OpenGLTest
                                               verticalAlignment: VerticalAlignment.Top,
                                               layoutBehaviour: LayoutBehaviour.AlwaysFit};
 
-        var attachmentResolver = function(id: String) {return attachments.get(id);};
+        var attachmentResolver = function(id: String, ratio: Float): FontAttachment
+        {
+            return attachments.get(id);
+        };
+
         fontContext.renderStringToColorStorage(attributedString, colorStorage, layoutConfig,  attachmentResolver);
     }
 
