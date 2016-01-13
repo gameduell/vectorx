@@ -1,34 +1,57 @@
 package vectorx.font;
 
+import vectorx.font.StyledStringContext.AttachmentConfig;
+import types.Vector2;
 import types.RectI;
 import haxe.ds.StringMap;
 
 class FontAttachmentStorage
 {
     private var images: StringMap<ColorStorage> = new StringMap<ColorStorage>();
+    private var attachmentsConfigs: StringMap<AttachmentConfig> = new StringMap<AttachmentConfig>();
     private var attachments: StringMap<FontAttachment> = new StringMap<FontAttachment>();
-    public var loadImage: String -> ColorStorage;
+    public var loadImage: String -> Vector2 -> ColorStorage;
 
     public function new()
     {
 
     }
 
-    public function getAttachment(name: String): FontAttachment
+    public function getAttachment(name: String, scale: Float): FontAttachment
     {
-        return attachments.get(name);
-    }
-
-    public function addAttachment(name: String, imageFile: String, bounds: RectI, anchorPoint: Float = 0): Void
-    {
-        var image = images.get(imageFile);
-        if (image == null)
+        var config = attachmentsConfigs.get(name);
+        if (config == null)
         {
-            image = loadImage(imageFile);
+            throw 'Attachment $name is not found';
         }
 
-        var attachment = new FontAttachment(image, bounds.x, bounds.y, bounds.width, bounds.height);
-        attachment.anchorPoint = anchorPoint;
-        attachments.set(name, attachment);
+        var dimensions = new Vector2();
+        dimensions.setXY(config.width * scale, config.height * scale);
+
+        var key = '$name$$${Math.ceil(dimensions.x)}_${Math.ceil(dimensions.y)}}';
+        var value = attachments.get(key);
+
+        if (value != null)
+        {
+            return value;
+        }
+
+        var bitmap: ColorStorage = loadImage(config.image, dimensions);
+
+        var attachment = new FontAttachment(bitmap,
+                        bitmap.selectedRect.x,
+                        bitmap.selectedRect.y,
+                        bitmap.selectedRect.width,
+                        bitmap.selectedRect.height,
+                        config.anchorPoint);
+
+        attachments.set(key, attachment);
+
+        return attachment;
+    }
+
+    public function addAttachmentConfig(config: AttachmentConfig): Void
+    {
+        attachmentsConfigs.set(config.name, config);
     }
 }

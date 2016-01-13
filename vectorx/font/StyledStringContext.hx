@@ -1,5 +1,6 @@
 package vectorx.font;
 
+import types.Vector2;
 import types.RectI;
 import types.Data;
 import lib.ha.svg.SVGStringParsers;
@@ -18,8 +19,6 @@ typedef AttachmentConfig =
 {
     name: String,
     image: String,
-    ?x: Int,
-    ?y: Int,
     width: Int,
     height: Int,
     ?anchorPoint: Float
@@ -41,6 +40,13 @@ class StyledStringContext
     public var fontAliases(default, null): FontAliasesStorage;
     public var colors(default, null): StringMap<Color4F>;
 
+    private var loadImage: String -> Vector2 -> ColorStorage;
+
+    public function loadFontAttachment(id: String, scale: Float): FontAttachment
+    {
+        return fontAttachments.getAttachment(id, scale);
+    }
+
     public function new(fontCache: FontCache)
     {
         this.fontCache = fontCache;
@@ -49,7 +55,7 @@ class StyledStringContext
         colors = new StringMap<Color4F>();
     }
 
-    public static function create(configJson: String, loadFontFunc: String -> Data, loadImage: String -> ColorStorage): StyledStringContext
+    public static function create(configJson: String, loadFontFunc: String -> Data, loadImage: String -> Vector2 -> ColorStorage): StyledStringContext
     {
         var json: StyledStringContextConfing = Json.parse(configJson);
 
@@ -93,14 +99,7 @@ class StyledStringContext
         {
             for (attachment in json.attachments)
             {
-                var rect = new RectI();
-                rect.x = attachment.x == null ? 0 : attachment.x;
-                rect.y = attachment.y == null ? 0 : attachment.y;
-                rect.width = attachment.width;
-                rect.height = attachment.height;
-
-                var anchorPoint: Float = attachment.anchorPoint == null ? 0 : attachment.anchorPoint;
-                context.fontAttachments.addAttachment(attachment.name, attachment.image, rect, anchorPoint);
+                context.fontAttachments.addAttachmentConfig(attachment);
             }
         }
 

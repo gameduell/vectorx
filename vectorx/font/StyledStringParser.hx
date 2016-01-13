@@ -93,7 +93,7 @@ class StyledStringParser
         return attachment.toString();
     }
 
-    private function parseAttachment(fontAttachments: FontAttachmentStorage): Void
+    private function parseAttachment(): Void
     {
         var attachmentName = readAttachment();
         var range: AttributedRange = new AttributedRange(currentString.length, 0);
@@ -109,12 +109,7 @@ class StyledStringParser
             strokeColor: currentAttribute.strokeColor
         };
 
-        var attachment = fontAttachments.getAttachment(attachmentName);
-        if (attachment == null)
-        {
-            throw 'Attachment $attachmentName is not found';
-        }
-        currentAttribute.attachment = attachment;
+        currentAttribute.attachmentId = attachmentName;
 
         popAttribute();
         pushAttribute(attr);
@@ -217,7 +212,7 @@ class StyledStringParser
         }
     }
 
-    public function toAttributedString(styledString: String, fontAliases: FontAliasesStorage, fontCache: FontCache, fontAttachments: FontAttachmentStorage, colors: StringMap<Color4F>): AttributedString
+    public function toAttributedString(styledString: String, fontAliases: FontAliasesStorage, fontCache: FontCache, colors: StringMap<Color4F>): AttributedString
     {
         reset();
 
@@ -234,7 +229,7 @@ class StyledStringParser
                 }
                 else if (currentChar == '{' && !isEscapeChar)
                 {
-                    parseAttachment(fontAttachments);
+                    parseAttachment();
                 }
                 else
                 {
