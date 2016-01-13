@@ -58,7 +58,7 @@ import types.HorizontalAlignment;
 
 typedef TextLayoutConfig =
 {
-    var pointsToPixelRatio: Float; // Default 1.0
+    var scale: Float; // Default 1.0
     var horizontalAlignment: HorizontalAlignment; // Default left
     var verticalAlignment: VerticalAlignment; // Default top
     var layoutBehaviour: LayoutBehaviour; // Default Clip
@@ -83,7 +83,7 @@ class FontContext
 
     private static var defaultTextlayout: TextLayoutConfig =
     {
-        pointsToPixelRatio: 1,
+        scale: 1,
         horizontalAlignment: HorizontalAlignment.Left,
         verticalAlignment: VerticalAlignment.Top,
         layoutBehaviour: LayoutBehaviour.Clip

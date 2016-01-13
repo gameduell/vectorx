@@ -300,7 +300,7 @@ class FontTest extends OpenGLTest
         colorStorage.selectedRect.width = 500;
         colorStorage.selectedRect.height = 600;
 
-        var layoutConfig: TextLayoutConfig = {pointsToPixelRatio: 1,
+        var layoutConfig: TextLayoutConfig = {scale: 1,
                                               horizontalAlignment: HorizontalAlignment.Center,
                                               verticalAlignment: VerticalAlignment.Top,
                                               layoutBehaviour: LayoutBehaviour.AlwaysFit};

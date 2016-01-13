@@ -18,9 +18,9 @@ class TextLayout
     {
         this.config = layoutConfing;
         this.rect = rect;
-        this.pixelRatio = config.pointsToPixelRatio;
+        this.pixelRatio = config.scale;
 
-        lines = TextLine.calculate(string, rect.width, attachmentResolver, config.pointsToPixelRatio);
+        lines = TextLine.calculate(string, rect.width, attachmentResolver, config.scale);
         height = calculateTextHeight(lines, string.string);
 
         if (config.layoutBehaviour == LayoutBehaviour.AlwaysFit)
