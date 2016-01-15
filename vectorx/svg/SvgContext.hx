@@ -59,6 +59,15 @@ class SvgContext
         transform = new AffineTransformer();
     }
 
+    public static function parseSvg(svg: Xml): SVGData
+    {
+        var builder = new SVGDataBuilder();
+        var parser = new SVGParser(builder);
+        parser.processXML(svg);
+
+        return builder.data;
+    }
+
     // Compile time // Unit tests // This function should be compiled to a standalone
     // application which serves the artist as a checker if their provides svg are correct.
     // Further it is used in a buildstep to convert all svg assets to our binary format.
@@ -70,12 +79,10 @@ class SvgContext
         // Every SVG must specify width and height in Points
         // Check throws/logs error if features are used which are not supported
 
-        var builder = new SVGDataBuilder();
-        var parser = new SVGParser(builder);
-        parser.processXML(inSvg);
+        var svgData = parseSvg(inSvg);
 
         dataWrapper.data = outVectorBin;
-        SvgSerializer.writeSvgData(dataWrapper, builder.data);
+        SvgSerializer.writeSvgData(dataWrapper, svgData);
         dataWrapper.data = null;
     }
 
@@ -102,8 +109,7 @@ class SvgContext
         dataWrapper.data = null;
     }
 
-    // RunTime TODO
-    public function renderVectorBinToColorStorage(inVectorBin: SVGData, outStorage: ColorStorage): Void
+    public function renderVectorBinToColorStorage(inVectorBin: SVGData, outStorage: ColorStorage, ?transform: AffineTransformer): Void
     {
         MemoryAccess.select(outStorage.data);
 
@@ -112,9 +118,18 @@ class SvgContext
         var clippingRenderer = new ClippingRenderer(pixelFormatRenderer);
         var scanlineRenderer = new SolidScanlineRenderer(clippingRenderer);
 
+        clippingRenderer.setClippingBounds(outStorage.selectedRect.x,
+                                            outStorage.selectedRect.y,
+                                            outStorage.selectedRect.x + outStorage.selectedRect.width,
+                                            outStorage.selectedRect.y + outStorage.selectedRect.height);
         inVectorBin.expandValue = 0.1;
         var alpha = 1.0;
-        transform = AffineTransformer.translator(100.0, 100.0);
+
+        if (transform == null)
+        {
+            transform = AffineTransformer.translator(0.0, 0.0);
+        }
+
         svgRenderer.render(inVectorBin, rasterizer, scanline, clippingRenderer, transform, alpha);
 
         MemoryAccess.select(null);
