@@ -1,5 +1,6 @@
 package vectorx.font;
 
+import vectorx.font.FontContext.TextLayoutConfig;
 import types.Vector2;
 import types.RectI;
 import types.Data;
@@ -39,6 +40,7 @@ class StyledStringContext
     public var fontAttachments(default, null): FontAttachmentStorage;
     public var fontAliases(default, null): FontAliasesStorage;
     public var colors(default, null): StringMap<Color4F>;
+    public var fontContext: FontContext;
 
     private var loadImage: String -> Vector2 -> ColorStorage;
 
@@ -55,7 +57,19 @@ class StyledStringContext
         colors = new StringMap<Color4F>();
     }
 
-    public static function create(configJson: String, loadFontFunc: String -> Data, loadImage: String -> Vector2 -> ColorStorage): StyledStringContext
+    public function renderStringToColorStorage(styledString: String, colorStorage: ColorStorage, layout: TextLayoutConfig)
+    {
+        var attributedString = StyledString.toAttributedString(styledString, this);
+
+        var loadAttachment = function(name: String, scale: Float)
+        {
+            return loadFontAttachment(name, scale);
+        }
+
+        fontContext.renderStringToColorStorage(attributedString, colorStorage, layout, loadAttachment);
+    }
+
+    public static function create(configJson: String, loadFontFunc: String -> Data, loadImage: String -> Vector2 -> ColorStorage, ?fontContext: FontContext): StyledStringContext
     {
         var json: StyledStringContextConfing = Json.parse(configJson);
 
@@ -68,6 +82,13 @@ class StyledStringContext
         var fontCache = new FontCache(loadFontFunc(defaultFont));
         var context = new StyledStringContext(fontCache);
         context.fontAttachments.loadImage = loadImage;
+
+        if (fontContext == null)
+        {
+            fontContext = new FontContext();
+        }
+
+        context.fontContext = fontContext;
 
         if (json.colors != null)
         {
