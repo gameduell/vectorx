@@ -105,6 +105,7 @@ class FontContext
                                                         ?layoutConfig: TextLayoutConfig,
                                                         ?attachmentResolver: String -> Float -> FontAttachment): Void
     {
+        var prevMemory = MemoryAccess.domainMemory;
         MemoryAccess.select(outStorage.data);
 
         if (layoutConfig == null)
@@ -297,7 +298,7 @@ class FontContext
 
         renderDebugPath(scanlineRenderer);
 
-        MemoryAccess.select(null);
+        MemoryAccess.select(prevMemory);
         for (font in cleanUpList)
         {
             font.scanline = null;

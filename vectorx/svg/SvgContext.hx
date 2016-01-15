@@ -111,6 +111,7 @@ class SvgContext
 
     public function renderVectorBinToColorStorage(inVectorBin: SVGData, outStorage: ColorStorage, ?transform: AffineTransformer): Void
     {
+        var prevMemory = MemoryAccess.domainMemory;
         MemoryAccess.select(outStorage.data);
 
         var renderingBuffer = new RenderingBuffer(outStorage.width, outStorage.height, ColorStorage.COMPONENTS * outStorage.width);
@@ -132,6 +133,6 @@ class SvgContext
 
         svgRenderer.render(inVectorBin, rasterizer, scanline, clippingRenderer, transform, alpha);
 
-        MemoryAccess.select(null);
+        MemoryAccess.select(prevMemory);
     }
 }
