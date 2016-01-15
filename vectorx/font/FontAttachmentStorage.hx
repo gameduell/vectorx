@@ -10,7 +10,7 @@ class FontAttachmentStorage
     private var images: StringMap<ColorStorage> = new StringMap<ColorStorage>();
     private var attachmentsConfigs: StringMap<AttachmentConfig> = new StringMap<AttachmentConfig>();
     private var attachments: StringMap<FontAttachment> = new StringMap<FontAttachment>();
-    public var loadImage: String -> Vector2 -> ColorStorage;
+    public var loadImage: String -> Vector2 -> Vector2 -> ColorStorage;
 
     public function new()
     {
@@ -36,7 +36,10 @@ class FontAttachmentStorage
             return value;
         }
 
-        var bitmap: ColorStorage = loadImage(config.image, dimensions);
+        var origDimensions = new Vector2();
+        origDimensions.setXY(config.width, config.height);
+
+        var bitmap: ColorStorage = loadImage(config.image, origDimensions, dimensions);
 
         var attachment = new FontAttachment(bitmap,
                         bitmap.selectedRect.x,

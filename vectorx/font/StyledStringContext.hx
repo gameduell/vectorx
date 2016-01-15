@@ -42,7 +42,7 @@ class StyledStringContext
     public var colors(default, null): StringMap<Color4F>;
     public var fontContext: FontContext;
 
-    private var loadImage: String -> Vector2 -> ColorStorage;
+    private var loadImage: String -> Vector2 -> Vector2 -> ColorStorage;
 
     public function loadFontAttachment(id: String, scale: Float): FontAttachment
     {
@@ -69,7 +69,7 @@ class StyledStringContext
         fontContext.renderStringToColorStorage(attributedString, colorStorage, layout, loadAttachment);
     }
 
-    public static function create(configJson: String, loadFontFunc: String -> Data, loadImage: String -> Vector2 -> ColorStorage, ?fontContext: FontContext): StyledStringContext
+    public static function create(configJson: String, loadFontFunc: String -> Data, loadImage: String -> Vector2 -> Vector2 -> ColorStorage, ?fontContext: FontContext): StyledStringContext
     {
         var json: StyledStringContextConfing = Json.parse(configJson);
 
