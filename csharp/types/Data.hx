@@ -32,6 +32,7 @@ import cs.system.io.MemoryStream;
 import cs.system.io.BinaryReader;
 import cs.system.io.BinaryWriter;
 import cs.system.io.SeekOrigin;
+import cs.system.text.Encoding;
 
 class Data
 {
@@ -45,12 +46,24 @@ class Data
     inline static public var SIZE_OF_FLOAT64: Int = 8;
 
     var memory: MemoryStream;
-    var reader: BinaryReader;
-    var writer: BinaryWriter;
+    public var reader: BinaryReader;
+    public var writer: BinaryWriter;
+
+/// offset view, all uses of data should start at offset and use up to offset length
+    public var offset(default, set): Int;
+    public var offsetLength: Int;
+
+    public function set_offset(value: Int): Int
+    {
+        offset = value;
+        offsetLength = allocedLength - offset;
+        return offset;
+    }
 
     public function new(sizeInBytes: Int): Void /// if 0, empty data, does not create the underlying memory. Can be set externally.
     {
         allocedLength = sizeInBytes;
+        offsetLength = sizeInBytes;
         memory = new MemoryStream(sizeInBytes);
         reader = new BinaryReader(memory);
         writer = new BinaryWriter(memory);
@@ -82,40 +95,66 @@ class Data
 
     public function writeIntArray(array: Array<Int>, dataType: DataType): Void
     {
+        var dataSize = types.DataTypeUtils.dataTypeByteSize(dataType);
 
+        var prevOffset = offset;
+        for(i in 0...array.length)
+        {
+            writeInt(array[i], dataType);
+            offset += dataSize;
+        }
+        offset = prevOffset;
     }
 
     private inline function seek(): Void
     {
         memory.Seek(offset, SeekOrigin.Begin);
     }
-    public function writeInt8(value: Int): Void
-    {
-        seek();
-        var tmp: cs.types.Int8 = (value);
-        writer.Write(tmp);
-    }
 
+    @:functionCode("
+        seek();
+        sbyte tmp = (sbyte) value;
+        writer.Write(tmp);
+    ")
+    public function writeInt8(value: Int): Void{}
+
+    @:functionCode("
+        seek();
+        byte tmp = (byte) value;
+        writer.Write(tmp);
+    ")
     public function writeUInt8(value: Int): Void
     {
 
     }
 
-    public function writeInt16(value: Int): Void
-    {
+    @:functionCode("
+        seek();
+        short tmp = (short) value;
+        writer.Write(tmp);
+    ")
+    public function writeInt16(value: Int): Void {}
 
-    }
+    @:functionCode("
+        seek();
+        ushort tmp = (ushort) value;
+        writer.Write(tmp);
+    ")
+    public function writeUInt16(value: Int): Void {}
 
-    public function writeUInt16(value: Int): Void
-    {
-
-    }
-
+    @:functionCode("
+        seek();
+        writer.Write((uint)value);
+    ")
     public function writeInt32(value: Int): Void
     {
 
     }
 
+    @:functionCode("
+        seek();
+        writer.Write(value);
+    ")
     public function writeUInt32(value: Int): Void
     {
 
@@ -138,79 +177,144 @@ class Data
 
     public function readIntArray(count: Int, dataType: DataType): Array<Int>
     {
-        return [];
+        var dataSize = types.DataTypeUtils.dataTypeByteSize(dataType);
+
+        var prevOffset = offset;
+
+        var array = new Array<Int>();
+        for(i in 0...count)
+        {
+            array.push(readInt(dataType));
+            offset += dataSize;
+        }
+
+        offset = prevOffset;
+        return array;
     }
 
     public function readInt8(): Int
     {
-        return 0;
+        seek();
+        return reader.ReadByte();
     }
 
     public function readUInt8(): Int
     {
-        return 0;
+        seek();
+        return reader.ReadSByte();
     }
 
     public function readInt16(): Int
     {
-        return 0;
+        seek();
+        return reader.ReadInt16();
     }
 
     public function readUInt16(): Int
     {
-        return 0;
+        seek();
+        return reader.ReadUInt16();
     }
 
     public function readInt32(): Int
     {
-        return 0;
+        seek();
+        return reader.ReadInt32();
     }
 
     public function readUInt32(): Int
     {
-        return 0;
+        seek();
+        return reader.ReadUInt32();
     }
 
 // Float write and read functions
 
+
     public function writeFloat(value: Float, targetDataType: DataType): Void
     {
-
+        switch(targetDataType)
+        {
+            case DataType.DataTypeInt8: writeInt8(Std.int(value));
+            case DataType.DataTypeUInt8: writeUInt8(Std.int(value));
+            case DataType.DataTypeInt16: writeInt16(Std.int(value));
+            case DataType.DataTypeUInt16: writeUInt16(Std.int(value));
+            case DataType.DataTypeInt32: writeInt32(Std.int(value));
+            case DataType.DataTypeUInt32: writeUInt32(Std.int(value));
+            case DataType.DataTypeFloat32: writeFloat32(value);
+            case DataType.DataTypeFloat64: writeFloat64(value);
+        }
     }
 
     public function writeFloatArray(array: Array<Float>, dataType: DataType): Void
     {
+        var dataSize = types.DataTypeUtils.dataTypeByteSize(dataType);
 
+        var prevOffset = offset;
+        for(i in 0...array.length)
+        {
+            writeFloat(array[i], dataType);
+            offset += dataSize;
+        }
+        offset = prevOffset;
     }
 
-    public function writeFloat32(value: Float): Void
-    {
+    @:functionCode("
+        seek();
+        float tmp = (float)value;
+        writer.Write(value);
+    ")
+    public function writeFloat32(value: Float): Void {}
 
-    }
-
-    public function writeFloat64(value: Float): Void
-    {
-
-    }
+    @:functionCode("
+        seek();
+        double tmp = (double)value;
+        writer.Write(value);
+    ")
+    public function writeFloat64(value: Float): Void {}
 
     public function readFloat(targetDataType: DataType): Float
     {
-        return 0;
+        switch(targetDataType)
+        {
+            case DataType.DataTypeFloat32: return readFloat32();
+            case DataType.DataTypeFloat64: return readFloat64();
+            case DataType.DataTypeInt8: return readInt8();
+            case DataType.DataTypeUInt8: return readUInt8();
+            case DataType.DataTypeInt16: return readInt16();
+            case DataType.DataTypeUInt16: return readUInt16();
+            case DataType.DataTypeInt32: return readInt32();
+            case DataType.DataTypeUInt32: return readUInt32();
+        }
     }
 
     public function readFloatArray(count: Int, dataType: DataType): Array<Float>
     {
-        return [];
+        var dataSize = types.DataTypeUtils.dataTypeByteSize(dataType);
+
+        var prevOffset = offset;
+
+        var array = new Array<Float>();
+        for(i in 0...count)
+        {
+            array.push(readFloat(dataType));
+
+            offset += dataSize;
+        }
+        offset = prevOffset;
+        return array;
     }
 
     public function readFloat32(): Float
     {
-        return 0;
+        seek();
+        return reader.ReadSingle();
     }
 
     public function readFloat64(): Float
     {
-        return 0;
+        seek();
+        return reader.ReadDouble();
     }
 
     public function toString(?dataType: DataType): String
@@ -218,9 +322,6 @@ class Data
         return "";
     }
 
-/// offset view, all uses of data should start at offset and use up to offset length
-    public var offset: Int;
-    public var offsetLength: Int;
     public function resetOffset(): Void /// makes offset 0 and offsetLength be allocedLength
     {
         offset = 0;
@@ -235,7 +336,23 @@ class Data
     {
         memory.SetLength(newSize);
         allocedLength = newSize;
+        offsetLength = allocedLength - offset;
     }
+
+    @:functionCode("
+       var tmp = reader.ReadBytes(offsetLength);
+       return System.Text.Encoding.UTF8.GetString(tmp);
+    ")
+    public function readString(): String
+    {
+        return "";
+    }
+
+    @:functionCode("
+       var tmp = System.Text.Encoding.UTF8.GetBytes(value);
+       writer.Write(tmp);
+    ")
+    public function writeString(value: String): Void {}
 
 /// makes the part pointed by offset and offset length become the full length of the data
 /// by resizing the data fit exactly that.

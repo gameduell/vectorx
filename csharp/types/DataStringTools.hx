@@ -35,11 +35,11 @@ class DataStringTools {
 
     public static function readString(data : Data) : String
     {
-        return "";
+        return data.readString();
     }
 
     public static function writeString(data : Data, string : String) : Void
     {
-
+        data.writeString(string);
     }
 }
