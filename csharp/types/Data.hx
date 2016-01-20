@@ -69,6 +69,18 @@ class Data
         memory = new MemoryStream(sizeInBytes);
         reader = new BinaryReader(memory);
         writer = new BinaryWriter(memory);
+
+        memset(sizeInBytes, 0);
+    }
+
+    @:functionCode("
+        byte tmp = (byte) value;
+        for (int i = 0; i < size; i++)
+            writer.Write(tmp);
+    ")
+    private function memset(size: Int, value: Int)
+    {
+
     }
 
     public function writeData(data: Data): Void
@@ -362,8 +374,20 @@ class Data
     public function resize(newSize: Int): Void
     {
         memory.SetLength(newSize);
+        var grow: Int = 0;
+        if (newSize > allocedLength)
+        {
+            grow = newSize - allocedLength;
+        }
         allocedLength = newSize;
         offsetLength = allocedLength - offset;
+
+        //TODO unittest
+        if (grow > 0)
+        {
+            memory.Seek(allocedLength - grow, SeekOrigin.Begin);
+            memset(0, grow);
+        }
     }
 
     @:functionCode("
