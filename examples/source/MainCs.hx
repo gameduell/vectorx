@@ -4,12 +4,14 @@ import vectorx.font.FontContext;
 import vectorx.svg.SvgContext;
 import lib.ha.svg.SVGData;
 import vectorx.ColorStorage;
+import types.DataTest;
 
 
 class MainCs
 {
     public static function main(): Void
     {
+        DataTest.testAll();
         var colorStorage: ColorStorage = new ColorStorage(512, 512);
         var svgData = new SVGData();
         var context = new SvgContext();

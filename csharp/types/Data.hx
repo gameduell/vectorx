@@ -27,7 +27,8 @@
 package types;
 
 import types.DataType;
-//System.Collections.Generic
+
+import StringTools;
 import cs.system.io.MemoryStream;
 import cs.system.io.BinaryReader;
 import cs.system.io.BinaryWriter;
@@ -45,7 +46,7 @@ class Data
     inline static public var SIZE_OF_FLOAT32: Int = 4;
     inline static public var SIZE_OF_FLOAT64: Int = 8;
 
-    var memory: MemoryStream;
+    public var memory: MemoryStream;
     public var reader: BinaryReader;
     public var writer: BinaryWriter;
 
@@ -64,6 +65,7 @@ class Data
     {
         allocedLength = sizeInBytes;
         offsetLength = sizeInBytes;
+        //TODO write zeroes or smth
         memory = new MemoryStream(sizeInBytes);
         reader = new BinaryReader(memory);
         writer = new BinaryWriter(memory);
@@ -108,7 +110,32 @@ class Data
 
     private inline function seek(): Void
     {
+        //trace('seek() offset: $offset');
         memory.Seek(offset, SeekOrigin.Begin);
+    }
+
+    public function dump(): Void
+    {
+        var buf = new StringBuf();
+        memory.Seek(0, SeekOrigin.Begin);
+        var j = 0;
+        for(i in 0 ... allocedLength)
+        {
+            var byte = StringTools.hex(reader.ReadByte(), 2);
+            buf.add(byte);
+            j++;
+            if (j >= 16)
+            {
+                buf.add('\n');
+                j = 0;
+            }
+            else
+            {
+                buf.add(" ");
+            }
+        }
+
+        trace(buf);
     }
 
     @:functionCode("
@@ -262,14 +289,14 @@ class Data
     @:functionCode("
         seek();
         float tmp = (float)value;
-        writer.Write(value);
+        writer.Write(tmp);
     ")
     public function writeFloat32(value: Float): Void {}
 
     @:functionCode("
         seek();
         double tmp = (double)value;
-        writer.Write(value);
+        writer.Write(tmp);
     ")
     public function writeFloat64(value: Float): Void {}
 
@@ -340,8 +367,9 @@ class Data
     }
 
     @:functionCode("
-       var tmp = reader.ReadBytes(offsetLength);
-       return System.Text.Encoding.UTF8.GetString(tmp);
+        seek();
+        var tmp = reader.ReadBytes(offsetLength);
+        return System.Text.Encoding.UTF8.GetString(tmp);
     ")
     public function readString(): String
     {
@@ -349,8 +377,9 @@ class Data
     }
 
     @:functionCode("
-       var tmp = System.Text.Encoding.UTF8.GetBytes(value);
-       writer.Write(tmp);
+        seek();
+        var tmp = System.Text.Encoding.UTF8.GetBytes(value);
+        writer.Write(tmp);
     ")
     public function writeString(value: String): Void {}
 
