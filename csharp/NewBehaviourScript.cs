@@ -53,6 +53,15 @@ public class NewBehaviourScript : MonoBehaviour
 		System.Console.Write (str);
 	}
 
+	Texture2D createTexture(vectorx.ColorStorage storage)
+	{
+		var texture = new Texture2D(storage.width, storage.height, TextureFormat.RGBA32, false);
+		storage.data.memory.Seek (0, System.IO.SeekOrigin.Begin);
+		var bytes = storage.data.reader.ReadBytes (storage.data.allocedLength);
+		texture.LoadRawTextureData (bytes);
+		texture.Apply ();
+		return texture;
+	}
 
 	void TestSvg()
 	{
@@ -62,6 +71,10 @@ public class NewBehaviourScript : MonoBehaviour
 		var context = new vectorx.svg.SvgContext ();
 		var transform = lib.ha.core.geometry.AffineTransformer.translator(0, 0);
 		context.renderVectorBinToColorStorage (svg, colorStorage, transform);
+		//colorStorage.data.dump ();
+
+		var texture = createTexture (colorStorage);
+		GetComponent<Renderer> ().material.mainTexture = texture;
 		System.Console.Write ("");
 	}
 
@@ -73,19 +86,7 @@ public class NewBehaviourScript : MonoBehaviour
 		//TestData();
 		TestSvg();
 
-		DataTest.testAll ();
-		var svgData = new lib.ha.svg.SVGData ();
-		var colorStorage = new vectorx.ColorStorage (512, 512, null);
-		var context = new vectorx.svg.SvgContext ();
-		var transform = lib.ha.core.geometry.AffineTransformer.translator(0, 0);
-		context.renderVectorBinToColorStorage (svgData, colorStorage, transform);
-
-		var arr = new System.Collections.Generic.List<System.Byte>();
-		var stream = new System.IO.MemoryStream (512);
-
-		var reader = new System.IO.BinaryReader (stream);
-		var writer = new System.IO.BinaryWriter (stream);
-
+		//DataTest.testAll ();
 	}
 	
 	// Update is called once per frame
