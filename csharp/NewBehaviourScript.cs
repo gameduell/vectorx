@@ -2,7 +2,9 @@
 using System.Collections;
 using types;
 
-public class NewBehaviourScript : MonoBehaviour {
+public class NewBehaviourScript : MonoBehaviour 
+{
+	public TextAsset svgXml;
 
 	void Awake()
 	{
@@ -41,10 +43,7 @@ public class NewBehaviourScript : MonoBehaviour {
 	void TestData()
 	{
 		var data = new types.Data (4);
-		//data.writeFloat32 (1.1);
-		float tmp = (float)1.1;
-		data.writer.Write(value);
-		data.dump ();
+		data.writeFloat32 (1.1);
 		data.memory.Seek (0, System.IO.SeekOrigin.Begin);
 		string str = "";
 		for (int i = 0; i < 4; i++)
@@ -53,12 +52,26 @@ public class NewBehaviourScript : MonoBehaviour {
 		}
 		System.Console.Write (str);
 	}
+
+
+	void TestSvg()
+	{
+		var xml = Xml.parse (svgXml.text);
+		var svg = vectorx.svg.SvgContext.parseSvg (xml);
+		var colorStorage = new vectorx.ColorStorage (32, 32, null);
+		var context = new vectorx.svg.SvgContext ();
+		var transform = lib.ha.core.geometry.AffineTransformer.translator(0, 0);
+		context.renderVectorBinToColorStorage (svg, colorStorage, transform);
+		System.Console.Write ("");
+	}
+
 	void Start () 
 	{
 		UnitySystemConsoleRedirector.Redirect();
 		System.Console.WriteLine ("Start () ");
 		//TestFloat ();
-		TestData();
+		//TestData();
+		TestSvg();
 
 		DataTest.testAll ();
 		var svgData = new lib.ha.svg.SVGData ();
