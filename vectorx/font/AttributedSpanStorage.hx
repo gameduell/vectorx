@@ -84,6 +84,7 @@ class AttributedSpanStorage
                 var coverSpan: AttributedSpan = new AttributedSpan(span.baseString, newSpanRange.index, coverLenght);
                 coverSpan.apply(span);
                 span.attachment = null;
+                span.attachmentId = null;
                 coverSpan.apply(newSpan);
                 generatedSpans.push(coverSpan);
                 span.updateString();
@@ -96,6 +97,8 @@ class AttributedSpanStorage
                 var tempSpan = new AttributedSpan("");
                 tempSpan.setFromSpan(newSpan);
                 tempSpan.applyBefore(span);
+                tempSpan.attachment = null;
+                tempSpan.attachmentId = null;
                 //trace(tempSpan);
                 generatedSpans.push(tempSpan);
                 //generatedSpans.push(newSpan);
@@ -105,6 +108,7 @@ class AttributedSpanStorage
                 spanRange.length = spanRangeLength;
                 remainderSpan.apply(span);
                 span.attachment = null;
+                span.attachmentId = null;
                 generatedSpans.push(remainderSpan);
                 span.updateString();
                 continue;
