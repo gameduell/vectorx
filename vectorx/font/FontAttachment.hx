@@ -53,6 +53,16 @@ class FontAttachment
         this.anchorPoint = anchorPoint;
     }
 
+    public function heightBelowBaseline(): Float
+    {
+        return anchorPoint * bounds.height;
+    }
+
+    public function heightAboveBaseline(): Float
+    {
+        return (1 - anchorPoint) * bounds.height;
+    }
+
     public function toString(): String
     {
         return '{x: ${bounds.x} y; ${bounds.y} width: ${bounds.width} height: ${bounds.height}}';

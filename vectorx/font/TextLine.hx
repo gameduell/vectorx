@@ -62,10 +62,11 @@ class TextLine
         //trace('mh: $maxSpanHeight');
         if (span.attachment != null)
         {
-            //trace('ah: ${span.attachment.bounds.height}');
-            if (span.attachment.bounds.height > maxSpanHeight)
+            var attachmentHeight = span.attachment.heightAboveBaseline();
+            //trace('ah: ${attachmentHeight}');
+            if (attachmentHeight > maxSpanHeight)
             {
-                maxSpanHeight = span.attachment.bounds.height;
+                maxSpanHeight = attachmentHeight;
             }
         }
     }
@@ -75,7 +76,15 @@ class TextLine
         var fontEngine: FontEngine = span.font.internalFont;
         var spanString: String = span.string;
         var measure = span.getMeasure();
-        var alignY: Float = maxSpanHeight - measure.y;
+
+        var measureY: Float = measure.y;
+        if (span.attachment != null)
+        {
+            var attachmentHeight = span.attachment.heightAboveBaseline();
+            measureY = Math.max(measureY, attachmentHeight);
+        }
+
+        var alignY: Float = maxSpanHeight - measureY;
 
         for (i in 0 ... Utf8.length(spanString))
         {
@@ -89,7 +98,16 @@ class TextLine
             var by =  -face.glyph.bounds.y1 * scale;
             var h = (-face.glyph.bounds.y2 - -face.glyph.bounds.y1) * scale;
 
-            var ext: Float = (alignY + measure.y + by);
+            var ext: Float = alignY + measure.y + by;
+            if (ext > maxBgHeight)
+            {
+                maxBgHeight = ext;
+            }
+        }
+
+        if (span.attachment != null)
+        {
+            var ext = alignY + span.attachment.heightBelowBaseline();
             if (ext > maxBgHeight)
             {
                 maxBgHeight = ext;
