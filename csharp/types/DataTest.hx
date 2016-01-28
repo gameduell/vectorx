@@ -185,6 +185,9 @@ class DataTest //extends haxe.unit.TestCase
         var data = new Data(1);
         data.writeInt(1, DataTypeUInt8);
         assertIntArray([1], data, DataTypeUInt8);
+
+        data.writeInt(255, DataTypeUInt8);
+        assertIntArray([255], data, DataTypeUInt8);
     }
 
     public function testSettingDouble(): Void

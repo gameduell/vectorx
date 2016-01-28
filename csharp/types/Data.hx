@@ -129,6 +129,7 @@ class Data
     public function dump(): Void
     {
         var buf = new StringBuf();
+        buf.add('dumping data:\n');
         memory.Seek(0, SeekOrigin.Begin);
         var j = 0;
         for(i in 0 ... allocedLength)
@@ -234,13 +235,13 @@ class Data
     public function readInt8(): Int
     {
         seek();
-        return reader.ReadByte();
+        return reader.ReadSByte();
     }
 
     public function readUInt8(): Int
     {
         seek();
-        return reader.ReadSByte();
+        return reader.ReadByte();
     }
 
     public function readInt16(): Int
