@@ -63,14 +63,70 @@ public class NewBehaviourScript : MonoBehaviour
 		return texture;
 	}
 
+	void TestColorStorage()
+	{
+		var colorStorage = new vectorx.ColorStorage (8, 8, null);
+		//System.UInt32 value = 0xff0000ff;
+		System.UInt32 value32 = 0xff0000ff;
+		System.Byte value8 = 0xff;
+		colorStorage.data.memory.Seek (0, System.IO.SeekOrigin.Begin);
+		for (int i = 0; i < colorStorage.data.allocedLength/4; i++) 
+		{
+			//colorStorage.data.offset = i;
+			//colorStorage.data.writeUInt8 (value8);
+			colorStorage.data.writer.Write(value32);
+		}
+
+		colorStorage.data.dump ();
+
+		var texture = createTexture (colorStorage);
+		GetComponent<Renderer> ().material.mainTexture = texture;
+		System.Console.Write ("");
+	}
+
+	void TestPixelFormatRenderer()
+	{
+		Debug.Log ("TestPixelFormatRenderer");
+		var colorStorage = new vectorx.ColorStorage (8, 8, null);
+		Debug.Log ("allocated: " + colorStorage.data.allocedLength);
+		lib.ha.core.memory.MemoryAccess.domainMemory = colorStorage.data;
+
+		for (uint i = 0; i < colorStorage.data.allocedLength; i+=4) 
+		{
+			Debug.Log (i / 4);
+			lib.ha.aggx.renderer.PixelFormatRenderer.copyOrBlendPix2 (i, 255, 0, 0, 255);
+			colorStorage.data.dump ();
+		}
+
+		var texture = createTexture (colorStorage);
+		GetComponent<Renderer> ().material.mainTexture = texture;
+		System.Console.Write ("");
+	}
+
 	void TestSvg()
 	{
 		var xml = Xml.parse (svgXml.text);
 		var svg = vectorx.svg.SvgContext.parseSvg (xml);
-		var colorStorage = new vectorx.ColorStorage (32, 32, null);
+
+
+		//var svgBinData = new Data (1024);
+		//vectorx.svg.SvgContext.convertSvgToVectorBin (xml, svgBinData);
+		//svgBinData.offset = 0;
+		//var svg = new lib.ha.svg.SVGData();
+		//vectorx.svg.SvgContext.deserializeVectorBin (svgBinData, svg);
+
+		var colorStorage = new vectorx.ColorStorage (512, 512, null);
+		System.Byte value8 = 0xff;
+		colorStorage.data.memory.Seek (0, System.IO.SeekOrigin.Begin);
+		for (int i = 0; i < colorStorage.data.allocedLength; i++) 
+		{
+			//colorStorage.data.writer.Write(value8);
+		}
+
 		var context = new vectorx.svg.SvgContext ();
 		var transform = lib.ha.core.geometry.AffineTransformer.translator(0, 0);
 		context.renderVectorBinToColorStorage (svg, colorStorage, transform);
+
 		//colorStorage.data.dump ();
 
 		var texture = createTexture (colorStorage);
@@ -85,12 +141,15 @@ public class NewBehaviourScript : MonoBehaviour
 		//TestFloat ();
 		//TestData();
 		TestSvg();
+		//TestColorStorage();
+		//TestPixelFormatRenderer();
 
 		//DataTest.testAll ();
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void Update () 
+	{
 	
 	}
 }
