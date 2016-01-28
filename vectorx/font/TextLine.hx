@@ -24,7 +24,7 @@ class TextLine
     public function toString(): String
     {
         var str: StringBuf = new StringBuf();
-        str.add('{begin: $begin breakAt: $breakAt len: $lenght width: $width height: $maxSpanHeight spans:\n {');
+        str.add('{begin: $begin breakAt: $breakAt len: $lenght width: $width maxSpanHeight: $maxSpanHeight maxBgHeight: $maxBgHeight spans:\n {');
         for (span in spans)
         {
             str.add('{$span}\n');
@@ -62,6 +62,7 @@ class TextLine
         //trace('mh: $maxSpanHeight');
         if (span.attachment != null)
         {
+            //trace('${span.attachment}');
             var attachmentHeight = span.attachment.heightAboveBaseline();
             //trace('ah: ${attachmentHeight}');
             if (attachmentHeight > maxSpanHeight)
@@ -77,14 +78,7 @@ class TextLine
         var spanString: String = span.string;
         var measure = span.getMeasure();
 
-        var measureY: Float = measure.y;
-        if (span.attachment != null)
-        {
-            var attachmentHeight = span.attachment.heightAboveBaseline();
-            measureY = Math.max(measureY, attachmentHeight);
-        }
-
-        var alignY: Float = maxSpanHeight - measureY;
+        var alignY: Float = maxSpanHeight - measure.y;
 
         for (i in 0 ... Utf8.length(spanString))
         {
@@ -107,7 +101,7 @@ class TextLine
 
         if (span.attachment != null)
         {
-            var ext = alignY + span.attachment.heightBelowBaseline();
+            var ext = maxSpanHeight + span.attachment.heightBelowBaseline();
             if (ext > maxBgHeight)
             {
                 maxBgHeight = ext;
@@ -203,9 +197,6 @@ class TextLine
             {
                 line.calculateMaxBgHeight(span);
             }
-
-            line.maxSpanHeight *= pixelRatio;
-            line.maxBgHeight *= pixelRatio;
         }
 
         currentLine = null;
