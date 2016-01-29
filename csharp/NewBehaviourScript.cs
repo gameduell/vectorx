@@ -57,7 +57,7 @@ public class NewBehaviourScript : MonoBehaviour
 	{
 		var texture = new Texture2D(storage.width, storage.height, TextureFormat.RGBA32, false);
 		storage.data.memory.Seek (0, System.IO.SeekOrigin.Begin);
-		var bytes = storage.data.reader.ReadBytes (storage.data.allocedLength);
+		var bytes = storage.data.memory.ToArray ();
 		texture.LoadRawTextureData (bytes);
 		texture.Apply ();
 		return texture;

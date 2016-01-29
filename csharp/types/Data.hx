@@ -30,6 +30,7 @@ import types.DataType;
 
 import StringTools;
 import cs.system.io.MemoryStream;
+import cs.system.io.Stream;
 import cs.system.io.BinaryReader;
 import cs.system.io.BinaryWriter;
 import cs.system.io.SeekOrigin;
@@ -47,6 +48,7 @@ class Data
     inline static public var SIZE_OF_FLOAT64: Int = 8;
 
     public var memory: MemoryStream;
+    public var stream: Stream;
     public var reader: BinaryReader;
     public var writer: BinaryWriter;
 
@@ -56,6 +58,10 @@ class Data
 
     public function set_offset(value: Int): Int
     {
+        if (value < 0)
+        {
+            throw "Negative offset";
+        }
         offset = value;
         offsetLength = allocedLength - offset;
         return offset;
@@ -67,10 +73,24 @@ class Data
         offsetLength = sizeInBytes;
         //TODO write zeroes or smth
         memory = new MemoryStream(sizeInBytes);
+        stream = memory;
         reader = new BinaryReader(memory);
         writer = new BinaryWriter(memory);
 
         memset(sizeInBytes, 0);
+    }
+
+    public static function fromMemoryStream(stream: MemoryStream, size: Int): Data
+    {
+        var data = new Data(0);
+        data.allocedLength = size;
+        data.offsetLength = size;
+        data.memory = stream;
+        data.stream = data.memory;
+        data.reader = new BinaryReader(data.memory);
+        data.writer = new BinaryWriter(data.memory);
+
+        return data;
     }
 
     @:functionCode("
@@ -85,9 +105,9 @@ class Data
 
     public function writeData(data: Data): Void
     {
-        data.memory.Seek(0, SeekOrigin.Begin);
-        memory.Seek(0, SeekOrigin.Begin);
-        data.memory.WriteTo(memory);
+        data.stream.Seek(0, SeekOrigin.Begin);
+        stream.Seek(0, SeekOrigin.Begin);
+        data.memory.WriteTo(stream);
     }
 
 // Int write and read functions
@@ -123,14 +143,14 @@ class Data
     private inline function seek(): Void
     {
         //trace('seek() offset: $offset');
-        memory.Seek(offset, SeekOrigin.Begin);
+        stream.Seek(offset, SeekOrigin.Begin);
     }
 
     public function dump(): Void
     {
         var buf = new StringBuf();
         buf.add('dumping data:\n');
-        memory.Seek(0, SeekOrigin.Begin);
+        stream.Seek(0, SeekOrigin.Begin);
         var j = 0;
         for(i in 0 ... allocedLength)
         {
