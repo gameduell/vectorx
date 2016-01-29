@@ -57,7 +57,7 @@ class StyledStringContext
         colors = new StringMap<Color4F>();
     }
 
-    public function renderStringToColorStorage(styledString: String, colorStorage: ColorStorage, layout: TextLayoutConfig)
+    public function renderStringToColorStorage(styledString: String, colorStorage: ColorStorage, layout: TextLayoutConfig, ?outputRect: RectI)
     {
         var attributedString = StyledString.toAttributedString(styledString, this);
 
@@ -66,7 +66,7 @@ class StyledStringContext
             return loadFontAttachment(name, scale);
         }
 
-        fontContext.renderStringToColorStorage(attributedString, colorStorage, layout, loadAttachment);
+        fontContext.renderStringToColorStorage(attributedString, colorStorage, layout, loadAttachment, outputRect);
     }
 
     public static function create(configJson: String, loadFontFunc: String -> Data, loadImage: String -> Vector2 -> Vector2 -> ColorStorage, ?fontContext: FontContext): StyledStringContext
