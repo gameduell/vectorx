@@ -103,8 +103,11 @@ class FontContext
     public function renderStringToColorStorage(attrString: AttributedString,
                                                         outStorage: ColorStorage,
                                                         ?layoutConfig: TextLayoutConfig,
-                                                        ?attachmentResolver: String -> Float -> FontAttachment): Void
+                                                        ?attachmentResolver: String -> Float -> FontAttachment,
+                                                        ?outputRect: RectI): Void
     {
+        //trace('Rendering string: ${attrString.string}');
+
         var prevMemory = MemoryAccess.domainMemory;
         MemoryAccess.select(outStorage.data);
 
@@ -112,6 +115,8 @@ class FontContext
         {
             layoutConfig = defaultTextlayout;
         }
+
+        //trace(layoutConfig);
 
         var renderingBuffer = new RenderingBuffer(outStorage.width, outStorage.height, ColorStorage.COMPONENTS * outStorage.width);
         var pixelFormatRenderer = new PixelFormatRenderer(renderingBuffer);
@@ -126,17 +131,31 @@ class FontContext
 
         debugBox(outStorage.selectedRect.x, outStorage.selectedRect.y, outStorage.selectedRect.width, outStorage.selectedRect.height);
 
+        //trace(outStorage.selectedRect);
+
         var textLayout = new TextLayout(attrString, layoutConfig, outStorage.selectedRect, attachmentResolver);
         var pixelRatio: Float = textLayout.pixelRatio;
         var y: Float = textLayout.alignY();
 
-        debugBox(outStorage.selectedRect.x, y, outStorage.selectedRect.width, textLayout.height);
+        if (outputRect != null)
+        {
+            outputRect.x = Math.floor(textLayout.outputRect.x);
+            outputRect.y = Math.floor(textLayout.outputRect.y);
+            outputRect.width = Math.ceil(textLayout.outputRect.width);
+            outputRect.height = Math.ceil(textLayout.outputRect.height);
+        }
+
+        debugBox(textLayout.outputRect.x, textLayout.outputRect.y, textLayout.outputRect.width, textLayout.outputRect.height);
 
         for (line in textLayout.lines)
         {
             //trace('rendering line: $line');
 
             var x: Float = textLayout.alignX(line);
+
+            debugBox(x, y, line.width, line.maxBgHeight);
+            //baseline
+            debugBox(x, y + line.maxSpanHeight, line.width, 1);
 
             for (span in line.spans)
             {
@@ -167,7 +186,9 @@ class FontContext
                     attachmentWidth = span.attachment.bounds.width + 2;
                 }
 
-                debugBox(x, y + alignY, measureX + attachmentWidth, measureY);
+                //debugBox(x, y + alignY, measureX + attachmentWidth, measureY);
+
+#if vectorDebugDraw
 
                 var dbgSpanWidth: Float = 0.0;
                 var bboxX = x;
@@ -193,6 +214,7 @@ class FontContext
                 }
 
                 Debug.assert(Math.abs(dbgSpanWidth) - Math.abs(measureX) < 0.001, 'span width calculation');
+#end
 
                 if (span.backgroundColor != null)
                 {
@@ -306,7 +328,7 @@ class FontContext
         }
     }
 
-    private function renderDebugPath(renderer: SolidScanlineRenderer)
+    private inline function renderDebugPath(renderer: SolidScanlineRenderer)
     {
         #if vectorDebugDraw
             rasterizer.addPath(debugPathStroke);
@@ -317,7 +339,7 @@ class FontContext
         #end
     }
 
-    private static function box(target: VectorPath, x: Float, y: Float, w: Float, h: Float)
+    private static inline function box(target: VectorPath, x: Float, y: Float, w: Float, h: Float)
     {
         target.moveTo(x, y);
         target.lineTo(x + w, y);
@@ -326,7 +348,7 @@ class FontContext
         target.endPoly(PathFlags.CLOSE);
     }
 
-    private function debugBox(x: Float, y: Float, w: Float, h: Float)
+    private inline function debugBox(x: Float, y: Float, w: Float, h: Float)
     {
         #if vectorDebugDraw
             box(debugPath, x, y, w, h);

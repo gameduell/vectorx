@@ -1,5 +1,6 @@
 package vectorx.font;
 
+import types.RectF;
 import types.VerticalAlignment;
 import types.HorizontalAlignment;
 import vectorx.font.AttributedString;
@@ -9,30 +10,36 @@ import vectorx.font.FontContext.TextLayoutConfig;
 class TextLayout
 {
     public var lines(default, null): Array<TextLine>;
-    public var height(default, null): Float = 0;
+    public var outputRect(default, null): RectF;
     public var config(default,  null): TextLayoutConfig;
     public var rect(default, null): RectI;
     public var pixelRatio(default, null): Float;
 
     public function new(string: AttributedString, layoutConfing: TextLayoutConfig, rect: RectI, attachmentResolver: String -> Float -> FontAttachment)
     {
+        this.outputRect = new RectF();
+        outputRect.x = rect.width;
+        outputRect.y = rect.height;
         this.config = layoutConfing;
         this.rect = rect;
         this.pixelRatio = config.scale;
 
         lines = TextLine.calculate(string, rect.width, attachmentResolver, config.scale);
-        height = calculateTextHeight(lines, string.string);
+        outputRect.height = calculateTextHeight(lines, string.string);
 
         if (config.layoutBehaviour == LayoutBehaviour.AlwaysFit)
         {
             fitPixelRatio(string, attachmentResolver);
         }
+
+        calculateTextWidth(lines, string.string);
+        outputRect.y = alignY();
     }
 
     private function fitPixelRatio(string: AttributedString, attachmentResolver: String -> Float -> FontAttachment)
     {
         //trace('fitPixelRatio');
-        if (textFits(lines, height, rect))
+        if (textFits(lines, outputRect.height, rect))
         {
             //trace('already fits');
             return;
@@ -55,7 +62,7 @@ class TextLayout
                 //trace('begin: $lastRatio');
                 begin = lastRatio;
                 this.lines = lines;
-                this.height = height;
+                this.outputRect.height = height;
                 pixelRatio = begin;
             }
             else
@@ -89,7 +96,7 @@ class TextLayout
         return true;
     }
 
-    private static function calculateTextHeight(lines: Array<TextLine>, string: String)
+    private static function calculateTextHeight(lines: Array<TextLine>, string: String): Float
     {
         var height: Float = 0;
         for (line in lines)
@@ -99,6 +106,18 @@ class TextLayout
         }
 
         return height;
+    }
+
+    private function calculateTextWidth(lines: Array<TextLine>, string: String): Void
+    {
+        for (line in lines)
+        {
+            if (line.width > outputRect.width)
+            {
+                outputRect.width = line.width;
+                outputRect.x = alignX(line);
+            }
+        }
     }
 
     public function alignX(line: TextLine): Float
@@ -130,11 +149,11 @@ class TextLayout
                 }
             case VerticalAlignment.Bottom:
                 {
-                    return rect.y + rect.height - height;
+                    return rect.y + rect.height - outputRect.height;
                 }
             case VerticalAlignment.Middle:
                 {
-                    return rect.y + (rect.height - height) / 2;
+                    return rect.y + (rect.height - outputRect.height) / 2;
                 }
         }
     }
