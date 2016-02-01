@@ -1,3 +1,5 @@
+import types.Vector2;
+import types.Data;
 import vectorx.font.AttributedRange;
 import vectorx.font.AttributedString.StringAttributes;
 import types.Color4F;
@@ -10,6 +12,11 @@ import lib.ha.svg.SVGData;
 import vectorx.ColorStorage;
 import types.DataTest;
 
+interface StyledStringResourceProvider
+{
+    public function loadFont(file: String): Data;
+    public function loadImage(file: String, origDimensions: Vector2, dimensions: Vector2): ColorStorage;
+}
 
 class MainCs
 {
@@ -29,5 +36,20 @@ class MainCs
     {
         var attr: StringAttributes = {range: range, font: font, foregroundColor: color};
         return attr;
+    }
+
+    public static function createStyledStringContext(config: String, provider: StyledStringResourceProvider)
+    {
+        var loadFont = function (file: String)
+        {
+            return provider.loadFont(file);
+        };
+
+        var loadImage = function (file: String, origDimensions: Vector2, dimensions: Vector2)
+        {
+            return provider.loadImage(file, origDimensions, dimensions);
+        };
+
+        return StyledStringContext.create(config, loadFont, loadImage);
     }
 }
