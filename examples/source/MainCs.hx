@@ -12,10 +12,17 @@ import lib.ha.svg.SVGData;
 import vectorx.ColorStorage;
 import types.DataTest;
 
-interface StyledStringResourceProvider
+class StyledStringResourceProvider
 {
-    public function loadFont(file: String): Data;
-    public function loadImage(file: String, origDimensions: Vector2, dimensions: Vector2): ColorStorage;
+    public function loadFont(file: String): Data
+    {
+        throw "not implemented";
+    }
+
+    public function loadImage(file: String, origDimensions: Vector2, dimensions: Vector2): ColorStorage
+    {
+        throw "not implemented";
+    }
 }
 
 class MainCs
