@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+
+find . -name "*.cs" -print0 | xargs -0 sed -i '' \
+ -e 's/\[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]/ /g'
+
 mcs /noconfig /debug:full /debug+ /optimize- /out:bin/MainCs-Debug.dll src/lib/ha/aggx/rasterizer/ISpanIterator.cs \
 src/lib/ha/svg/SVGPathParser.cs src/lib/ha/aggx/typography/TypefaceCache.cs src/lib/ha/aggx/renderer/BlenderBase.cs \
 src/types/VerticalAlignment.cs src/cs/Boot.cs src/lib/ha/aggx/vectorial/generators/VcgenStroke.cs src/Std.cs \
@@ -43,4 +47,5 @@ src/vectorx/svg/SvgSerializer.cs src/haxe/ds/GenericStack.cs src/haxe/xml/Parser
 /target:library \
 /define:"DEBUG;TRACE" \
 /platform:x86 \
-/warn:4
+/warn:4 \
+/sdk:2.0
