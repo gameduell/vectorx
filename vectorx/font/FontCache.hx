@@ -66,7 +66,13 @@ class FontCache
 
     public function createFontWithNameAndSize(fontName: String, sizeInPt: Float): Font
     {
-        var fontEngine: FontEngine = fonts.get(fontName);
+        var fontEngine: FontEngine = null;
+
+        if (fontName != null)
+        {
+            fontEngine = fonts.get(fontName);
+        }
+
         if (fontEngine == null)
         {
             fontEngine = fonts.get(defaultFont);
