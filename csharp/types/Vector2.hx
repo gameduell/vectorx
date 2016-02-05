@@ -44,93 +44,145 @@ class Vector2
 
     public function setXY(_x: Float, _y: Float): Void
     {
-
+        x = _x;
+        y = _y;
     }
     public function setST(_s: Float, _t: Float): Void
     {
-
+        x = _s;
+        y = _t;
     }
     public function set(other: Vector2): Void
     {
-
+        x = other.x;
+        y = other.y;
     }
 
     public function get(index: Int): Float
     {
+        if (index == 0)
+        {
+            return x;
+        }
+
+        if (index == 1)
+        {
+            return y;
+        }
+
         return 0;
     }
 
 /// Math
 
-    public function negate(): Void
+    public function negate() : Void
     {
-
+        x = -x;
+        y = -y;
     }
 
-    public function add(right: Vector2): Void
+    public function add(right : Vector2) : Void
     {
-
-    }
-    public function subtract(right: Vector2): Void
-    {
-
-    }
-    public function multiply(right: Vector2): Void
-    {
-
-    }
-    public function divide(right: Vector2): Void
-    {
-
+        x = x + right.x;
+        y = y + right.y;
     }
 
-    public function addScalar(value: Float): Void
+    public function subtract(right : Vector2) : Void
     {
-
-    }
-    public function subtractScalar(value: Float): Void
-    {
-
-    }
-    public function multiplyScalar(value: Float): Void
-    {
-
-    }
-    public function divideScalar(value: Float): Void
-    {
-
+        x = x - right.x;
+        y = y - right.y;
     }
 
-    public function normalize(): Void
+    public function multiply(right : Vector2) : Void
     {
-
-    }
-    public function lerp(start: Vector2, end: Vector2, t: Float): Void
-    {
-
+        x = x * right.x;
+        y = y * right.y;
     }
 
-    public static function length(vector: Vector2): Float
+    public function divide(right : Vector2) : Void
     {
-        return 0;
-    }
-    public static function lengthSquared(vector: Vector2): Float
-    {
-        return 0;
-    }
-    public static function distance(start: Vector2, end: Vector2): Float
-    {
-        return 0;
+        x = x / right.x;
+        y = y / right.y;
     }
 
-    public static function dotProduct(left: Vector2, right: Vector2): Float
+    public function addScalar(value : Float) : Void
     {
-        return 0;
+        x = x + value;
+        y = y + value;
     }
 
-    public function toString(): String
+    public function subtractScalar(value : Float) : Void
     {
-        return "";
+        x = x - value;
+        y = y - value;
+    }
+
+    public function multiplyScalar(value : Float) : Void
+    {
+        x = x * value;
+        y = y * value;
+    }
+
+    public function divideScalar(value : Float) : Void
+    {
+        x = x / value;
+        y = y / value;
+    }
+
+    public function normalize() : Void
+    {
+        var scale:Float = 1.0 / Vector2.length(this);
+        multiplyScalar(scale);
+    }
+
+    public function lerp(start : Vector2, end : Vector2, t : Float) : Void
+    {
+        x = start.x + ((end.x - start.x) * t);
+        y = start.y + ((end.y - start.y) * t);
+    }
+
+    public static function length(vector : Vector2) : Float
+    {
+        return Math.sqrt(Vector2.lengthSquared(vector));
+    }
+
+    public static function lengthSquared(vector : Vector2) : Float
+    {
+        return vector.x * vector.x + vector.y * vector.y;
+    }
+
+    public static function dotProduct(left: Vector2, right: Vector2) : Float
+    {
+        return left.x * right.x + left.y * right.y;
+    }
+
+    static private var distanceVector2 : Vector2 = new Vector2();
+
+    public static function distance(start : Vector2, end : Vector2) : Float
+    {
+        distanceVector2.set(end);
+        distanceVector2.subtract(start);
+
+        return Vector2.length(distanceVector2);
+    }
+
+    public function toString() : String
+    {
+        var output = "";
+        output += "[";
+
+        data.offset = dataOffset;
+        output += data.readFloat32();
+
+        for(i in 1...2)
+        {
+            output += ", ";
+            data.offset += 4;
+            output += data.readFloat32();
+        }
+
+        output += "]";
+        return output;
     }
 
     public var data(default, null): Data;

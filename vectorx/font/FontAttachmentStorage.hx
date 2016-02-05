@@ -25,8 +25,11 @@ class FontAttachmentStorage
             throw 'Attachment $name is not found';
         }
 
+        var width: Int = config.width;
+        var height: Int = config.height;
+
         var dimensions = new Vector2();
-        dimensions.setXY(config.width * scale, config.height * scale);
+        dimensions.setXY(width * scale, height * scale);
 
         var key = '$name$$${Math.ceil(dimensions.x)}_${Math.ceil(dimensions.y)}}';
         var value = attachments.get(key);
@@ -37,7 +40,7 @@ class FontAttachmentStorage
         }
 
         var origDimensions = new Vector2();
-        origDimensions.setXY(config.width, config.height);
+        origDimensions.setXY(width, height);
 
         var bitmap: ColorStorage = loadImage(config.image, origDimensions, dimensions);
 
