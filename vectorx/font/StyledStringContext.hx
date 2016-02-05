@@ -16,6 +16,12 @@ typedef FontAliasConfig =
     alias: String
 };
 
+typedef ColorConfig =
+{
+    name: String,
+    value: String
+};
+
 typedef AttachmentConfig =
 {
     name: String,
@@ -28,7 +34,7 @@ typedef AttachmentConfig =
 typedef StyledStringContextConfing =
 {
     defaultFont: String,
-    ?colors: Array<Dynamic>,
+    ?colors: Array<ColorConfig>,
     ?fontAliases: Array<FontAliasConfig>,
     ?loadFonts: Array<String>,
     ?attachments: Array<AttachmentConfig>
@@ -116,11 +122,10 @@ class StyledStringContext
 
         if (json.colors != null)
         {
-            for (name in Reflect.fields(json.colors))
+            for (colorConfig in json.colors)
             {
-                var colorValue: String = Reflect.field(json.colors, name);
-                var color = SVGStringParsers.parseColor(colorValue);
-                context.colors.set(name, new Color4F(color.r / 255.0, color.g / 255.0, color.b / 255.0, color.a / 255.0));
+                var color = SVGStringParsers.parseColor(colorConfig.value);
+                context.colors.set(colorConfig.name, new Color4F(color.r / 255.0, color.g / 255.0, color.b / 255.0, color.a / 255.0));
             }
         }
 

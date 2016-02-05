@@ -5,8 +5,8 @@ find . -name "*.cs" -print0 | xargs -0 sed -i '' \
  -e 's/\[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]/ /g'
 
 #remove invalid type conversion
-find . -name "StyledStringContext.cs" -print0 | xargs -0 sed -i '' \
- -e '/global::Array _/b' -e 's/(global::Array)/ /g'
+#find . -name "StyledStringContext.cs" -print0 | xargs -0 sed -i '' \
+# -e '/global::Array _/b' -e 's/(global::Array)/ /g'
 
 mcs /noconfig /debug:full /debug+ /optimize- /out:bin/MainCs-Debug.dll src/lib/ha/aggx/rasterizer/ISpanIterator.cs \
 src/lib/ha/svg/SVGPathParser.cs src/lib/ha/aggx/typography/TypefaceCache.cs src/lib/ha/aggx/renderer/BlenderBase.cs \
