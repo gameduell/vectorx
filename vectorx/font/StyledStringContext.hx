@@ -90,16 +90,6 @@ class StyledStringContext
 
         context.fontContext = fontContext;
 
-        if (json.colors != null)
-        {
-            for (name in Reflect.fields(json.colors))
-            {
-                var colorValue: String = Reflect.field(json.colors, name);
-                var color = SVGStringParsers.parseColor(colorValue);
-                context.colors.set(name, new Color4F(color.r / 255.0, color.g / 255.0, color.b / 255.0, color.a / 255.0));
-            }
-        }
-
         if (json.loadFonts != null)
         {
             for (fontName in json.loadFonts)
@@ -121,6 +111,16 @@ class StyledStringContext
             for (attachment in json.attachments)
             {
                 context.fontAttachments.addAttachmentConfig(attachment);
+            }
+        }
+
+        if (json.colors != null)
+        {
+            for (name in Reflect.fields(json.colors))
+            {
+                var colorValue: String = Reflect.field(json.colors, name);
+                var color = SVGStringParsers.parseColor(colorValue);
+                context.colors.set(name, new Color4F(color.r / 255.0, color.g / 255.0, color.b / 255.0, color.a / 255.0));
             }
         }
 
