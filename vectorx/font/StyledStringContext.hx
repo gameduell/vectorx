@@ -1,5 +1,6 @@
 package vectorx.font;
 
+import vectorx.font.TextLayout;
 import vectorx.font.FontContext.TextLayoutConfig;
 import types.Vector2;
 import types.RectI;
@@ -63,16 +64,22 @@ class StyledStringContext
         colors = new StringMap<Color4F>();
     }
 
-    public function renderStringToColorStorage(styledString: String, colorStorage: ColorStorage, layout: TextLayoutConfig, ?outputRect: RectI)
+    public function calculateTextLayout(styledString: String, rect: RectI, layoutConfig: TextLayoutConfig): TextLayout
     {
         var attributedString = StyledString.toAttributedString(styledString, this);
-
         var loadAttachment = function(name: String, scale: Float)
         {
             return loadFontAttachment(name, scale);
         }
 
-        fontContext.renderStringToColorStorage(attributedString, colorStorage, layout, loadAttachment, outputRect);
+        var layout = fontContext.calculateTextLayout(attributedString, rect, layoutConfig, loadAttachment);
+
+        return layout;
+    }
+
+    public function renderStringToColorStorage(layout: TextLayout, colorStorage: ColorStorage, renderTrimmed: Bool = false)
+    {
+        fontContext.renderStringToColorStorage(layout, colorStorage, renderTrimmed);
     }
 
     public static function create(configJson: String, loadFontFunc: String -> Data, loadImage: String -> Vector2 -> Vector2 -> ColorStorage, ?fontContext: FontContext): StyledStringContext

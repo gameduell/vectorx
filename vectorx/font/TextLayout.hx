@@ -11,6 +11,7 @@ class TextLayout
 {
     public var lines(default, null): Array<TextLine>;
     public var outputRect(default, null): RectF;
+    public var outputRectI(default, null): RectI;
     public var config(default,  null): TextLayoutConfig;
     public var rect(default, null): RectI;
     public var pixelRatio(default, null): Float;
@@ -34,6 +35,12 @@ class TextLayout
 
         calculateTextWidth(lines, string.string);
         outputRect.y = alignY();
+
+        var outputRectI = new RectI();
+        outputRectI.x = Math.floor(outputRect.x);
+        outputRectI.y = Math.floor(outputRect.y);
+        outputRectI.width = Math.ceil(outputRect.width);
+        outputRectI.height = Math.ceil(outputRect.height);
     }
 
     private function fitPixelRatio(string: AttributedString, attachmentResolver: String -> Float -> FontAttachment)

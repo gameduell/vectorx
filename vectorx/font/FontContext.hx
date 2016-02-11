@@ -26,6 +26,7 @@
 
 package vectorx.font;
 
+import vectorx.font.TextLayout;
 import lib.ha.core.utils.Debug;
 import lib.ha.aggx.renderer.BlenderBase;
 import lib.ha.core.memory.Pointer;
@@ -97,26 +98,28 @@ class FontContext
         debugPathStroke.width = 1;
     }
 
-    /// TODO add docu
-    /// Implement text layouting and glyph rasterization using aggx library
-    /// and move / seperate necessary logic
-    public function renderStringToColorStorage(attrString: AttributedString,
-                                                        outStorage: ColorStorage,
-                                                        ?layoutConfig: TextLayoutConfig,
-                                                        ?attachmentResolver: String -> Float -> FontAttachment,
-                                                        ?outputRect: RectI): Void
+    public function calculateTextLayout(attrString: AttributedString,
+                                        selectedRect: RectI,
+                                        ?layoutConfig: TextLayoutConfig,
+                                        ?attachmentResolver: String -> Float -> FontAttachment): TextLayout
     {
-        //trace('Rendering string: ${attrString.string}');
-
-        var prevMemory = MemoryAccess.domainMemory;
-        MemoryAccess.select(outStorage.data);
-
         if (layoutConfig == null)
         {
             layoutConfig = defaultTextlayout;
         }
 
-        //trace(layoutConfig);
+        var textLayout = new TextLayout(attrString, layoutConfig, selectedRect, attachmentResolver);
+
+        return textLayout;
+    }
+
+    /// TODO add docu
+    /// Implement text layouting and glyph rasterization using aggx library
+    /// and move / seperate necessary logic
+    public function renderStringToColorStorage(textLayout: TextLayout, outStorage: ColorStorage, renderTrimmed: Bool = false): Void
+    {
+        var prevMemory = MemoryAccess.domainMemory;
+        MemoryAccess.select(outStorage.data);
 
         var renderingBuffer = new RenderingBuffer(outStorage.width, outStorage.height, ColorStorage.COMPONENTS * outStorage.width);
         var pixelFormatRenderer = new PixelFormatRenderer(renderingBuffer);
@@ -125,24 +128,14 @@ class FontContext
 
         var cleanUpList: Array<FontEngine> = [];
 
-        /*clippingRenderer.setClippingBounds(outStorage.selectedRect.x, outStorage.selectedRect.y,
-            outStorage.selectedRect.x + outStorage.selectedRect.width,
-            outStorage.selectedRect.y + outStorage.selectedRect.height);*/
-
         debugBox(outStorage.selectedRect.x, outStorage.selectedRect.y, outStorage.selectedRect.width, outStorage.selectedRect.height);
 
-        //trace(outStorage.selectedRect);
-
-        var textLayout = new TextLayout(attrString, layoutConfig, outStorage.selectedRect, attachmentResolver);
         var pixelRatio: Float = textLayout.pixelRatio;
         var y: Float = textLayout.alignY();
 
-        if (outputRect != null)
+        if (renderTrimmed)
         {
-            outputRect.x = Math.floor(textLayout.outputRect.x);
-            outputRect.y = Math.floor(textLayout.outputRect.y);
-            outputRect.width = Math.ceil(textLayout.outputRect.width);
-            outputRect.height = Math.ceil(textLayout.outputRect.height);
+            y -= textLayout.outputRect.y;
         }
 
         debugBox(textLayout.outputRect.x, textLayout.outputRect.y, textLayout.outputRect.width, textLayout.outputRect.height);
@@ -152,6 +145,11 @@ class FontContext
             //trace('rendering line: $line');
 
             var x: Float = textLayout.alignX(line);
+
+            if (renderTrimmed)
+            {
+                x -= textLayout.outputRect.x;
+            }
 
             debugBox(x, y, line.width, line.maxBgHeight);
             //baseline
