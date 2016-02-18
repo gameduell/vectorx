@@ -89,7 +89,7 @@ class StyledStringContext
         var defaultFont: String = json.defaultFont;
         if (defaultFont == null)
         {
-            throw "No default font speciefied in config JSOM";
+            throw "No default font speciefied in config JSON";
         }
 
         var fontCache = new FontCache(loadFontFunc(defaultFont));
