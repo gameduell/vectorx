@@ -76,7 +76,7 @@ class FontContext
     private static var defaultAttributes: StringAttributes =
     {
         range: new AttributedRange(),
-        foregroundColor: new Color4F(),
+        foregroundColor: new Color4F(1, 1, 1, 1),
         baselineOffset: 0,
         strokeWidth: 0,
         strokeColor: new Color4F()
