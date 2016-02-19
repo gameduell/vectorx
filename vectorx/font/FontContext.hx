@@ -214,10 +214,11 @@ class FontContext
                 Debug.assert(Math.abs(dbgSpanWidth) - Math.abs(measureX) < 0.001, 'span width calculation');
 #end
 
+                //trace('bg color: ${span.backgroundColor}');
                 if (span.backgroundColor != null)
                 {
                     scanlineRenderer.color.setFromColor4F(span.backgroundColor);
-                    //trace('bg: ${scanlineRenderer.color}');
+                    //trace('actual bg: ${scanlineRenderer.color}');
                     box(path, x, y, measureX + 1 + attachmentWidth, line.maxBgHeight + 1);
                     rasterizer.reset();
                     rasterizer.addPath(path);
@@ -225,7 +226,7 @@ class FontContext
                     path.removeAll();
                 }
 
-                //trace('fg: ${scanlineRenderer.color}');
+                //trace('fg: ${span.foregroundColor}');
 
                 if (span.foregroundColor != null)
                 {
@@ -235,6 +236,8 @@ class FontContext
                 {
                     scanlineRenderer.color.setFromColor4F(defaultAttributes.foregroundColor);
                 }
+
+                //trace('actual fg: ${scanlineRenderer.color}');
 
                 if (span.strokeWidth == null || span.strokeWidth < 0)
                 {
