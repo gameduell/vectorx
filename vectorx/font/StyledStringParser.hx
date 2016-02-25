@@ -46,6 +46,10 @@ class StyledStringParser
         currentCharIndex = 0;
         sourceString = null;
         currentAttribute = null;
+
+        var range: AttributedRange = new AttributedRange(currentString.length, 0);
+        var rootAttr: StringAttributes = {range: range};
+        pushAttribute(rootAttr);
     }
 
     private function nextChar(): String
@@ -97,6 +101,10 @@ class StyledStringParser
     {
         var attachmentName = readAttachment();
         var range: AttributedRange = new AttributedRange(currentString.length, 0);
+
+        var kern: Null<Float> = null;
+        var font: Font = null;
+
         var attr: StringAttributes =
         {
             range: range,

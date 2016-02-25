@@ -97,6 +97,17 @@ class StyledStringParserTest extends unittest.TestCase
         assertTrue(attributedString.string == "abc[]");
     }
 
+    public function testAttachmentOnly(): Void
+    {
+        var fontCache = initFontCache();
+        var colors: StringMap<Color4F> = initColors();
+        var aliases: FontAliasesStorage = initFontAliases();
+        var string = "{attachmentId}";
+        var attributedString = StyledString.toAttributedStringWithParameters(string, aliases, fontCache, colors);
+
+        assertTrue(attributedString.attributeStorage.spans[0].attachmentId == "attachmentId");
+    }
+
     private function initFontCache(): FontCache
     {
         var ttfData: Data = getDataFromFile("arial.ttf");
