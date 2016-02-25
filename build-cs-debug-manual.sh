@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+#compile
+haxe -main MainCs.hx -cp vectorx -cp examples/source -cp csharp -cs export-csharp -lib duell_aggx -D dll -D erase-generics -D vectorDebugDraw -D net-ver=20 -v -debug -D real-position
+
+cd export-csharp
+
+#postprocess sources
+
 #remove invalid attribute
 find . -name "*.cs" -print0 | xargs -0 sed -i '' \
  -e 's/\[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]/ /g'
@@ -8,6 +15,7 @@ find . -name "*.cs" -print0 | xargs -0 sed -i '' \
 #find . -name "StyledStringContext.cs" -print0 | xargs -0 sed -i '' \
 # -e '/global::Array _/b' -e 's/(global::Array)/ /g'
 
+#build assembly manually
 mcs /noconfig /debug:full /debug+ /optimize- /out:bin/MainCs-Debug.dll src/lib/ha/aggx/rasterizer/ISpanIterator.cs \
 src/lib/ha/svg/SVGPathParser.cs src/lib/ha/aggx/typography/TypefaceCache.cs src/lib/ha/aggx/renderer/BlenderBase.cs \
 src/types/VerticalAlignment.cs src/cs/Boot.cs src/lib/ha/aggx/vectorial/generators/VcgenStroke.cs src/Std.cs \
@@ -62,3 +70,8 @@ src/lib/ha/rfpx/data/CmapFormat2.cs src/lib/ha/aggx/color/IColorFunction.cs src/
 /platform:x86 \
 /warn:4 \
 /sdk:2.0
+
+#copy result to unitilayout
+cp bin/MainCs-Debug.* ~/.duell/lib/duellbuildunitylayout/unityshared/
+
+cd ..
