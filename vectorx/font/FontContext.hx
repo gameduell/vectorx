@@ -118,6 +118,11 @@ class FontContext
     /// and move / seperate necessary logic
     public function renderStringToColorStorage(textLayout: TextLayout, outStorage: ColorStorage, renderTrimmed: Bool = false): Void
     {
+        if (outStorage.width == 0 || outStorage.height == 0)
+        {
+            return;
+        }
+
         var prevMemory = MemoryAccess.domainMemory;
         MemoryAccess.select(outStorage.data);
 

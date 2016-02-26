@@ -66,6 +66,11 @@ class StyledStringContext
 
     public function calculateTextLayout(styledString: String, rect: RectI, layoutConfig: TextLayoutConfig): TextLayout
     {
+        if (styledString.length == 0)
+        {
+            return null;
+        }
+
         var attributedString = StyledString.toAttributedString(styledString, this);
         var loadAttachment = function(name: String, scale: Float)
         {
@@ -79,6 +84,11 @@ class StyledStringContext
 
     public function renderStringToColorStorage(layout: TextLayout, colorStorage: ColorStorage, renderTrimmed: Bool = false)
     {
+        if (layout == null)
+        {
+            return;
+        }
+
         fontContext.renderStringToColorStorage(layout, colorStorage, renderTrimmed);
     }
 
