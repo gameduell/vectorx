@@ -1,3 +1,5 @@
+import types.RectI;
+import vectorx.font.FontContext;
 import haxe.ds.StringMap;
 import vectorx.font.StyledString;
 import vectorx.font.FontAliasesStorage;
@@ -106,6 +108,28 @@ class StyledStringParserTest extends unittest.TestCase
         var attributedString = StyledString.toAttributedStringWithParameters(string, aliases, fontCache, colors);
 
         assertTrue(attributedString.attributeStorage.spans[0].attachmentId == "attachmentId");
+    }
+
+    public function testCrlf(): Void
+    {
+        var fontCache = initFontCache();
+        var colors: StringMap<Color4F> = initColors();
+        var aliases: FontAliasesStorage = initFontAliases();
+        var string = "aaaa\nbbb\ncc";
+        var attributedString = StyledString.toAttributedStringWithParameters(string, aliases, fontCache, colors);
+        var context = new FontContext();
+
+        var rect = new RectI();
+        rect.x = 0;
+        rect.y = 0;
+        rect.width = 1000;
+        rect.height = 1000;
+
+        var layout = context.calculateTextLayout(attributedString, rect);
+
+        assertTrue(layout.lines[0].getLineString().indexOf("\n", 0) == -1);
+        assertTrue(layout.lines[1].getLineString().indexOf("\n", 0) == -1);
+        assertTrue(layout.lines[2].getLineString().indexOf("\n", 0) == -1);
     }
 
     private function initFontCache(): FontCache

@@ -3,6 +3,9 @@ package vectorx.font;
 import lib.ha.core.utils.Debug;
 import lib.ha.aggx.typography.FontEngine;
 import haxe.Utf8;
+import StringTools;
+
+using StringTools;
 
 class TextLine
 {
@@ -31,6 +34,26 @@ class TextLine
         }
         str.add("}");
         return str.toString();
+    }
+
+    public function getLineString(): String
+    {
+        var str: StringBuf = new StringBuf();
+        for (span in spans)
+        {
+            str.add('${span.string}');
+        }
+        return str.toString();
+    }
+
+    public function lastSpan(): AttributedSpan
+    {
+        if (spans.length == 0)
+        {
+            return null;
+        }
+
+        return spans[spans.length - 1];
     }
 
     private function new(begin: Int = 0)
@@ -251,6 +274,14 @@ class TextLine
             }
             //trace(currentLine);
             //trace('currentSpan: $currentSpan');
+
+            var lastSpanInLine = currentLine.lastSpan();
+            if (lastSpanInLine != null && lastSpanInLine.string != null && lastSpanInLine.string.endsWith("\n"))
+            {
+                lastSpanInLine.range.length--;
+                lastSpanInLine.updateString();
+            }
+
             currentLine = new TextLine(startAt);
             currentLine.spans.push(currentSpan);
             output.push(currentLine);
