@@ -224,84 +224,62 @@ class StyledStringParser
     {
         reset();
 
-        try
+        sourceString = styledString;
+        currentChar = Utf8.sub(styledString, currentCharIndex, 1);
+
+        while (currentCharIndex < Utf8.length(styledString))
         {
-            sourceString = styledString;
-            currentChar = Utf8.sub(styledString, currentCharIndex, 1);
-
-            while (currentCharIndex < Utf8.length(styledString))
+            if (currentChar == '[' && !isEscapeChar)
             {
-                if (currentChar == '[' && !isEscapeChar)
-                {
-                    parseCode(fontAliases, fontCache, colors);
-                }
-                else if (currentChar == '{' && !isEscapeChar)
-                {
-                    parseAttachment();
-                }
-                else
-                {
-                    currentString.add(currentChar);
-                    //trace(currentString);
-                    updateAttributes();
-                }
-
-                nextChar();
+                parseCode(fontAliases, fontCache, colors);
+            }
+            else if (currentChar == '{' && !isEscapeChar)
+            {
+                parseAttachment();
+            }
+            else
+            {
+                currentString.add(currentChar);
+                //trace(currentString);
+                updateAttributes();
             }
 
-            resultAttributes.sort(function(a: StyledStringAttribute, b: StyledStringAttribute) : Int
+            nextChar();
+        }
+
+        resultAttributes.sort(function(a: StyledStringAttribute, b: StyledStringAttribute) : Int
+        {
+            if (a.priority == b.priority)
             {
-                if (a.priority == b.priority)
-                {
-                    return 0;
-                }
-                if (a.priority > b.priority)
-                {
-                    return 1;
-                }
-
-                return -1;
-            });
-
-            //trace(resultAttributes);
-
-            var attrString = new AttributedString(currentString.toString());
-            var defaultAttr =
+                return 0;
+            }
+            if (a.priority > b.priority)
             {
-                font: fontCache.createFontWithNameAndSize(null, 25),
-                range: new AttributedRange(0, currentString.length)
-            };
-            attrString.applyAttributes(defaultAttr);
-
-            for (attr in resultAttributes)
-            {
-                //trace(attr);
-                attrString.applyAttributes(attr.stringAttributes);
+                return 1;
             }
 
-            reset();
+            return -1;
+        });
 
-            return attrString;
-        }
-        catch(ex: String)
+        //trace(resultAttributes);
+
+        var attrString = new AttributedString(currentString.toString());
+        var defaultAttr =
         {
-            //Logger.print(ex);
-            reset();
-            ex = '!!$ex!!';
-            var attrString = new AttributedString(ex);
-            var font = fontCache.createFontWithNameAndSize(null, 25);
-            var attr =
-            {
-                font: font,
-                range: new AttributedRange(0, ex.length),
-                foregroundColor: new Color4F(1, 0.5, 0.8, 1.0),
-                strokeWidth: -3.0,
-                strokeColor: new Color4F(0.0, 0.0, 0.0, 1.0)
-            };
-            attrString.applyAttributes(attr);
+            font: fontCache.createFontWithNameAndSize(null, 25),
+            range: new AttributedRange(0, currentString.length)
+        };
+        attrString.applyAttributes(defaultAttr);
 
-            return attrString;
+        for (attr in resultAttributes)
+        {
+            //trace(attr);
+            attrString.applyAttributes(attr.stringAttributes);
         }
+
+        reset();
+
+        return attrString;
 
     }
 }
