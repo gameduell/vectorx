@@ -288,13 +288,15 @@ class FontContext
                         var srcYOffset: Int = i + attachment.bounds.y + Math.ceil(baseLineOffset);
                         var src: Int = (attachment.image.width * srcYOffset + attachment.bounds.x) * ColorStorage.COMPONENTS;
 
-                        var dstY: Int = Math.ceil(y + alignY + baseLineOffset);
+                        var dstY: Int = Math.ceil(y + alignY + baseLineOffset) + i;
                         if (dstY >= outStorage.selectedRect.y + outStorage.selectedRect.height)
                         {
                             break;
                         }
 
-                        var dst: Int = (outStorage.width * (i + dstY) + dstX) * ColorStorage.COMPONENTS;
+                        //trace('dstY: $dstY dstX: $dstX rect: ${outStorage.selectedRect}');
+
+                        var dst: Int = (outStorage.width * dstY + dstX) * ColorStorage.COMPONENTS;
 
                         srcData.offset = src;
 
