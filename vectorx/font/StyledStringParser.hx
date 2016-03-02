@@ -132,7 +132,7 @@ class StyledStringParser
 
         for (code in codes)
         {
-            var kv = code.trim().split('=');
+            var kv: Array<String> = code.trim().split('=');
 
             if (kv[0].startsWith("/"))
             {
@@ -141,6 +141,11 @@ class StyledStringParser
             }
 
             //trace('k: ${kv[0]} v: ${kv[1]}');
+
+            if (kv[0].length == 0)
+            {
+                continue;
+            }
 
             switch(kv[0])
             {
