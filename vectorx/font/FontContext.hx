@@ -265,6 +265,8 @@ class FontContext
 
                 if (span.attachment != null)
                 {
+                    //trace('Rendering attachment id: ${span.attachmentId} ${span.attachment}');
+
                     var attachment = span.attachment;
                     var dstX: Int = Math.ceil(x) + 1;
 

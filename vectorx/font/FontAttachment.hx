@@ -65,6 +65,6 @@ class FontAttachment
 
     public function toString(): String
     {
-        return '{x: ${bounds.x} y; ${bounds.y} width: ${bounds.width} height: ${bounds.height}}';
+        return '{x: ${bounds.x} y; ${bounds.y} width: ${bounds.width} height: ${bounds.height} dataSize: ${this.image.data.allocedLength}}';
     }
 }
