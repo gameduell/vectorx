@@ -1,3 +1,6 @@
+import vectorx.font.LayoutBehaviour;
+import types.VerticalAlignment;
+import types.HorizontalAlignment;
 import types.Vector2;
 import types.Data;
 import vectorx.font.AttributedRange;
@@ -43,6 +46,19 @@ class MainCs
     {
         var attr: StringAttributes = {range: range, font: font, foregroundColor: color};
         return attr;
+    }
+
+    public static function createLayoutConfig(scale: Float, horizontalAlignment: HorizontalAlignment, verticalAlignment: VerticalAlignment, layoutBehaviour: LayoutBehaviour)
+    {
+        var config: TextLayoutConfig =
+        {
+            scale: scale,
+            horizontalAlignment: horizontalAlignment,
+            verticalAlignment: verticalAlignment,
+            layoutBehaviour: layoutBehaviour
+        };
+
+        return config;
     }
 
     public static function createStyledStringContext(config: String, provider: StyledStringResourceProvider)

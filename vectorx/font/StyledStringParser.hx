@@ -182,7 +182,7 @@ class StyledStringParser
                 case "kern": attr.kern = Std.parseFloat(kv[1]);
                 case "strokeWidth": attr.strokeWidth = Std.parseFloat(kv[1]);
                 case "strokeColor": attr.strokeColor = colors.get(kv[1]);
-                default: throw('undefined code "${kv[0]}""');
+                default: throw('undefined code "${kv[0]}"');
             }
         }
 
