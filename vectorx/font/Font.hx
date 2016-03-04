@@ -31,7 +31,7 @@ class Font
 {
     public var internalFont(default, null): FontEngine;
     public var name(default, null): String;
-    public var sizeInPt: Float;
+    public var sizeInPt(default, null): Float;
 
     /** The FontCache is responsible for creating this object **/
     inline private function new(name: String, font: FontEngine, sizeInPt: Float)
@@ -39,6 +39,12 @@ class Font
         this.name = name;
         this.internalFont = font;
         this.sizeInPt = sizeInPt;
+    }
+
+    public function clone(?size: Float): Font
+    {
+        var newSize: Float = size != null ? size : sizeInPt;
+        return new Font(name, internalFont, newSize);
     }
 
     public function toString(): String

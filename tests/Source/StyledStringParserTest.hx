@@ -110,6 +110,17 @@ class StyledStringParserTest extends unittest.TestCase
         assertTrue(attributedString.attributeStorage.spans[0].attachmentId == "attachmentId");
     }
 
+    public function testSizeOverride(): Void
+    {
+        var fontCache = initFontCache();
+        var colors: StringMap<Color4F> = initColors();
+        var aliases: FontAliasesStorage = initFontAliases();
+        var string = "[f=arial_12,s=14]a[/f]";
+        var attributedString = StyledString.toAttributedStringWithParameters(string, aliases, fontCache, colors);
+
+        assertTrue(attributedString.attributeStorage.spans[0].font.sizeInPt == 14);
+    }
+
     public function testCrlf(): Void
     {
         var fontCache = initFontCache();

@@ -129,6 +129,7 @@ class StyledStringParser
         var codes = code.split(",");
         var range: AttributedRange = new AttributedRange(currentString.length, 0);
         var attr: StringAttributes = {range: range};
+        var sizeOverride: Null<Float> = null;
 
         for (code in codes)
         {
@@ -169,6 +170,21 @@ class StyledStringParser
                         }
                         attr.foregroundColor = color;
                     }
+                case "s" | "size":
+                    {
+                        try
+                        {
+                            var size = Std.parseFloat(kv[1]);
+                            if (size != 0)
+                            {
+                                sizeOverride = size;
+                            }
+                        }
+                        catch(ex: Dynamic)
+                        {
+
+                        }
+                    }
                 case "bg" | "background":
                     {
                         var color = colors.get(kv[1]);
@@ -186,6 +202,18 @@ class StyledStringParser
             }
         }
 
+        if (sizeOverride != null)
+        {
+            if (attr.font == null)
+            {
+                attr.font = cache.createFontWithNameAndSize("", sizeOverride);
+            }
+            else
+            {
+                attr.font = attr.font.clone(sizeOverride);
+            }
+
+        }
         pushAttribute(attr);
     }
 
