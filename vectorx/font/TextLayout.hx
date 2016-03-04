@@ -58,15 +58,18 @@ class TextLayout
         var end: Float = pixelRatio;
         var iteration: Int = 0;
         var lastRatio: Float = 0;
+        var lines: Array<TextLine> = [];
+        var height: Float = 0;
+
         while(end - begin > 0.05)
         {
             lastRatio = (begin + end) / 2;
-            var lines = TextLine.calculate(string, rect.width, attachmentResolver, lastRatio);
-            var height = calculateTextHeight(lines, string.string);
+            lines = TextLine.calculate(string, rect.width, attachmentResolver, lastRatio);
+            height = calculateTextHeight(lines, string.string);
 
             if (textFits(lines, height, rect))
             {
-                //trace('begin: $lastRatio');
+                trace('begin: $lastRatio');
                 begin = lastRatio;
                 this.lines = lines;
                 this.outputRect.height = height;
@@ -74,11 +77,19 @@ class TextLayout
             }
             else
             {
-                //trace('end: $lastRatio');
+                trace('end: $lastRatio');
                 end = lastRatio;
             }
 
             iteration++;
+        }
+
+        //does not fits, but with low margin
+        if (!textFits(lines, height, rect))
+        {
+            this.lines = lines;
+            this.outputRect.height = height;
+            pixelRatio = lastRatio;
         }
 
         trace('found ratio: $pixelRatio in $iteration');
@@ -86,19 +97,20 @@ class TextLayout
 
     private static function textFits(lines: Array<TextLine>, height: Float, rect: RectI): Bool
     {
-        if (lines.length > 1)
+        //trace('height: $height rectHeight: ${rect.height}');
+        if (height >= rect.height)
         {
-            //trace('height: $height rectHeight: ${rect.height}');
-            if (height >= rect.height)
+            return false;
+        }
+
+        for (line in lines)
+        {
+            if (line.width >= rect.width)
             {
                 return false;
             }
         }
 
-        if (lines[0].width >= rect.width)
-        {
-            return false;
-        }
 
         return true;
     }
