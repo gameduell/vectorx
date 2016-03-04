@@ -294,6 +294,11 @@ class FontContext
                             break;
                         }
 
+                        if (dstY < outStorage.selectedRect.y)
+                        {
+                            continue;
+                        }
+
                         //trace('dstY: $dstY dstX: $dstX rect: ${outStorage.selectedRect}');
 
                         var dst: Int = (outStorage.width * dstY + dstX) * ColorStorage.COMPONENTS;
