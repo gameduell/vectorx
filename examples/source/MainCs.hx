@@ -26,6 +26,11 @@ class StyledStringResourceProvider
     {
         throw "not implemented";
     }
+
+    public function getImageSize(file: String, origDimensions: Vector2, dimensions: Vector2): Vector2
+    {
+        throw "not implemented";
+    }
 }
 
 class MainCs
@@ -71,6 +76,11 @@ class MainCs
         var loadImage = function (file: String, origDimensions: Vector2, dimensions: Vector2)
         {
             return provider.loadImage(file, origDimensions, dimensions);
+        };
+
+        var getImageSize = function (file: String, origDimensions: Vector2, dimensions: Vector2)
+        {
+            return provider.getImageSize(file, origDimensions, dimensions);
         };
 
         return StyledStringContext.create(config, loadFont, loadImage);

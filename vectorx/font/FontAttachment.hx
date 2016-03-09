@@ -26,6 +26,8 @@
 
 package vectorx.font;
 
+import lib.ha.core.utils.Debug;
+import png.Data.Color;
 import types.RectI;
 
 class FontAttachment
@@ -35,22 +37,41 @@ class FontAttachment
     * character position instead of rendering the current character.
     * @Warning object is not copied. Take care of reseting the state of selecteRect.
     **/
-    public var image(default, null): ColorStorage;
+    public var image(get, null): ColorStorage;
 
     /** Defines the layout bounds of the receiver's graphical representation in the text coordinate system. (pts) **/
     public var bounds(default, null): RectI; // Default zero uses the selectedRect of the image
 
     public var anchorPoint: Float;
 
-    public function new(image: ColorStorage, x: Int, y: Int, width: Int, height: Int, anchorPoint: Float = 0)
+    private var loadImage: Void -> ColorStorage;
+    private var cachedImage: ColorStorage;
+
+    public function new(loadImage: Void -> ColorStorage, x: Int, y: Int, width: Int, height: Int, anchorPoint: Float = 0)
     {
-        this.image = image;
+        this.loadImage = loadImage;
         this.bounds = new RectI();
         this.bounds.x = x;
         this.bounds.y = y;
         this.bounds.width = width;
         this.bounds.height = height;
         this.anchorPoint = anchorPoint;
+    }
+
+    private function get_image(): ColorStorage
+    {
+        if (cachedImage == null)
+        {
+            cachedImage = loadImage();
+            this.bounds.x = cachedImage.selectedRect.x;
+            this.bounds.y = cachedImage.selectedRect.y;
+            Debug.assert(this.bounds.width == cachedImage.selectedRect.width);
+            Debug.assert(this.bounds.height == cachedImage.selectedRect.height);
+            this.bounds.width = cachedImage.selectedRect.width;
+            this.bounds.height = cachedImage.selectedRect.height;
+        }
+
+        return cachedImage;
     }
 
     public function heightBelowBaseline(): Float

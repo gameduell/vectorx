@@ -92,7 +92,10 @@ class StyledStringContext
         fontContext.renderStringToColorStorage(layout, colorStorage, renderTrimmed);
     }
 
-    public static function create(configJson: String, loadFontFunc: String -> Data, loadImage: String -> Vector2 -> Vector2 -> ColorStorage, ?fontContext: FontContext): StyledStringContext
+    public static function create(configJson: String, loadFontFunc: String -> Data,
+                                  loadImage: String -> Vector2 -> Vector2 -> ColorStorage,
+                                  getImageSize: String -> Vector2 -> Vector2 -> Vector2,
+                                  ?fontContext: FontContext): StyledStringContext
     {
         var json: StyledStringContextConfing = Json.parse(configJson);
 
@@ -105,6 +108,7 @@ class StyledStringContext
         var fontCache = new FontCache(loadFontFunc(defaultFont));
         var context = new StyledStringContext(fontCache);
         context.fontAttachments.loadImage = loadImage;
+        context.fontAttachments.getImageSize = getImageSize;
 
         if (fontContext == null)
         {
