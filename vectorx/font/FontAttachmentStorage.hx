@@ -46,11 +46,11 @@ class FontAttachmentStorage
         var imageSrc = config.image;
         var loadImage = function()
         {
-            loadImage(imageSrc, origDimensions, dimensions);
+            return loadImage(imageSrc, origDimensions, dimensions);
         };
 
-        var finalDimensions = getImageSize(dimensions, origDimensions);
-        var attachment = new FontAttachment(loadImage, 0, 0, finalDimensions.x, finalDimensions.y, config.anchorPoint);
+        var finalDimensions = getImageSize(imageSrc, dimensions, origDimensions);
+        var attachment = new FontAttachment(loadImage, 0, 0, Math.ceil(finalDimensions.x), Math.ceil(finalDimensions.y), config.anchorPoint);
         attachments.set(key, attachment);
 
         return attachment;
@@ -59,5 +59,18 @@ class FontAttachmentStorage
     public function addAttachmentConfig(config: AttachmentConfig): Void
     {
         attachmentsConfigs.set(config.name, config);
+    }
+
+    public function toString(): String
+    {
+        var strBuf = new StringBuf();
+        strBuf.add("{\n");
+        for (attachment in attachments)
+        {
+            strBuf.add('$attachment\n');
+        }
+        strBuf.add("}\n");
+
+        return strBuf.toString();
     }
 }

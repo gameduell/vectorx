@@ -27,7 +27,6 @@
 package vectorx.font;
 
 import lib.ha.core.utils.Debug;
-import png.Data.Color;
 import types.RectI;
 
 class FontAttachment
@@ -65,8 +64,8 @@ class FontAttachment
             cachedImage = loadImage();
             this.bounds.x = cachedImage.selectedRect.x;
             this.bounds.y = cachedImage.selectedRect.y;
-            Debug.assert(this.bounds.width == cachedImage.selectedRect.width);
-            Debug.assert(this.bounds.height == cachedImage.selectedRect.height);
+            Debug.assert(this.bounds.width == cachedImage.selectedRect.width, "width must not change");
+            Debug.assert(this.bounds.height == cachedImage.selectedRect.height, "height must not change");
             this.bounds.width = cachedImage.selectedRect.width;
             this.bounds.height = cachedImage.selectedRect.height;
         }
@@ -86,6 +85,6 @@ class FontAttachment
 
     public function toString(): String
     {
-        return '{x: ${bounds.x} y; ${bounds.y} width: ${bounds.width} height: ${bounds.height} dataSize: ${this.image.data.allocedLength}}';
+        return '{x: ${bounds.x} y; ${bounds.y} width: ${bounds.width} height: ${bounds.height} loaded: ${cachedImage != null}}';
     }
 }

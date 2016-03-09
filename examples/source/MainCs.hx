@@ -83,6 +83,6 @@ class MainCs
             return provider.getImageSize(file, origDimensions, dimensions);
         };
 
-        return StyledStringContext.create(config, loadFont, loadImage);
+        return StyledStringContext.create(config, loadFont, loadImage, getImageSize);
     }
 }
