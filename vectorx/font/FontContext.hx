@@ -286,6 +286,11 @@ class FontContext
                     for (i in 0 ... height)
                     {
                         var srcYOffset: Int = i + attachment.bounds.y + Math.ceil(baseLineOffset);
+                        if (srcYOffset > outStorage.selectedRect.y + outStorage.selectedRect.height)
+                        {
+                            break;
+                        }
+
                         var src: Int = (attachment.image.width * srcYOffset + attachment.bounds.x) * ColorStorage.COMPONENTS;
 
                         var dstY: Int = Math.ceil(y + alignY + baseLineOffset) + i;
