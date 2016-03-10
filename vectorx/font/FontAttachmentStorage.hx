@@ -46,6 +46,11 @@ class FontAttachmentStorage
         var imageSrc = config.image;
         var loadImage = function()
         {
+            if (Math.ceil(dimensions.x) == 0 || Math.ceil(dimensions.y) == 0)
+            {
+                return new ColorStorage(0, 0);
+            }
+
             return loadImage(imageSrc, origDimensions, dimensions);
         };
 
