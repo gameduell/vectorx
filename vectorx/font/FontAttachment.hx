@@ -64,8 +64,16 @@ class FontAttachment
             cachedImage = loadImage();
             this.bounds.x = cachedImage.selectedRect.x;
             this.bounds.y = cachedImage.selectedRect.y;
-            Debug.assert(this.bounds.width == cachedImage.selectedRect.width, "width must not change");
-            Debug.assert(this.bounds.height == cachedImage.selectedRect.height, "height must not change");
+            if (!Debug.assert(this.bounds.width == cachedImage.selectedRect.width, "width must not change"))
+            {
+                trace('old: ${this.bounds.width} new: ${cachedImage.selectedRect.width}');
+            }
+
+            if (!Debug.assert(this.bounds.height == cachedImage.selectedRect.height, "height must not change"))
+            {
+                trace('old: ${this.bounds.height} new: ${cachedImage.selectedRect.height}');
+            }
+
             this.bounds.width = cachedImage.selectedRect.width;
             this.bounds.height = cachedImage.selectedRect.height;
         }
