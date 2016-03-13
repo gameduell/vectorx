@@ -71,15 +71,16 @@ class TextLine
         return breakAt - begin;
     }
 
-    private function calculateMaxSpanHeight(span: AttributedSpan)
+    private function calculateMaxSpanHeight(span: AttributedSpan, pixelRatio: Float)
     {
         var fontEngine: FontEngine = span.font.internalFont;
         var spanString: String = span.string;
         var measure = span.getMeasure();
+        var measureY = measure.y * pixelRatio;
         //trace('mx: ${measure.x} my: ${measure.y}');
-        if (measure.y > maxSpanHeight)
+        if (measureY > maxSpanHeight)
         {
-            maxSpanHeight = measure.y;
+            maxSpanHeight = measureY;
         }
 
         //trace('mh: $maxSpanHeight');
@@ -95,13 +96,14 @@ class TextLine
         }
     }
 
-    private function calculateMaxBgHeight(span: AttributedSpan)
+    private function calculateMaxBgHeight(span: AttributedSpan, pixelRatio: Float)
     {
         var fontEngine: FontEngine = span.font.internalFont;
         var spanString: String = span.string;
         var measure = span.getMeasure();
+        var measureY = measure.y * pixelRatio;
 
-        var alignY: Float = maxSpanHeight - measure.y;
+        var alignY: Float = maxSpanHeight - measureY;
 
         for (i in 0 ... Utf8.length(spanString))
         {
@@ -112,10 +114,10 @@ class TextLine
             }
             var scale = fontEngine.getScale(span.font.sizeInPt);
 
-            var by =  -face.glyph.bounds.y1 * scale;
-            var h = (-face.glyph.bounds.y2 - -face.glyph.bounds.y1) * scale;
+            var by =  -face.glyph.bounds.y1 * scale * pixelRatio;
+            var h = (-face.glyph.bounds.y2 - -face.glyph.bounds.y1) * scale * pixelRatio;
 
-            var ext: Float = alignY + measure.y + by;
+            var ext: Float = alignY + measureY + by;
             if (ext > maxBgHeight)
             {
                 maxBgHeight = ext;
@@ -213,12 +215,12 @@ class TextLine
         {
             for (span in line.spans)
             {
-                line.calculateMaxSpanHeight(span);
+                line.calculateMaxSpanHeight(span, pixelRatio);
             }
 
             for (span in line.spans)
             {
-                line.calculateMaxBgHeight(span);
+                line.calculateMaxBgHeight(span, pixelRatio);
             }
         }
 
