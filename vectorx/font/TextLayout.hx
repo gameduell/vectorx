@@ -69,7 +69,7 @@ class TextLayout
 
             if (textFits(lines, height, rect))
             {
-                trace('begin: $lastRatio');
+                //trace('begin: $lastRatio');
                 begin = lastRatio;
                 this.lines = lines;
                 this.outputRect.height = height;
@@ -77,7 +77,7 @@ class TextLayout
             }
             else
             {
-                trace('end: $lastRatio');
+                //trace('end: $lastRatio');
                 end = lastRatio;
             }
 
@@ -92,26 +92,30 @@ class TextLayout
             pixelRatio = lastRatio;
         }
 
-        trace('found ratio: $pixelRatio in $iteration');
+        //trace('found ratio: $pixelRatio in $iteration');
     }
 
     private static function textFits(lines: Array<TextLine>, height: Float, rect: RectI): Bool
     {
-        //trace('height: $height rectHeight: ${rect.height}');
-        if (height >= rect.height)
+        //trace('textFits() height: $height rectHeight: ${rect.height}');
+        if (height > rect.height)
         {
+            //trace('height does not fit');
+            //trace('height: $height rectHeight: ${rect.height}');
             return false;
         }
 
         for (line in lines)
         {
-            if (line.width >= rect.width)
+            if (line.width > rect.width)
             {
+                //trace('lineWidth: ${line.width} rectHeight: ${rect.height}');
+                //trace('width does not fit');
                 return false;
             }
         }
 
-
+        //trace('fits');
         return true;
     }
 
