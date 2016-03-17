@@ -244,10 +244,7 @@ class FontContext
 
                 //trace('actual fg: ${scanlineRenderer.color}');
 
-                if (span.strokeWidth == null || span.strokeWidth < 0)
-                {
-                    fontEngine.renderString(spanString, span.font.sizeInPt * pixelRatio, x, y + alignY + baseLineOffset, scanlineRenderer, kern);
-                }
+                fontEngine.renderString(spanString, span.font.sizeInPt * pixelRatio, x, y + alignY + baseLineOffset, scanlineRenderer, kern);
 
                 if (span.strokeWidth != null)
                 {
