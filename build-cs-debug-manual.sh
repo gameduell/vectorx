@@ -47,6 +47,7 @@ src/lib/ha/aggx/RenderingBuffer.cs src/types/Color4F.cs src/lib/ha/core/memory/M
 src/lib/ha/aggx/color/SpanInterpolatorLinear.cs src/lib/ha/aggx/color/GradientX.cs src/lib/ha/rfpx/data/Os2Table.cs \
 src/lib/ha/rfpx/data/TableRecord.cs src/vectorx/font/StyledStringParser.cs src/lib/ha/aggx/color/RgbaColorF.cs \
 src/lib/ha/aggx/vectorial/PathCommands.cs src/lib/ha/aggx/color/IGradientFunction.cs src/vectorx/font/FontContext.cs \
+src/vectorx/font/RenderingStack.cs \
 src/types/RectI.cs src/vectorx/font/TextLayout.cs src/vectorx/font/AttributedSpanStorage.cs src/StringTools.cs \
 src/lib/ha/svg/SVGParser.cs src/types/Range.cs src/lib/ha/rfpx/data/PostTable.cs \
 src/lib/ha/aggx/rasterizer/PixelCellRasterizer.cs src/Reflect.cs src/lib/ha/aggx/rasterizer/FillingRule.cs \

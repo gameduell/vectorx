@@ -26,8 +26,17 @@
 
 package vectorx.font;
 
+import types.Color4F;
+import types.Vector2;
+
 class FontShadow
 {
-    public function new() {
+    public var offset: Vector2 = new Vector2();
+    public var color: Color4F = new Color4F(0.0, 0.0, 0.0, 0.3);
+    public var blurRadius: Float = 0.0;
+
+    public function new()
+    {
+
     }
 }

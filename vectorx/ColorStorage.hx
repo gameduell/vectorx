@@ -79,4 +79,21 @@ class ColorStorage
         this.selectedRect.width = width;
         this.selectedRect.height = height;
     }
+
+    public function resize(width: Int, height: Int): Void
+    {
+        var newSize = width * height * COMPONENTS;
+        if (newSize == data.allocedLength)
+        {
+            return;
+        }
+
+        if (data.allocedLength < newSize)
+        {
+            data.resize(newSize);
+        }
+
+        this.width = width;
+        this.height = height;
+    }
 }

@@ -72,6 +72,10 @@ class FontContext
     private var debugPath: VectorPath = new VectorPath();
     private var path: VectorPath = new VectorPath();
     private var debugPathStroke: ConvStroke;
+    private var renderingStack: RenderingStack;
+
+    private var shadowBuffer: ColorStorage;
+
     private var measure: Vector2;
 
     private static var defaultAttributes: StringAttributes =
@@ -126,6 +130,11 @@ class FontContext
 
         var prevMemory = MemoryAccess.domainMemory;
         MemoryAccess.select(outStorage.data);
+
+        if (renderingStack == null)
+        {
+            renderingStack = new Rende
+        }
 
         var renderingBuffer = new RenderingBuffer(outStorage.width, outStorage.height, ColorStorage.COMPONENTS * outStorage.width);
         var pixelFormatRenderer = new PixelFormatRenderer(renderingBuffer);
@@ -242,7 +251,9 @@ class FontContext
 
                 //trace('actual fg: ${scanlineRenderer.color}');
 
-                fontEngine.renderString(spanString, span.font.sizeInPt * pixelRatio, x, y + alignY + baseLineOffset, scanlineRenderer, kern);
+                var spanY: Float = y + alignY + baseLineOffset;
+
+                fontEngine.renderString(spanString, span.font.sizeInPt * pixelRatio, x, spanY, scanlineRenderer, kern);
 
                 if (span.strokeWidth != null)
                 {
@@ -253,7 +264,7 @@ class FontContext
 
                     var strokeWidth = Math.abs(span.strokeWidth);
 
-                    fontEngine.renderStringStroke(spanString, span.font.sizeInPt * pixelRatio, x, y + alignY + baseLineOffset, scanlineRenderer, strokeWidth, kern);
+                    fontEngine.renderStringStroke(spanString, span.font.sizeInPt * pixelRatio, x, spanY, scanlineRenderer, strokeWidth, kern);
                 }
 
                 x += measure.x;
@@ -276,7 +287,7 @@ class FontContext
                     var dstOffset = dstData.offset;
 
                     var alignY: Float = line.maxSpanHeight - attachment.bounds.height + attachment.heightBelowBaseline();
-                    debugBox(dstX, y + alignY + baseLineOffset, width, height);
+                    debugBox(dstX, spanY, width, height);
 
                     for (i in 0 ... height)
                     {
@@ -288,7 +299,7 @@ class FontContext
 
                         var src: Int = (attachment.image.width * srcYOffset + attachment.bounds.x) * ColorStorage.COMPONENTS;
 
-                        var dstY: Int = Math.ceil(y + alignY + baseLineOffset) + i;
+                        var dstY: Int = Math.ceil(spanY) + i;
                         if (dstY >= outStorage.selectedRect.y + outStorage.selectedRect.height)
                         {
                             break;
@@ -341,6 +352,19 @@ class FontContext
             font.scanline = null;
             font.scanline = null;
         }
+    }
+
+    private function renderSpanShadow(span: AttributedSpan, pixelRatio: Float, fontEngine: FontEngine, scanlineRenderer: SolidScanlineRenderer): Void
+    {
+        var width = Math.ceil(measure.x);
+        var height = Math.ceil(measure.y);
+
+        if (shadowBuffer == null)
+        {
+            shadowBuffer = new ColorStorage(width, height);
+        }
+
+
     }
 
     private inline function renderDebugPath(renderer: SolidScanlineRenderer)
