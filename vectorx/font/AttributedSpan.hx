@@ -157,4 +157,19 @@ class AttributedSpan
 
         return measure;
     }
+
+    public function getFinalSize(pixelRatio: Float, ?output: Vector2): Vector2
+    {
+        if (output == null)
+        {
+            output = new Vector2();
+        }
+
+        var measure = getMeasure();
+
+        output.x = measure.x * pixelRatio;
+        output.y = measure.y * pixelRatio;
+
+        return output;
+    }
 }

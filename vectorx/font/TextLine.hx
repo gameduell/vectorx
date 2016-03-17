@@ -1,5 +1,6 @@
 package vectorx.font;
 
+import types.Vector2;
 import lib.ha.core.utils.Debug;
 import lib.ha.aggx.typography.FontEngine;
 import haxe.Utf8;
@@ -19,6 +20,8 @@ class TextLine
 
     private var breakAt: Int = -1;
     private var charAtBreakPos: Int = 0;
+
+    private var measure: Vector2;
 
     private static inline var SPACE = 32;
     private static inline var TAB = 9;
@@ -75,12 +78,11 @@ class TextLine
     {
         var fontEngine: FontEngine = span.font.internalFont;
         var spanString: String = span.string;
-        var measure = span.getMeasure();
-        var measureY = measure.y * pixelRatio;
+        measure = span.getFinalSize(pixelRatio, measure);
         //trace('mx: ${measure.x} my: ${measure.y}');
-        if (measureY > maxSpanHeight)
+        if (measure.y > maxSpanHeight)
         {
-            maxSpanHeight = measureY;
+            maxSpanHeight = measure.y;
         }
 
         //trace('mh: $maxSpanHeight');
@@ -100,10 +102,9 @@ class TextLine
     {
         var fontEngine: FontEngine = span.font.internalFont;
         var spanString: String = span.string;
-        var measure = span.getMeasure();
-        var measureY = measure.y * pixelRatio;
+        measure = span.getFinalSize(pixelRatio, measure);
 
-        var alignY: Float = maxSpanHeight - measureY;
+        var alignY: Float = maxSpanHeight - measure.y;
 
         for (i in 0 ... Utf8.length(spanString))
         {
@@ -117,7 +118,7 @@ class TextLine
             var by =  -face.glyph.bounds.y1 * scale * pixelRatio;
             var h = (-face.glyph.bounds.y2 - -face.glyph.bounds.y1) * scale * pixelRatio;
 
-            var ext: Float = alignY + measureY + by;
+            var ext: Float = alignY + measure.y + by;
             if (ext > maxBgHeight)
             {
                 maxBgHeight = ext;

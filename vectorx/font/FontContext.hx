@@ -72,6 +72,7 @@ class FontContext
     private var debugPath: VectorPath = new VectorPath();
     private var path: VectorPath = new VectorPath();
     private var debugPathStroke: ConvStroke;
+    private var measure: Vector2;
 
     private static var defaultAttributes: StringAttributes =
     {
@@ -170,12 +171,9 @@ class FontContext
                 fontEngine.scanline = scanline;
 
                 var spanString: String = span.string;
-                var measure = span.getMeasure();
+                measure = span.getFinalSize(pixelRatio, measure);
 
-                var measureX = measure.x * pixelRatio;
-                var measureY = measure.y * pixelRatio;
-
-                var alignY: Float = line.maxSpanHeight - measureY;
+                var alignY: Float = line.maxSpanHeight - measure.y;
 
                 var baseLineOffset = span.baselineOffset == null ? defaultAttributes.baselineOffset : span.baselineOffset;
                 baseLineOffset *= pixelRatio;
@@ -207,7 +205,7 @@ class FontContext
                         var h = (-face.glyph.bounds.y2 - -face.glyph.bounds.y1) * scale;
                         //trace('h: $h y: ${measureY + by + alignY} max: $maxSpanHeight');
                         //trace('${Utf8.sub(spanString, i, 1)} w: $w h: $h advance: ${face.glyph.advanceWidth * scale} kern: $kern bboxX: ${bboxX + face.glyph.advanceWidth * scale + kern - textLayout.alignX(line)}');
-                        debugBox(bboxX + bx, y + measureY + by + alignY + baseLineOffset, w, h);
+                        debugBox(bboxX + bx, y + measure.y + by + alignY + baseLineOffset, w, h);
                         ////debugBox(bboxX, y + measureY + by + alignY + baseLineOffset, face.glyph.advanceWidth * scale + kern, line.maxSpanHeight);
                     }
 
@@ -216,7 +214,7 @@ class FontContext
                     //trace('bboxX: $bboxX');
                 }
 
-                Debug.assert(Math.abs(dbgSpanWidth) - Math.abs(measureX) < 0.001, 'span width calculation');
+                Debug.assert(Math.abs(dbgSpanWidth) - Math.abs(measure.x) < 0.001, 'span width calculation');
 #end
 
                 //trace('bg color: ${span.backgroundColor}');
@@ -224,7 +222,7 @@ class FontContext
                 {
                     scanlineRenderer.color.setFromColor4F(span.backgroundColor);
                     //trace('actual bg: ${scanlineRenderer.color}');
-                    box(path, x, y, measureX + 1 + attachmentWidth, line.maxBgHeight + 1);
+                    box(path, x, y, measure.x + 1 + attachmentWidth, line.maxBgHeight + 1);
                     rasterizer.reset();
                     rasterizer.addPath(path);
                     SolidScanlineRenderer.renderScanlines(rasterizer, scanline, scanlineRenderer);
@@ -258,7 +256,7 @@ class FontContext
                     fontEngine.renderStringStroke(spanString, span.font.sizeInPt * pixelRatio, x, y + alignY + baseLineOffset, scanlineRenderer, strokeWidth, kern);
                 }
 
-                x += measureX;
+                x += measure.x;
 
                 if (span.attachment != null)
                 {
