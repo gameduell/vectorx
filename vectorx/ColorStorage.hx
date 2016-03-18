@@ -26,6 +26,7 @@
 
 package vectorx;
 
+import lib.ha.core.math.Calc;
 import types.Data;
 import types.RectI;
 
@@ -91,6 +92,19 @@ class ColorStorage
         if (data.allocedLength < newSize)
         {
             data.resize(newSize);
+        }
+
+        data.offset = 0;
+        for (i in 0 ... Calc.intDiv(data.allocedLength, 4))
+        {
+            data.offset = i * 4;
+            data.writeUInt32(0);
+        }
+
+        for (i in 0 ... data.allocedLength % 4)
+        {
+            data.offset = (data.allocedLength - 1) - i;
+            data.writeUInt8(0);
         }
 
         this.width = width;

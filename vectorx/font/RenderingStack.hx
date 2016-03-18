@@ -1,3 +1,6 @@
+package vectorx.font;
+
+import game_engine.systems.VectorTextSystem.RenderedNode;
 import lib.ha.aggx.renderer.SolidScanlineRenderer;
 import lib.ha.aggx.renderer.ClippingRenderer;
 import lib.ha.aggx.renderer.PixelFormatRenderer;
@@ -21,5 +24,19 @@ class RenderingStack
     public function reconfigure(width: Int, height: Int, stride: Int)
     {
         renderingBuffer.attach(width, height, stride);
+    }
+
+    public static function initialise(renderingStack: RenderingStack, width: Int, height: Int, stride: Int): RenderingStack
+    {
+        if (renderingStack == null)
+        {
+            renderingStack = new RenderingStack(width, height, stride);
+        }
+        else
+        {
+            renderingStack.reconfigure(width, height, stride);
+        }
+
+        return renderingStack;
     }
 }

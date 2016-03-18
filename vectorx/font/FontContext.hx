@@ -72,9 +72,12 @@ class FontContext
     private var debugPath: VectorPath = new VectorPath();
     private var path: VectorPath = new VectorPath();
     private var debugPathStroke: ConvStroke;
+
+
     private var renderingStack: RenderingStack;
 
     private var shadowBuffer: ColorStorage;
+    private var shadowRenderingStack: RenderingStack;
 
     private var measure: Vector2;
 
@@ -131,17 +134,9 @@ class FontContext
         var prevMemory = MemoryAccess.domainMemory;
         MemoryAccess.select(outStorage.data);
 
-        if (renderingStack == null)
-        {
-            renderingStack = new Rende
-        }
-
-        var renderingBuffer = new RenderingBuffer(outStorage.width, outStorage.height, ColorStorage.COMPONENTS * outStorage.width);
-        var pixelFormatRenderer = new PixelFormatRenderer(renderingBuffer);
-        var clippingRenderer = new ClippingRenderer(pixelFormatRenderer);
-        var scanlineRenderer = new SolidScanlineRenderer(clippingRenderer);
-
-        var cleanUpList: Array<FontEngine> = [];
+        var stride = ColorStorage.COMPONENTS * outStorage.width;
+        renderingStack = RenderingStack.initialise(renderingStack, outStorage.width, outStorage.height, stride);
+        var scanlineRenderer = renderingStack.scanlineRenderer;
 
         debugBox(outStorage.selectedRect.x, outStorage.selectedRect.y, outStorage.selectedRect.width, outStorage.selectedRect.height);
 
@@ -175,7 +170,6 @@ class FontContext
                 //trace('rendering span: $span');
 
                 var fontEngine: FontEngine = span.font.internalFont;
-                cleanUpList.push(fontEngine);
                 fontEngine.rasterizer = rasterizer;
                 fontEngine.scanline = scanline;
 
@@ -199,7 +193,6 @@ class FontContext
                 //debugBox(x, y + alignY, measureX + attachmentWidth, measureY);
 
 #if vectorDebugDraw
-
                 var dbgSpanWidth: Float = 0.0;
                 var bboxX = x;
                 for (i in 0 ... Utf8.length(spanString))
@@ -240,6 +233,16 @@ class FontContext
 
                 //trace('fg: ${span.foregroundColor}');
 
+                var spanY: Float = y + alignY + baseLineOffset;
+
+                //if(span.shadow != null)
+                var shadowData = new FontShadow();
+                shadowData.offset.x = 2;
+                shadowData.offset.y = 2;
+
+                var shadow = renderSpanShadow(span, pixelRatio, fontEngine, shadowData.color, scanlineRenderer);
+
+
                 if (span.foregroundColor != null)
                 {
                     scanlineRenderer.color.setFromColor4F(span.foregroundColor);
@@ -250,8 +253,6 @@ class FontContext
                 }
 
                 //trace('actual fg: ${scanlineRenderer.color}');
-
-                var spanY: Float = y + alignY + baseLineOffset;
 
                 fontEngine.renderString(spanString, span.font.sizeInPt * pixelRatio, x, spanY, scanlineRenderer, kern);
 
@@ -291,7 +292,7 @@ class FontContext
 
                     for (i in 0 ... height)
                     {
-                        var srcYOffset: Int = i + attachment.bounds.y + Math.ceil(baseLineOffset);
+                        var srcYOffset: Int = i + attachment.bounds.y;
                         if (srcYOffset > outStorage.selectedRect.y + outStorage.selectedRect.height)
                         {
                             break;
@@ -299,7 +300,7 @@ class FontContext
 
                         var src: Int = (attachment.image.width * srcYOffset + attachment.bounds.x) * ColorStorage.COMPONENTS;
 
-                        var dstY: Int = Math.ceil(spanY) + i;
+                        var dstY: Int = Math.ceil(spanY) + i + Math.ceil(baseLineOffset);
                         if (dstY >= outStorage.selectedRect.y + outStorage.selectedRect.height)
                         {
                             break;
@@ -333,13 +334,12 @@ class FontContext
                         }
                     }
 
-                    srcData.offset = srcOffset;
-                    dstData.offset = dstOffset;
-
                     x += attachment.bounds.width + 1;
                 }
 
-            };
+                fontEngine.rasterizer = null;
+                fontEngine.scanline = null;
+            }
 
             y += line.maxBgHeight;
         }
@@ -347,31 +347,108 @@ class FontContext
         renderDebugPath(scanlineRenderer);
 
         MemoryAccess.select(prevMemory);
-        for (font in cleanUpList)
-        {
-            font.scanline = null;
-            font.scanline = null;
-        }
     }
 
-    private function renderSpanShadow(span: AttributedSpan, pixelRatio: Float, fontEngine: FontEngine, scanlineRenderer: SolidScanlineRenderer): Void
+    private static function blendFromColorStorage(x: Int, y: Int, source: ColorStorage, sourceRect: RectI)
     {
-        var width = Math.ceil(measure.x);
-        var height = Math.ceil(measure.y);
+        var dstX = x;
+
+        var srcData = source.data;
+        var dstData = MemoryAccess.domainMemory;
+
+        var srcOffset = srcData.offset;
+        var dstOffset = dstData.offset;
+
+        for (i in 0 ... height)
+        {
+            var srcYOffset: Int = i + attachment.bounds.y;
+            if (srcYOffset > outStorage.selectedRect.y + outStorage.selectedRect.height)
+            {
+                break;
+            }
+
+            var src: Int = (attachment.image.width * srcYOffset + attachment.bounds.x) * ColorStorage.COMPONENTS;
+
+            var dstY: Int = y + i;
+            if (dstY >= outStorage.selectedRect.y + outStorage.selectedRect.height)
+            {
+                break;
+            }
+
+            if (dstY < outStorage.selectedRect.y)
+            {
+                continue;
+            }
+
+            //trace('dstY: $dstY dstX: $dstX rect: ${outStorage.selectedRect}');
+
+            var dst: Int = (outStorage.width * dstY + dstX) * ColorStorage.COMPONENTS;
+
+            srcData.offset = src;
+
+            for (j in 0 ... width)
+            {
+                var r: Byte = srcData.readUInt8();
+                srcData.offset++;
+                var g: Byte = srcData.readUInt8();
+                srcData.offset++;
+                var b: Byte = srcData.readUInt8();
+                srcData.offset++;
+                var a: Byte = srcData.readUInt8();
+                srcData.offset++;
+
+                BlenderBase.blendPix(dst, r, g, b, a);
+
+                dst += ColorStorage.COMPONENTS;
+            }
+
+        }
+
+        srcData.offset = srcOffset;
+        dstData.offset = dstOffset;
+    }
+
+    private function renderSpanShadow(span: AttributedSpan, pixelRatio: Float, fontEngine: FontEngine, color: Color4F): ColorStorage
+    {
+        var width: Int = Math.ceil(measure.x);
+        var height: Int = Math.ceil(measure.y);
 
         if (shadowBuffer == null)
         {
             shadowBuffer = new ColorStorage(width, height);
         }
+        else
+        {
+            shadowBuffer.resize(width, height);
+        }
 
+        var memory = MemoryAccess.domainMemory;
+        MemoryAccess.domainMemory = shadowBuffer.data;
 
+        try
+        {
+            var stride: Int = ColorStorage.COMPONENTS * width;
+            shadowRenderingStack = RenderingStack.initialise(shadowRenderingStack, width, height, stride);
+            var renderer = shadowRenderingStack.scanlineRenderer;
+            renderer.color.setFromColor4F(color);
+            fontEngine.renderString(span.string, span.font.sizeInPt * pixelRatio, 0, 0, renderer, span.kern * pixelRatio);
+        }
+        catch(ex: Dynamic)
+        {
+            MemoryAccess.domainMemory = memory;
+            throw ex;
+        }
+
+        MemoryAccess.domainMemory = memory;
+
+        return shadowBuffer;
     }
 
     private inline function renderDebugPath(renderer: SolidScanlineRenderer)
     {
         #if vectorDebugDraw
             rasterizer.addPath(debugPathStroke);
-            renderer.color = SVGColors.get("hotpink");
+            renderer.color.set(SVGColors.get("hotpink"));
             SolidScanlineRenderer.renderScanlines(rasterizer, scanline, renderer);
             rasterizer.reset();
             debugPath.removeAll();
