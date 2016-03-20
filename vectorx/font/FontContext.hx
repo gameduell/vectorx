@@ -240,7 +240,7 @@ class FontContext
                 shadowData.offset.x = 2;
                 shadowData.offset.y = 2;
 
-                var shadow = renderSpanShadow(span, pixelRatio, fontEngine, shadowData.color, scanlineRenderer);
+                var shadow = renderSpanShadow(span, pixelRatio, fontEngine, shadowData.color);
 
 
                 if (span.foregroundColor != null)
@@ -335,6 +335,9 @@ class FontContext
                     }
 
                     x += attachment.bounds.width + 1;
+                    srcData.offset = srcOffset;
+                    dstData.offset = dstOffset;
+
                 }
 
                 fontEngine.rasterizer = null;
@@ -349,40 +352,43 @@ class FontContext
         MemoryAccess.select(prevMemory);
     }
 
-    private static function blendFromColorStorage(x: Int, y: Int, source: ColorStorage, sourceRect: RectI)
+    private static function blendFromColorStorage(x: Int, y: Int, destination: ColorStorage, source: ColorStorage, sourceRect: RectI)
     {
         var dstX = x;
 
         var srcData = source.data;
-        var dstData = MemoryAccess.domainMemory;
+        var dstData = destination.data;
 
         var srcOffset = srcData.offset;
         var dstOffset = dstData.offset;
 
-        for (i in 0 ... height)
+        var distanceToBorder: Int = destination.selectedRect.x + destination.selectedRect.width - dstX;
+        var width: Int = Calc.min(distanceToBorder, sourceRect.width);
+
+        for (i in 0 ... sourceRect.height)
         {
-            var srcYOffset: Int = i + attachment.bounds.y;
-            if (srcYOffset > outStorage.selectedRect.y + outStorage.selectedRect.height)
+            var srcYOffset: Int = i + sourceRect.y;
+            if (srcYOffset > destination.selectedRect.y + destination.selectedRect.height)
             {
                 break;
             }
 
-            var src: Int = (attachment.image.width * srcYOffset + attachment.bounds.x) * ColorStorage.COMPONENTS;
+            var src: Int = (sourceRect.width * srcYOffset + sourceRect.x) * ColorStorage.COMPONENTS;
 
             var dstY: Int = y + i;
-            if (dstY >= outStorage.selectedRect.y + outStorage.selectedRect.height)
+            if (dstY >= destination.selectedRect.y + destination.selectedRect.height)
             {
                 break;
             }
 
-            if (dstY < outStorage.selectedRect.y)
+            if (dstY < destination.selectedRect.y)
             {
                 continue;
             }
 
             //trace('dstY: $dstY dstX: $dstX rect: ${outStorage.selectedRect}');
 
-            var dst: Int = (outStorage.width * dstY + dstX) * ColorStorage.COMPONENTS;
+            var dst: Int = (destination.width * dstY + dstX) * ColorStorage.COMPONENTS;
 
             srcData.offset = src;
 
