@@ -288,6 +288,7 @@ class FontContext
                     var dstOffset = dstData.offset;
 
                     var alignY: Float = line.maxSpanHeight - attachment.bounds.height + attachment.heightBelowBaseline();
+                    var spanY: Float = y + alignY + baseLineOffset;
                     debugBox(dstX, spanY, width, height);
 
                     for (i in 0 ... height)
