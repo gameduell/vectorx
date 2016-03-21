@@ -24,6 +24,8 @@ class RenderingStack
     public function reconfigure(width: Int, height: Int, stride: Int)
     {
         renderingBuffer.attach(width, height, stride);
+        clippingRenderer.attach(pixelFormatRenderer);
+        scanlineRenderer.attach(clippingRenderer);
     }
 
     public static function initialise(renderingStack: RenderingStack, width: Int, height: Int, stride: Int): RenderingStack
