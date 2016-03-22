@@ -141,8 +141,6 @@ class StyledStringParser
                 return;
             }
 
-            //trace('k: ${kv[0]} v: ${kv[1]}');
-
             if (kv[0].length == 0)
             {
                 continue;
@@ -219,8 +217,6 @@ class StyledStringParser
 
     private function pushAttribute(attribute: StringAttributes): StringAttributes
     {
-        //trace('pushAttribute $attribute');
-
         attributesStack.push(attribute);
         currentAttribute = attribute;
         return currentAttribute;
@@ -230,7 +226,6 @@ class StyledStringParser
     {
         var priority = attributesStack.length;
         var attr = attributesStack.pop();
-        //trace('popAttribute $attr');
 
         resultAttributes.push(new StyledStringAttribute(attr, priority));
         if (attributesStack.length > 0)
@@ -294,8 +289,6 @@ class StyledStringParser
             return -1;
         });
 
-        //trace(resultAttributes);
-
         var attrString = new AttributedString(currentString.toString());
         var defaultAttr =
         {
@@ -306,13 +299,11 @@ class StyledStringParser
 
         for (attr in resultAttributes)
         {
-            //trace(attr);
             attrString.applyAttributes(attr.stringAttributes);
         }
 
         reset();
 
         return attrString;
-
     }
 }

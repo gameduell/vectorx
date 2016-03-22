@@ -152,8 +152,6 @@ class FontContext
 
         for (line in textLayout.lines)
         {
-            //trace('rendering line: $line');
-
             var x: Float = textLayout.alignX(line);
 
             if (renderTrimmed)
@@ -167,8 +165,6 @@ class FontContext
 
             for (span in line.spans)
             {
-                //trace('rendering span: $span');
-
                 var fontEngine: FontEngine = span.font.internalFont;
                 fontEngine.rasterizer = rasterizer;
                 fontEngine.scanline = scanline;
@@ -190,6 +186,7 @@ class FontContext
                     attachmentWidth = span.attachment.bounds.width + 2;
                 }
 
+                //intentionally left for debugging
                 //debugBox(x, y + alignY, measureX + attachmentWidth, measureY);
 
 #if vectorDebugDraw
@@ -205,6 +202,7 @@ class FontContext
                         var by =  -face.glyph.bounds.y1 * scale;
                         var w = (face.glyph.bounds.x2 - face.glyph.bounds.x1) * scale;
                         var h = (-face.glyph.bounds.y2 - -face.glyph.bounds.y1) * scale;
+                        //intentionally left for debugging
                         //trace('h: $h y: ${measureY + by + alignY} max: $maxSpanHeight');
                         //trace('${Utf8.sub(spanString, i, 1)} w: $w h: $h advance: ${face.glyph.advanceWidth * scale} kern: $kern bboxX: ${bboxX + face.glyph.advanceWidth * scale + kern - textLayout.alignX(line)}');
                         debugBox(bboxX + bx, y + measure.y + by + alignY + baseLineOffset, w, h);
@@ -213,17 +211,14 @@ class FontContext
 
                     bboxX += face.glyph.advanceWidth * scale + kern;
                     dbgSpanWidth += face.glyph.advanceWidth * scale + kern;
-                    //trace('bboxX: $bboxX');
                 }
 
                 Debug.assert(Math.abs(dbgSpanWidth) - Math.abs(measure.x) < 0.001, 'span width calculation');
 #end
 
-                //trace('bg color: ${span.backgroundColor}');
                 if (span.backgroundColor != null)
                 {
                     scanlineRenderer.color.setFromColor4F(span.backgroundColor);
-                    //trace('actual bg: ${scanlineRenderer.color}');
                     box(path, x, y, measure.x + 1 + attachmentWidth, line.maxBgHeight + 1);
                     rasterizer.reset();
                     rasterizer.addPath(path);
@@ -231,11 +226,8 @@ class FontContext
                     path.removeAll();
                 }
 
-                //trace('fg: ${span.foregroundColor}');
-
                 var spanY: Float = y + alignY + baseLineOffset;
 
-                //if(span.shadow != null)
                 var shadowData = new FontShadow();
                 shadowData.offset.x = 2;
                 shadowData.offset.y = 2;
@@ -251,8 +243,6 @@ class FontContext
                 {
                     scanlineRenderer.color.setFromColor4F(defaultAttributes.foregroundColor);
                 }
-
-                //trace('actual fg: ${scanlineRenderer.color}');
 
                 fontEngine.renderString(spanString, span.font.sizeInPt * pixelRatio, x, spanY, scanlineRenderer, kern);
 
@@ -272,8 +262,6 @@ class FontContext
 
                 if (span.attachment != null)
                 {
-                    //trace('Rendering attachment id: ${span.attachmentId} ${span.attachment}');
-
                     var attachment = span.attachment;
                     var dstX: Int = Math.ceil(x) + 1;
 
@@ -311,8 +299,6 @@ class FontContext
                         {
                             continue;
                         }
-
-                        //trace('dstY: $dstY dstX: $dstX rect: ${outStorage.selectedRect}');
 
                         var dst: Int = (outStorage.width * dstY + dstX) * ColorStorage.COMPONENTS;
 
@@ -386,8 +372,6 @@ class FontContext
             {
                 continue;
             }
-
-            //trace('dstY: $dstY dstX: $dstX rect: ${outStorage.selectedRect}');
 
             var dst: Int = (destination.width * dstY + dstX) * ColorStorage.COMPONENTS;
 

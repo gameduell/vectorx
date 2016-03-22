@@ -19,8 +19,6 @@ class StyledStringParserTest extends unittest.TestCase
         var string = "[f=arial_12]abc[/f][f=arial_14]def[/f]";
         var attributedString = StyledString.toAttributedStringWithParameters(string, aliases, fontCache, colors);
 
-        //trace(attributedString.attributeStorage.spans);
-
         assertTrue(attributedString.attributeStorage.spans.length == 2);
         assertTrue(attributedString.string == "abcdef");
 
@@ -40,8 +38,6 @@ class StyledStringParserTest extends unittest.TestCase
         var aliases: FontAliasesStorage = initFontAliases();
         var string = "[f=arial_12]a[f=arial_14]bc[/f]def[/f]";
         var attributedString = StyledString.toAttributedStringWithParameters(string, aliases, fontCache, colors);
-
-        //trace(attributedString.attributeStorage.spans);
 
         assertTrue(attributedString.attributeStorage.spans.length == 3);
         assertTrue(attributedString.string == "abcdef");
@@ -67,8 +63,6 @@ class StyledStringParserTest extends unittest.TestCase
         var aliases: FontAliasesStorage = initFontAliases();
         var string = "[f=arial_12,c=red]a[f=arial_14]bc[/f]def[/fc]";
         var attributedString = StyledString.toAttributedStringWithParameters(string, aliases, fontCache, colors);
-
-        //trace(attributedString.attributeStorage.spans);
 
         assertTrue(attributedString.attributeStorage.spans.length == 3);
         assertTrue(attributedString.string == "abcdef");

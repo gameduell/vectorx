@@ -46,7 +46,6 @@ class FontAttachmentStorage
         var imageSrc = config.image;
         var loadImage = function()
         {
-            //trace('key: $key');
             if (Math.ceil(dimensions.x) == 0 || Math.ceil(dimensions.y) == 0)
             {
                 return new ColorStorage(0, 0);
@@ -56,6 +55,7 @@ class FontAttachmentStorage
         };
 
         var finalDimensions = getImageSize(imageSrc, origDimensions, dimensions);
+        //intentionally left for debugging
         //trace('new attach: key: $key finalDim: {${finalDimensions.x}, ${finalDimensions.y}}');
         var attachment = new FontAttachment(loadImage, 0, 0, Math.ceil(finalDimensions.x), Math.ceil(finalDimensions.y), config.anchorPoint);
         attachments.set(key, attachment);

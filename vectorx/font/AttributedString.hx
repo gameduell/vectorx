@@ -119,18 +119,7 @@ class AttributedString
         }
 
         attributeStorage.addSpan(span);
-
-        // Apply default String attributes
-
-
-        // Apply attributes if not null
-
-        endEditing();
     }
-
-//    public function beginEditing() // TODO check if needed
-//    {
-//    }
 
     /**
     * Attributes are merged into the current representation state
@@ -148,18 +137,9 @@ class AttributedString
     **/
     public function applyAttributes(attributes: StringAttributes)
     {
-        //trace("AttributedString::applyAttributes");
-        //trace('string: $string');
         var span: AttributedSpan = new AttributedSpan(string, attributes.range.index, attributes.range.length);
         span.applyAttributes(attributes);
-        //trace('adding span: $span');
         attributeStorage.addSpan(span);
-        //trace('spans: ${attributeStorage.spans}');
-    }
-
-    public function endEditing()
-    {
-
     }
 
     public function toString(): String

@@ -45,14 +45,10 @@ class TextLayout
 
     private function fitPixelRatio(string: AttributedString, attachmentResolver: String -> Float -> FontAttachment)
     {
-        //trace('fitPixelRatio');
         if (textFits(lines, outputRect.height, rect))
         {
-            //trace('already fits');
             return;
         }
-
-        //trace('initial ratio: $pixelRatio');
 
         var begin: Float = 0;
         var end: Float = pixelRatio;
@@ -69,7 +65,6 @@ class TextLayout
 
             if (textFits(lines, height, rect))
             {
-                //trace('begin: $lastRatio');
                 begin = lastRatio;
                 this.lines = lines;
                 this.outputRect.height = height;
@@ -77,7 +72,6 @@ class TextLayout
             }
             else
             {
-                //trace('end: $lastRatio');
                 end = lastRatio;
             }
 
@@ -92,6 +86,7 @@ class TextLayout
             pixelRatio = lastRatio;
         }
 
+        //intentionally left for debugging
         //trace('found ratio: $pixelRatio in $iteration');
     }
 

@@ -79,8 +79,6 @@ class StyledStringContext
 
         var layout = fontContext.calculateTextLayout(attributedString, rect, layoutConfig, loadAttachment);
 
-        //trace(fontAttachments);
-
         return layout;
     }
 

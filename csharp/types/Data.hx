@@ -142,7 +142,6 @@ class Data
 
     private inline function seek(): Void
     {
-        //trace('seek() offset: $offset');
         stream.Seek(offset, SeekOrigin.Begin);
     }
 

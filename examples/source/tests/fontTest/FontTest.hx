@@ -270,21 +270,17 @@ class FontTest extends OpenGLTest
         //trace('test inside case');
         var stringAttributes2: StringAttributes = {range: new AttributedRange(10, 10), font: font2, foregroundColor: red, backgroundColor: white, kern: -10, attachmentId: "a1"};
         attributedString.applyAttributes(stringAttributes2);
-        //trace(attributedString);
 
         //trace('test left-right case');
         var stringAttributes3: StringAttributes = {range: new AttributedRange(5, 10), font: font3, foregroundColor: green, attachmentId: "a1"};
         attributedString.applyAttributes(stringAttributes3);
-        //trace(attributedString);
 
         //trace('full cover');
         var stringAttributes4: StringAttributes = {range: new AttributedRange(5, 10), font: font4, foregroundColor: blue, attachmentId: "a1"};
         attributedString.applyAttributes(stringAttributes4);
-        //trace(attributedString);
 
         var stringAttributes5: StringAttributes = {range: new AttributedRange(24, 3), backgroundColor: white, attachmentId: "a1"};
         attributedString.applyAttributes(stringAttributes5);
-        //trace(attributedString);
 
         var stringAttributes6: StringAttributes = {range: new AttributedRange(2, 10), strokeWidth: -3, strokeColor: green, attachmentId: "a1"};
         attributedString.applyAttributes(stringAttributes6);

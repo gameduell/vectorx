@@ -23,7 +23,6 @@ class FontAliasesStorage
 
     public function addAlias(alias: String, font: String, size: Float): Void
     {
-        //trace('addAlias() alias: $alias font: $font');
         fontMap.set(alias, new FontAlias(font, size));
     }
 

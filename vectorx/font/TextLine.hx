@@ -79,18 +79,14 @@ class TextLine
         var fontEngine: FontEngine = span.font.internalFont;
         var spanString: String = span.string;
         measure = span.getFinalSize(pixelRatio, measure);
-        //trace('mx: ${measure.x} my: ${measure.y}');
         if (measure.y > maxSpanHeight)
         {
             maxSpanHeight = measure.y;
         }
 
-        //trace('mh: $maxSpanHeight');
         if (span.attachment != null)
         {
-            //trace('${span.attachment}');
             var attachmentHeight = span.attachment.heightAboveBaseline();
-            //trace('ah: ${attachmentHeight}');
             if (attachmentHeight > maxSpanHeight)
             {
                 maxSpanHeight = attachmentHeight;
@@ -162,7 +158,6 @@ class TextLine
                 span.attachment = attachmentResolver(span.attachmentId, pixelRatio);
             }
             currentLine.spans.push(span);
-            //trace(span);
 
             var fontEngine: FontEngine = span.font.internalFont;
             var spanString: String = span.string;
@@ -185,7 +180,6 @@ class TextLine
                 {
                     if (code == SPACE || code == TAB)
                     {
-                        //trace('space: $pos');
                         currentLine.breakAt = pos;
                         currentLine.charAtBreakPos = code;
                         currentLine.width = currentWidth;
@@ -193,7 +187,6 @@ class TextLine
 
                     var face = fontEngine.getFace(code);
                     advance = face.glyph.advanceWidth * scale + kern;
-                    //trace('+${Utf8.sub(spanString, i, 1)} advance $advance = ${currentWidth + advance} pos: $pos');
                 }
 
                 span = newLine(code, output, advance);
@@ -204,7 +197,6 @@ class TextLine
             {
                 var code: Int = 0x1F601;
                 var advance: Float = span.attachment.bounds.width + 2;
-                //trace('+attachment advance $advance = ${currentWidth + advance}');
                 span = newLine(code, output, advance);
             }
         }
@@ -252,7 +244,6 @@ class TextLine
             }
 
             var rightBound = currentSpan.range.index + currentSpan.range.length;
-            //trace('rightBound: $rightBound startAt: $startAt');
             var leftSpanLength: Int = startAt - currentSpan.range.index;
             if (rightBound >= startAt || (rightBound == startAt && currentSpan.attachment != null))
             {
@@ -275,8 +266,6 @@ class TextLine
 
                 currentSpan = rightSpan;
             }
-            //trace(currentLine);
-            //trace('currentSpan: $currentSpan');
 
             var lastSpanInLine = currentLine.lastSpan();
             if (lastSpanInLine != null && lastSpanInLine.string != null && lastSpanInLine.string.endsWith("\n"))

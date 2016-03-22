@@ -16,7 +16,6 @@ class SvgElementSerializer
 
     public static function writeSVGElement(data: SvgDataWrapper, element: SVGElement)
     {
-        //trace('writeSVGElement');
         var flags: Int = 0;
 
         if (element.fill_flag)
@@ -43,17 +42,20 @@ class SvgElementSerializer
 
         data.writeUInt32(element.index);
 
+        //intentionally left for debugging
         //trace('off: ${data.offset} flags: $flags, index: ${element.index}');
 
         SvgSerializer.writeAffineTransformer(data, element.transform);
         SvgSerializer.writeString(data, element.gradientId);
 
+        //intentionally left for debugging
         //trace('off: ${data.offset} grad: ${element.gradientId}}');
 
         if (element.fill_flag)
         {
             SvgSerializer.writeRgbaColor(data, element.fill_color);
 
+            //intentionally left for debugging
             //trace('off: ${data.offset} fill_color: ${element.fill_color}}');
 
             if (element.fill_opacity != null)
@@ -75,12 +77,12 @@ class SvgElementSerializer
 
     public static function readSVGElement(data: SvgDataWrapper, element: SVGElement)
     {
-        //trace('readSVGElement');
         var flags: Int = 0;
         flags = data.readUInt8();
 
         element.index = data.readUInt32();
 
+        //intentionally left for debugging
         //trace('off: ${data.offset} flags: $flags, index: ${element.index}');
 
         if (flags & flagEvenOdd != 0)
@@ -100,11 +102,8 @@ class SvgElementSerializer
         SvgSerializer.readAffineTransformer(data, element.transform);
         element.gradientId = SvgSerializer.readString(data);
 
-        //trace('off: ${data.offset} grad: ${element.gradientId}');
-
         if (flags & flagFill != 0)
         {
-            //trace('fill');
             element.fill_flag = true;
 
             if (element.fill_color == null)
@@ -113,8 +112,6 @@ class SvgElementSerializer
             }
 
             SvgSerializer.readRgbaColor(data, element.fill_color);
-
-            //trace('off: ${data.offset} fill_color: ${element.fill_color}');
 
             if (flags & flagFillOpacity != 0)
             {

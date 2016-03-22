@@ -15,8 +15,6 @@ class AttributedSpanStorage
 
     public function addSpan(newSpan: AttributedSpan): Void
     {
-        //trace('AttributedSpanStorage::addSpan $newSpan');
-
         if (spans.length == 0)
         {
             spans.push(newSpan);
@@ -28,32 +26,29 @@ class AttributedSpanStorage
 
         for (span in spans)
         {
-            //trace('cur span: $span');
-
             var spanRange: AttributedRange = span.range;
             var spanRightBound: Int = spanRange.index + spanRange.length;
             var newSpanRightBound: Int = newSpanRange.index + newSpanRange.length;
 
-            /*trace('spanRange: $spanRange');
-            trace('newSpanRange: $newSpanRange');
-            trace('spanRightBound: $spanRightBound');
-            trace('newSpanRightBound: $newSpanRightBound');*/
-
             if (newSpanRange.index > spanRightBound)
             {
+                //intentionally left for debugging
                 //trace('new span after current span');
                 continue;
             }
 
             if (newSpanRightBound < spanRange.index)
             {
+                //intentionally left for debugging
                 //trace('new span before current span');
                 break;
             }
 
+            //intentionally left for debugging
             //trace('newSpanRightBound($newSpanRightBound) >=  spanRange.index(${spanRange.index}) && newSpanRightBound($newSpanRightBound) < spanRightBound($spanRightBound) && newSpanRange.index(${newSpanRange.index}) < spanRange.index(${spanRange.index})');
             if (newSpanRightBound >  spanRange.index && newSpanRightBound < spanRightBound && newSpanRange.index <= spanRange.index)
             {
+                //intentionally left for debugging
                 //trace('new span cover current partially from left side');
                 var coverLength: Int = newSpanRightBound - spanRange.index;
 
@@ -71,6 +66,7 @@ class AttributedSpanStorage
 
             if (newSpanRange.index <= spanRange.index && newSpanRightBound >= spanRightBound)
             {
+                //intentionally left for debugging
                 //trace('new span fully covers current one');
                 span.apply(newSpan);
                 continue;
@@ -78,6 +74,7 @@ class AttributedSpanStorage
 
             if (newSpanRange.index > spanRange.index && newSpanRange.index < spanRightBound && newSpanRightBound >= spanRightBound)
             {
+                //intentionally left for debugging
                 //trace('new span covers current partially from right side');
                 var coverLenght: Int = spanRightBound - newSpanRange.index;
                 spanRange.length -= coverLenght;
@@ -93,18 +90,16 @@ class AttributedSpanStorage
 
             if (newSpanRange.index > spanRange.index && newSpanRightBound < spanRightBound)
             {
+                //intentionally left for debugging
                 //('new span area is fully inside current span');
                 var tempSpan = new AttributedSpan("");
                 tempSpan.setFromSpan(newSpan);
                 tempSpan.applyBefore(span);
                 tempSpan.attachment = null;
                 tempSpan.attachmentId = null;
-                //trace(tempSpan);
                 generatedSpans.push(tempSpan);
-                //generatedSpans.push(newSpan);
                 var spanRangeLength = newSpanRange.index - spanRange.index;
                 var remainderSpan: AttributedSpan = new AttributedSpan(span.baseString, newSpanRightBound, spanRange.length - spanRangeLength - newSpanRange.length);
-                //trace('remainderSpan: $remainderSpan');
                 spanRange.length = spanRangeLength;
                 remainderSpan.apply(span);
                 span.attachment = null;
@@ -114,10 +109,9 @@ class AttributedSpanStorage
                 continue;
             }
 
+            //intentionally left for debugging
             //trace('should not get here');
         }
-
-        //trace('adding generated spans: $generatedSpans');
 
         spans = spans.concat(generatedSpans);
 
@@ -135,8 +129,6 @@ class AttributedSpanStorage
 
             return -1;
         });
-
-        //trace('result spans: $spans');
     }
 
     public function iterator(): Iterator<AttributedSpan>
