@@ -1,16 +1,16 @@
 package tests.fontTest;
 
-import lib.ha.svg.SVGData;
+import aggx.svg.SVGData;
 import vectorx.svg.SvgContext;
 import tests.OpenGLTest;
 import vectorx.font.AttributedRange;
 import vectorx.font.FontAttachment;
-import lib.ha.core.math.Calc;
+import aggx.core.math.Calc;
 import aggx.RenderingBuffer;
-import lib.ha.core.memory.MemoryAccess;
+import aggx.core.memory.MemoryAccess;
 import types.Color4F;
 import haxe.CallStack;
-import lib.ha.core.utils.Debug;
+import aggx.core.utils.Debug;
 import vectorx.font.LayoutBehaviour;
 import types.VerticalAlignment;
 import types.HorizontalAlignment;

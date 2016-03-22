@@ -29,12 +29,12 @@ package tests.fontTest;
 import haxe.ds.StringMap;
 import vectorx.font.AttributedRange;
 import vectorx.font.FontAttachment;
-import lib.ha.core.math.Calc;
+import aggx.core.math.Calc;
 import aggx.RenderingBuffer;
-import lib.ha.core.memory.MemoryAccess;
+import aggx.core.memory.MemoryAccess;
 import types.Color4F;
 import haxe.CallStack;
-import lib.ha.core.utils.Debug;
+import aggx.core.utils.Debug;
 import vectorx.font.LayoutBehaviour;
 import types.VerticalAlignment;
 import types.HorizontalAlignment;
@@ -52,9 +52,9 @@ import tests.utils.Shader;
 import types.Data;
 import gl.GL;
 import gl.GLDefines;
+import aggx.core.memory.RgbaReaderWriter;
 
-import lib.ha.core.memory.RgbaReaderWriter;
-using lib.ha.core.memory.RgbaReaderWriter;
+using aggx.core.memory.RgbaReaderWriter;
 
 class FontTest extends OpenGLTest
 {
