@@ -1,7 +1,7 @@
 package vectorx.font;
 
-import lib.ha.core.math.Calc;
-import lib.ha.core.utils.Debug;
+import aggx.core.math.Calc;
+import aggx.core.utils.Debug;
 
 class AttributedSpanStorage
 {

@@ -1,10 +1,10 @@
 package vectorx.font;
 
 import game_engine.systems.VectorTextSystem.RenderedNode;
-import lib.ha.aggx.renderer.SolidScanlineRenderer;
-import lib.ha.aggx.renderer.ClippingRenderer;
-import lib.ha.aggx.renderer.PixelFormatRenderer;
-import lib.ha.aggx.RenderingBuffer;
+import aggx.renderer.SolidScanlineRenderer;
+import aggx.renderer.ClippingRenderer;
+import aggx.renderer.PixelFormatRenderer;
+import aggx.RenderingBuffer;
 
 class RenderingStack
 {

@@ -5,7 +5,7 @@ import vectorx.font.FontContext.TextLayoutConfig;
 import types.Vector2;
 import types.RectI;
 import types.Data;
-import lib.ha.svg.SVGStringParsers;
+import aggx.svg.SVGStringParsers;
 import haxe.Json;
 import types.Color4F;
 import haxe.ds.StringMap;

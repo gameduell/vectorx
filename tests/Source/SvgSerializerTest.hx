@@ -1,12 +1,12 @@
 import vectorx.svg.SvgDataWrapper;
 import vectorx.svg.SvgGradientSerializer;
-import lib.ha.aggx.vectorial.VertexBlockStorage;
+import aggx.vectorial.VertexBlockStorage;
 import vectorx.svg.SvgElementSerializer;
 import lib.ha.svg.SVGElement;
-import lib.ha.core.geometry.AffineTransformer;
+import aggx.geometry.AffineTransformer;
 import lib.ha.core.memory.Ref;
-import lib.ha.aggx.color.SpanGradient.SpreadMethod;
-import lib.ha.aggx.color.RgbaColor;
+import aggx.color.SpanGradient.SpreadMethod;
+import aggx.color.RgbaColor;
 import haxe.Utf8;
 import lib.ha.svg.gradients.SVGGradient.SVGStop;
 import lib.ha.svg.gradients.SVGGradient;

@@ -26,19 +26,19 @@
 
 package vectorx.svg;
 
-import lib.ha.core.math.Calc;
-import lib.ha.core.geometry.AffineTransformer;
-import lib.ha.svg.SVGData;
-import lib.ha.svg.SVGDataBuilder;
-import lib.ha.svg.SVGParser;
-import lib.ha.svg.SVGRenderer;
-import lib.ha.aggx.rasterizer.ScanlineRasterizer;
-import lib.ha.aggx.rasterizer.Scanline;
-import lib.ha.aggx.renderer.SolidScanlineRenderer;
-import lib.ha.aggx.renderer.ClippingRenderer;
-import lib.ha.aggx.renderer.PixelFormatRenderer;
-import lib.ha.aggx.RenderingBuffer;
-import lib.ha.core.memory.MemoryAccess;
+import aggx.core.math.Calc;
+import aggx.core.geometry.AffineTransformer;
+import aggx.svg.SVGData;
+import aggx.svg.SVGDataBuilder;
+import aggx.svg.SVGParser;
+import aggx.svg.SVGRenderer;
+import aggx.rasterizer.ScanlineRasterizer;
+import aggx.rasterizer.Scanline;
+import aggx.renderer.SolidScanlineRenderer;
+import aggx.renderer.ClippingRenderer;
+import aggx.renderer.PixelFormatRenderer;
+import aggx.RenderingBuffer;
+import aggx.core.memory.MemoryAccess;
 import haxe.io.Bytes;
 import types.Data;
 

@@ -26,7 +26,7 @@
 
 package vectorx;
 
-import lib.ha.core.math.Calc;
+import aggx.core.math.Calc;
 import types.Data;
 import types.RectI;
 

@@ -1,7 +1,7 @@
 package vectorx.svg;
 
-import lib.ha.svg.SVGData;
-import lib.ha.aggx.vectorial.VectorPath;
+import aggx.svg.SVGData;
+import aggx.vectorial.VectorPath;
 import types.Data;
 
 class SvgVectorPathSerializer

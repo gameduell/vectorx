@@ -1,8 +1,8 @@
 package vectorx.font;
 
 import types.Vector2;
-import lib.ha.core.utils.Debug;
-import lib.ha.aggx.typography.FontEngine;
+import aggx.core.utils.Debug;
+import aggx.typography.FontEngine;
 import haxe.Utf8;
 import StringTools;
 

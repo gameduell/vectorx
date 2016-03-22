@@ -94,7 +94,7 @@ public class NewBehaviourScript : MonoBehaviour
 		for (uint i = 0; i < colorStorage.data.allocedLength; i+=4) 
 		{
 			Debug.Log (i / 4);
-			lib.ha.aggx.renderer.PixelFormatRenderer.copyOrBlendPix2 (i, 255, 0, 0, 255);
+			aggx.renderer.PixelFormatRenderer.copyOrBlendPix2 (i, 255, 0, 0, 255);
 			colorStorage.data.dump ();
 		}
 
@@ -124,7 +124,7 @@ public class NewBehaviourScript : MonoBehaviour
 		}
 
 		var context = new vectorx.svg.SvgContext ();
-		var transform = lib.ha.core.geometry.AffineTransformer.translator(0, 0);
+		var transform = aggx.geometry.AffineTransformer.translator(0, 0);
 		context.renderVectorBinToColorStorage (svg, colorStorage, transform);
 
 		//colorStorage.data.dump ();

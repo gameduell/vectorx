@@ -1,12 +1,13 @@
 package vectorx.svg;
 
-import lib.ha.core.memory.Ref;
-import lib.ha.core.geometry.AffineTransformer;
+import aggx.core.memory.Ref;
+import aggx.core.geometry.AffineTransformer;
 import vectorx.svg.SvgSerializer;
-import lib.ha.aggx.color.RgbaColor;
+import aggx.color.RgbaColor;
 import vectorx.svg.SvgSerializer;
-import lib.ha.aggx.color.SpanGradient.SpreadMethod;
-import lib.ha.svg.gradients.SVGGradient;
+import aggx.color.SpanGradient.SpreadMethod;
+import aggx.svg.gradients.SVGGradient;
+
 import types.Data;
 
 class SvgGradientSerializer

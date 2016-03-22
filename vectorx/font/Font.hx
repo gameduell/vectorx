@@ -26,7 +26,7 @@
 
 package vectorx.font;
 
-import lib.ha.aggx.typography.FontEngine;
+import aggx.typography.FontEngine;
 class Font
 {
     public var internalFont(default, null): FontEngine;

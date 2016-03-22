@@ -26,7 +26,7 @@
 
 package vectorx.font;
 
-import lib.ha.core.utils.Debug;
+import aggx.core.utils.Debug;
 import types.RectI;
 
 class FontAttachment

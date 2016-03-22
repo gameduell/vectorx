@@ -26,9 +26,9 @@
 
 package vectorx.font;
 
-import lib.ha.core.utils.Debug;
-import lib.ha.aggx.typography.FontEngine;
-import lib.ha.rfpx.TrueTypeCollection;
+import aggx.core.utils.Debug;
+import aggx.typography.FontEngine;
+import aggx.rfpx.TrueTypeCollection;
 import haxe.ds.StringMap;
 import types.Data;
 

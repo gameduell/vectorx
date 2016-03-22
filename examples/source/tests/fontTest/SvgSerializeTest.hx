@@ -6,7 +6,7 @@ import tests.OpenGLTest;
 import vectorx.font.AttributedRange;
 import vectorx.font.FontAttachment;
 import lib.ha.core.math.Calc;
-import lib.ha.aggx.RenderingBuffer;
+import aggx.RenderingBuffer;
 import lib.ha.core.memory.MemoryAccess;
 import types.Color4F;
 import haxe.CallStack;

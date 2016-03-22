@@ -1,17 +1,17 @@
 package vectorx.svg;
 
-import lib.ha.svg.SVGElement;
-import lib.ha.svg.SVGData;
-import lib.ha.core.geometry.AffineTransformer;
-import lib.ha.core.memory.Ref;
-import lib.ha.aggx.color.GradientRadialFocus;
-import lib.ha.aggx.color.SpanGradient.SpreadMethod;
-import lib.ha.aggx.color.RgbaColor;
-import lib.ha.aggxtest.AATest.ColorArray;
+import aggx.svg.SVGElement;
+import aggx.svg.SVGData;
+import aggx.core.geometry.AffineTransformer;
+import aggx.core.memory.Ref;
+import aggx.color.GradientRadialFocus;
+import aggx.color.SpanGradient.SpreadMethod;
+import aggx.color.RgbaColor;
+import aggxtest.AATest.ColorArray;
 import haxe.Utf8;
-import lib.ha.core.math.Calc;
+import aggx.core.math.Calc;
 import haxe.Utf8;
-import lib.ha.svg.gradients.SVGGradient;
+import aggx.svg.gradients.SVGGradient;
 import types.Data;
 import types.DataStringTools;
 

@@ -1,10 +1,12 @@
 package vectorx.svg;
 
-import lib.ha.core.geometry.AffineTransformer;
-import lib.ha.svg.SVGStringParsers;
-import lib.ha.aggx.color.RgbaColor;
-import lib.ha.svg.SVGElement;
+import aggx.core.geometry.AffineTransformer;
+import aggx.svg.SVGStringParsers;
+import aggx.color.RgbaColor;
+import aggx.svg.SVGElement;
+
 import types.Data;
+
 class SvgElementSerializer
 {
     private static var flagFill: Int = 1  << 0;
