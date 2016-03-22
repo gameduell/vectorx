@@ -1,6 +1,5 @@
 package vectorx.font;
 
-import game_engine.systems.VectorTextSystem.RenderedNode;
 import aggx.renderer.SolidScanlineRenderer;
 import aggx.renderer.ClippingRenderer;
 import aggx.renderer.PixelFormatRenderer;
