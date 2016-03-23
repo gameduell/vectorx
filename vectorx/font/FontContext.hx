@@ -228,13 +228,6 @@ class FontContext
 
                 var spanY: Float = y + alignY + baseLineOffset;
 
-                var shadowData = new FontShadow();
-                shadowData.offset.x = 2;
-                shadowData.offset.y = 2;
-
-                var shadow = renderSpanShadow(span, pixelRatio, fontEngine, shadowData.color);
-
-
                 if (span.foregroundColor != null)
                 {
                     scanlineRenderer.color.setFromColor4F(span.foregroundColor);
