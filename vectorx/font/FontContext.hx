@@ -255,6 +255,7 @@ class FontContext
 
                 if (span.attachment != null)
                 {
+
                     var attachment = span.attachment;
                     var dstX: Int = Math.ceil(x) + 1;
 
@@ -272,47 +273,7 @@ class FontContext
                     var spanY: Float = y + alignY + baseLineOffset;
                     debugBox(dstX, spanY, width, height);
 
-                    for (i in 0 ... height)
-                    {
-                        var srcYOffset: Int = i + attachment.bounds.y;
-                        if (srcYOffset > outStorage.selectedRect.y + outStorage.selectedRect.height)
-                        {
-                            break;
-                        }
-
-                        var src: Int = (attachment.image.width * srcYOffset + attachment.bounds.x) * ColorStorage.COMPONENTS;
-
-                        var dstY: Int = Math.ceil(spanY) + i + Math.ceil(baseLineOffset);
-                        if (dstY >= outStorage.selectedRect.y + outStorage.selectedRect.height)
-                        {
-                            break;
-                        }
-
-                        if (dstY < outStorage.selectedRect.y)
-                        {
-                            continue;
-                        }
-
-                        var dst: Int = (outStorage.width * dstY + dstX) * ColorStorage.COMPONENTS;
-
-                        srcData.offset = src;
-
-                        for (j in 0 ... width)
-                        {
-                            var r: Byte = srcData.readUInt8();
-                            srcData.offset++;
-                            var g: Byte = srcData.readUInt8();
-                            srcData.offset++;
-                            var b: Byte = srcData.readUInt8();
-                            srcData.offset++;
-                            var a: Byte = srcData.readUInt8();
-                            srcData.offset++;
-
-                            BlenderBase.blendPix(dst, r, g, b, a);
-
-                            dst += ColorStorage.COMPONENTS;
-                        }
-                    }
+                    blendFromColorStorage(Math.ceil(x), Math.ceil(spanY) + Math.ceil(baseLineOffset), outStorage, attachment.image, attachment.bounds);
 
                     x += attachment.bounds.width + 1;
                     srcData.offset = srcOffset;
