@@ -26,6 +26,7 @@
 
 package tests.fontTest;
 
+import types.Vector2;
 import haxe.ds.StringMap;
 import vectorx.font.AttributedRange;
 import vectorx.font.FontAttachment;
@@ -223,6 +224,15 @@ class FontTest extends OpenGLTest
         return colorStorage;
     }
 
+    private function getImageSize(file: String, origDimensions: Vector2, dimensions: Vector2): Vector2
+    {
+        var size = new Vector2();
+        size.x = dimensions.x;
+        size.y = dimensions.y;
+
+        return size;
+    }
+
     private function testFontCreation()
     {
         var ttfData: Data = AssetLoader.getDataFromFile(FONT_PATH_JAPAN);
@@ -244,10 +254,10 @@ class FontTest extends OpenGLTest
 
         var fontContext: FontContext = new FontContext();
 
-        var font: Font = fontCache.createFontWithNameAndSize("Arial", 65.0);
-        var font2: Font = fontCache.createFontWithNameAndSize("Arial", 60.0);
-        var font3: Font = fontCache.createFontWithNameAndSize("Arial", 45.0);
-        var font4: Font = fontCache.createFontWithNameAndSize("Arial", 40.0);
+        var font: Font = fontCache.createFontWithNameAndSize("Arial", 35.0);
+        var font2: Font = fontCache.createFontWithNameAndSize("Arial", 30.0);
+        var font3: Font = fontCache.createFontWithNameAndSize("Arial", 25.0);
+        var font4: Font = fontCache.createFontWithNameAndSize("Arial", 20.0);
 
         var red: Color4F = new Color4F();
         red.setRGBA(1, 0, 0, 1);
@@ -261,7 +271,7 @@ class FontTest extends OpenGLTest
         lightGrey.setRGBA(0.8, 0.8, 0.8, 1);
 
         var attachmentColorStorage = renderAttachment();
-        var attachment = new FontAttachment(attachmentColorStorage, 0, 0, 70, 32);
+        var attachment = new FontAttachment(function(){return attachmentColorStorage;}, 0, 0, 70, 32);
         var attachments: StringMap<FontAttachment> = ["a1" => attachment];
 
         var stringAttributes: StringAttributes = {range: new AttributedRange(), font: font, backgroundColor: lightGrey, attachmentId: "a1"};
@@ -293,8 +303,8 @@ class FontTest extends OpenGLTest
         data = colorStorage.data;
         colorStorage.selectedRect.x = 30;
         colorStorage.selectedRect.y = 100;
-        colorStorage.selectedRect.width = 500;
-        colorStorage.selectedRect.height = 600;
+        colorStorage.selectedRect.width = 200;
+        colorStorage.selectedRect.height = 300;
 
         var layoutConfig: TextLayoutConfig = {scale: 1,
                                               horizontalAlignment: HorizontalAlignment.Center,
@@ -306,7 +316,8 @@ class FontTest extends OpenGLTest
             return attachments.get(id);
         };
 
-        fontContext.renderStringToColorStorage(attributedString, colorStorage, layoutConfig,  attachmentResolver);
+        var layout = fontContext.calculateTextLayout(attributedString, colorStorage.selectedRect, layoutConfig, attachmentResolver);
+        fontContext.renderStringToColorStorage(layout, colorStorage);
     }
 
     private function update(deltaTime: Float, currentTime: Float)
