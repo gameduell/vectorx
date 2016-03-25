@@ -189,6 +189,7 @@ class FontContext
                 //intentionally left for debugging
                 //debugBox(x, y + alignY, measureX + attachmentWidth, measureY);
 
+                //render glyphs bboxes
 #if vectorDebugDraw
                 var dbgSpanWidth: Float = 0.0;
                 var bboxX = x;
@@ -216,6 +217,7 @@ class FontContext
                 Debug.assert(Math.abs(dbgSpanWidth) - Math.abs(measure.x) < 0.001, 'span width calculation');
 #end
 
+                //fill background if present
                 if (span.backgroundColor != null)
                 {
                     scanlineRenderer.color.setFromColor4F(span.backgroundColor);
@@ -228,6 +230,21 @@ class FontContext
 
                 var spanY: Float = y + alignY + baseLineOffset;
 
+                var shadow: FontShadow = new FontShadow();
+                shadow.color.setRGBA(1, 0, 0, 1);
+                shadow.offset.x = 1;
+                shadow.offset.y = 1;
+
+                //render text shadows
+                if (shadow != null)
+                {
+                    renderSpanShadow(span, pixelRatio, fontEngine, shadow.color);
+                    var dstX = Math.ceil(x + shadow.offset.x * pixelRatio);
+                    var dstY = Math.ceil(spanY + shadow.offset.y * pixelRatio);
+                    blendFromColorStorage(dstX, dstY, outStorage, shadowBuffer, shadowBuffer.selectedRect);
+                }
+
+                //render glyphs
                 if (span.foregroundColor != null)
                 {
                     scanlineRenderer.color.setFromColor4F(span.foregroundColor);
@@ -236,9 +253,9 @@ class FontContext
                 {
                     scanlineRenderer.color.setFromColor4F(defaultAttributes.foregroundColor);
                 }
-
                 fontEngine.renderString(spanString, span.font.sizeInPt * pixelRatio, x, spanY, scanlineRenderer, kern);
 
+                //render outline
                 if (span.strokeWidth != null)
                 {
                     if (span.strokeColor != null)
@@ -253,9 +270,9 @@ class FontContext
 
                 x += measure.x;
 
+                //render attachment
                 if (span.attachment != null)
                 {
-
                     var attachment = span.attachment;
                     var dstX: Int = Math.ceil(x) + 1;
 
@@ -273,12 +290,11 @@ class FontContext
                     var spanY: Float = y + alignY + baseLineOffset;
                     debugBox(dstX, spanY, width, height);
 
-                    blendFromColorStorage(Math.ceil(x), Math.ceil(spanY) + Math.ceil(baseLineOffset), outStorage, attachment.image, attachment.bounds);
+                    blendFromColorStorage(Math.ceil(x), Math.ceil(spanY), outStorage, attachment.image, attachment.bounds);
 
                     x += attachment.bounds.width + 1;
                     srcData.offset = srcOffset;
                     dstData.offset = dstOffset;
-
                 }
 
                 fontEngine.rasterizer = null;
@@ -314,7 +330,7 @@ class FontContext
                 break;
             }
 
-            var src: Int = (sourceRect.width * srcYOffset + sourceRect.x) * ColorStorage.COMPONENTS;
+            var src: Int = (source.width * srcYOffset + sourceRect.x) * ColorStorage.COMPONENTS;
 
             var dstY: Int = y + i;
             if (dstY >= destination.selectedRect.y + destination.selectedRect.height)
@@ -355,7 +371,7 @@ class FontContext
 
     private function renderSpanShadow(span: AttributedSpan, pixelRatio: Float, fontEngine: FontEngine, color: Color4F): ColorStorage
     {
-        var width: Int = Math.ceil(measure.x);
+        var width: Int = Math.ceil(Math.abs(measure.x));
         var height: Int = Math.ceil(measure.y);
 
         if (shadowBuffer == null)
