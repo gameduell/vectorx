@@ -11,7 +11,7 @@ import vectorx.font.FontCache;
 import vectorx.font.StyledStringContext;
 import vectorx.font.FontContext;
 import vectorx.svg.SvgContext;
-import lib.ha.svg.SVGData;
+import aggx.svg.SVGData;
 import vectorx.ColorStorage;
 import types.DataTest;
 
