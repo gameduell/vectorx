@@ -231,7 +231,7 @@ class FontContext
 
                 //render text shadows
                 var shadow: FontShadow = span.shadow;
-                if (shadow != null)
+                if (shadow != null && spanString != null && spanString.length > 0)
                 {
                     renderSpanShadow(span, pixelRatio, fontEngine, shadow.color);
                     var dstX = Math.ceil(x + shadow.offset.x * pixelRatio);
@@ -376,6 +376,11 @@ class FontContext
         else
         {
             shadowBuffer.resize(width, height);
+        }
+
+        if (width == 0 || height == 0)
+        {
+            return shadowBuffer;
         }
 
         var memory = MemoryAccess.domainMemory;
