@@ -33,20 +33,11 @@ class ColorStorageAccessor
         transposed = false;
     }
 
-    public function pixel(x: UInt, y: UInt, output: Color4B): Void
+    public function getPixel(x: UInt, y: UInt, output: Color4B): Void
     {
-        var addr: Int = 0;
-
-        if (transposed)
-        {
-            addr = stride * x + y * ColorStorage.COMPONENTS
-        }
-        else
-        {
-           addr = stride * y + x * ColorStorage.COMPONENTS
-        }
-        
+        var addr: Int = addr(x, y);
         storage.data.offset = addr;
+
         var value = storage.data.readUInt32();
 
         output.a = value & 0xFF;
@@ -59,5 +50,24 @@ class ColorStorageAccessor
         value = value >> 8;
 
         output.r = value & 0xFF;
+    }
+
+    public function setPixel(x: UInt, y: UInt, color: Color4B): Void
+    {
+        var addr: Int = addr(x, y);
+        storage.data.offset = addr;
+        storage.data.writeUInt32(color.r << 24 | color.g << 16 | color.b << 8 || color.a);
+    }
+
+    private inline function addr(x: Int, y: Int): Int
+    {
+        if (transposed)
+        {
+            return stride * x + y * ColorStorage.COMPONENTS
+        }
+        else
+        {
+            return stride * y + x * ColorStorage.COMPONENTS
+        }
     }
 }
