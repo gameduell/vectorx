@@ -73,7 +73,6 @@ class FontContext
     private var path: VectorPath = new VectorPath();
     private var debugPathStroke: ConvStroke;
 
-
     private var renderingStack: RenderingStack;
 
     private var shadowBuffer: ColorStorage;
@@ -230,12 +229,8 @@ class FontContext
 
                 var spanY: Float = y + alignY + baseLineOffset;
 
-                var shadow: FontShadow = new FontShadow();
-                shadow.color.setRGBA(1, 0, 0, 1);
-                shadow.offset.x = 1;
-                shadow.offset.y = 1;
-
                 //render text shadows
+                var shadow: FontShadow = span.shadow;
                 if (shadow != null)
                 {
                     renderSpanShadow(span, pixelRatio, fontEngine, shadow.color);
