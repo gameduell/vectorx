@@ -94,12 +94,12 @@ class ColorStorage
     {
         clear();
 
-        var newSize = width * height * COMPONENTS;
-        if (newSize == data.allocedLength)
+        if (width == this.width && height == this.height)
         {
             return;
         }
 
+        var newSize = width * height * COMPONENTS;
         if (data.allocedLength < newSize)
         {
             data.resize(newSize);
