@@ -1,6 +1,7 @@
 package vectorx.font;
 
 //import logger.Logger;
+import haxe.Utf8;
 import types.Color4F;
 import haxe.ds.StringMap;
 import types.Range;
@@ -32,6 +33,8 @@ class StyledStringParser
     private var currentChar: String;
     private var resultAttributes: Array<StyledStringAttribute>;
     private var isEscapeChar: Bool = false;
+
+    private static inline var TAB = 9;
 
     public function new()
     {
@@ -313,7 +316,14 @@ class StyledStringParser
             }
             else
             {
-                currentString.add(currentChar);
+                if (Utf8.charCodeAt(currentChar, 0) != TAB)
+                {
+                    currentString.add(currentChar);
+                }
+                else
+                {
+                    currentString.add(" ");
+                }
                 //trace(currentString);
                 updateAttributes();
             }

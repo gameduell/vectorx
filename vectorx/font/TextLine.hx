@@ -227,7 +227,6 @@ class TextLine
 
         if (currentWidth + advance > textWidth || force)
         {
-
             if (currentLine.breakAt == -1)
             {
                 currentLine.breakAt = pos;
