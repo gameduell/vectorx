@@ -248,7 +248,11 @@ class FontContext
                 {
                     scanlineRenderer.color.setFromColor4F(defaultAttributes.foregroundColor);
                 }
-                fontEngine.renderString(spanString, span.font.sizeInPt * pixelRatio, x, spanY, scanlineRenderer, kern);
+
+                if (span.strokeWidth == null || span.strokeWidth >= 0)
+                {
+                    fontEngine.renderString(spanString, span.font.sizeInPt * pixelRatio, x, spanY, scanlineRenderer, kern);
+                }
 
                 //render outline
                 if (span.strokeWidth != null)
