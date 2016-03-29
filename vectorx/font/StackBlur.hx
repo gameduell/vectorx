@@ -1,5 +1,6 @@
 package vectorx.font;
 
+import types.Color4B;
 import haxe.ds.Vector;
 import aggx.core.memory.Byte;
 
@@ -48,5 +49,90 @@ class StackBlur
     public static function blur(image: ColorStorage, radius: UInt): Void
     {
         accessor.set(image);
+
+        var div = radius + 1;
+        var w4 = accessor.width << 2;
+        var widthMinus1  = accessor.width - 1;
+        var heightMinus1 = accessor.height - 1;
+        var radiusPlus1  = accessor.radius + 1;
+        var sumFactor = radiusPlus1 * (radiusPlus1 + 1) / 2;
+
+        var stack = new Vector<Color4B>(div);
+        var yw: Int = 0
+        var yi: Int = 0;
+
+        var mulSum = stackBlur8Mul[radius];
+        var shgSum = stackBlur8Shr[radius];
+    }
+
+    private static function blurX(image: ColorStorageAccessor, radius: UInt)
+    {
+        if (radius < 1)
+        {
+            return;
+        }
+
+        var x: UInt = 0;
+        var y: UInt = 0;
+        var xp: UInt = 0;
+        var i: UInt = 0;
+
+        var stackPtr: UInt = 0;
+        var stackStart: UInt = 0;
+
+        var pix: Color4B = new Color4B();
+        var stackPix: Color4B = null;
+
+        var sum = new Color4B();
+        var sumIn = new Color4B();
+        var sumOut = new Color4B();
+
+        var w: UInt = image.width;
+        var h: UInt = image.height;
+        var wm: UInt = w - 1;
+        var div: UInt = radius * 2 + 1;
+
+        var divSum: UInt = (radius + 1) * (radius + 1);
+        var maxVal: UInt = 0xffffffff;
+
+        var mulSum: UInt = stackBlur8Mul[radius];
+        var shrSum: UInt = stackBlur8Shr[radius];
+
+        var buf: Vector<Color4B> = new Vector<Color4B>(w);
+        var stack: Vector<Color4B> = new Vector<Color4B>(div);
+
+        for (y in 0 ... h)
+        {
+            sum.setRGBA(0, 0, 0, 0);
+            sumIn.setRGBA(0, 0, 0, 0);
+            sumOut.setRGBA(0, 0, 0, 0);
+
+            image.getPixel(0, y, pix);
+
+            for (i in 0 ... radius + 1)
+            {
+                stack[i] = new Color4B();
+                stack[i].setRGBA(pix.r, pix.g, pix.b, pix.a);
+                sumMulColor(sum, pix, i + 1);
+                sumColor(sumOut, pix);
+            }
+
+        }
+    }
+
+    private function sumColor(val: Color4B, op: Color4B)
+    {
+        val.r += op.r;
+        val.g += op.g;
+        val.b += op.b;
+        val.a += op.a;
+    }
+
+    private function sumMulColor(val: Color4B, op: Color4B, coef: UInt)
+    {
+        val.r += op.r * coef;
+        val.g += op.g * coef;
+        val.b += op.b * coef;
+        val.a += op.a * coef;
     }
 }

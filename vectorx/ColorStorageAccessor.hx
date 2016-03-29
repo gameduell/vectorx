@@ -29,7 +29,11 @@ class ColorStorageAccessor
     public function set(storage: ColorStorage)
     {
         this.storage = storage;
-        stride = storage.width * ColorStorage.COMPONENTS;
+        if (storage != null)
+        {
+            stride = storage.width * ColorStorage.COMPONENTS;
+        }
+
         transposed = false;
     }
 
