@@ -1,5 +1,6 @@
 package vectorx.font;
 
+import png.Data.Color;
 import types.Color4B;
 import haxe.ds.Vector;
 import aggx.core.memory.Byte;
@@ -49,20 +50,9 @@ class StackBlur
     public static function blur(image: ColorStorage, radius: UInt): Void
     {
         accessor.set(image);
-
-        var div = radius + 1;
-        var w4 = accessor.width << 2;
-        var widthMinus1  = accessor.width - 1;
-        var heightMinus1 = accessor.height - 1;
-        var radiusPlus1  = accessor.radius + 1;
-        var sumFactor = radiusPlus1 * (radiusPlus1 + 1) / 2;
-
-        var stack = new Vector<Color4B>(div);
-        var yw: Int = 0
-        var yi: Int = 0;
-
-        var mulSum = stackBlur8Mul[radius];
-        var shgSum = stackBlur8Shr[radius];
+        blurX(accessor, radius);
+        accessor.transpose();
+        blurX(accessor, radius);
     }
 
     private static function blurX(image: ColorStorageAccessor, radius: UInt)
@@ -72,16 +62,8 @@ class StackBlur
             return;
         }
 
-        var x: UInt = 0;
-        var y: UInt = 0;
-        var xp: UInt = 0;
-        var i: UInt = 0;
-
-        var stackPtr: UInt = 0;
         var stackStart: UInt = 0;
-
         var pix: Color4B = new Color4B();
-        var stackPix: Color4B = null;
 
         var sum = new Color4B();
         var sumIn = new Color4B();
@@ -99,6 +81,11 @@ class StackBlur
         var shrSum: UInt = stackBlur8Shr[radius];
 
         var buf: Vector<Color4B> = new Vector<Color4B>(w);
+        for (i in 0 ... w)
+        {
+            buf[i] = new Color4B();
+        }
+
         var stack: Vector<Color4B> = new Vector<Color4B>(div);
 
         for (y in 0 ... h)
@@ -117,10 +104,64 @@ class StackBlur
                 sumColor(sumOut, pix);
             }
 
+            for (i in 1 ... radius + 1)
+            {
+                var x = (i > wm) ? wm : i;
+                image.getPixel(x, y, pix);
+                stack[i + radius].setRGBA(pix.r, pix.g, pix.b, pix.a);
+                sumMulColor(sum, pix, radius + 1 - i);
+                sumColor(sumIn, pix);
+            }
+
+            var stackPtr = radius;
+
+            for (x in 0 ... w)
+            {
+                calcPix(buf[x], sum, mulSum, shrSum);
+                subColor(sum, sumOut);
+
+                var stackStart = stack_ptr + div - radius;
+                if(stackStart >= div)
+                {
+                    stackStart -= div;
+                }
+
+                var stackPix: Color4B = stack[stackStart];
+                subColor(sumOut, stackPix);
+
+                var xp = x + radius + 1;
+                if(xp > wm)
+                {
+                    xp = wm;
+                }
+
+                image.getPixel(xp, y, pix);
+                stackPix.setRGBA(pix.r, pix.g, pix.b, pix.a);
+
+                sumColor(sumIn, pix);
+                sumColor(sum, sumIn);
+
+                ++stackPtr;
+                if(stackPtr >= div)
+                {
+                    stackPtr = 0;
+                }
+
+                var stackPix = &m_stack[stack_ptr];
+
+                sumColor(sumOut, stackPix);
+                sumColor(sumIn, stackPix);
+            }
+
+            for (i in 0 ... w)
+            {
+                image.setPixel(i, y, buf[i]);
+            }
+
         }
     }
 
-    private function sumColor(val: Color4B, op: Color4B)
+    private inline function sumColor(val: Color4B, op: Color4B): Void
     {
         val.r += op.r;
         val.g += op.g;
@@ -128,11 +169,27 @@ class StackBlur
         val.a += op.a;
     }
 
-    private function sumMulColor(val: Color4B, op: Color4B, coef: UInt)
+    private inline function sumMulColor(val: Color4B, op: Color4B, coef: UInt): Void
     {
         val.r += op.r * coef;
         val.g += op.g * coef;
         val.b += op.b * coef;
         val.a += op.a * coef;
+    }
+
+    private inline function calcPix(val: Color4B, sum: Color4B, mul: UInt, shr: UInt): Void
+    {
+        val.r = (sum.r * mul) >> shr;
+        val.g = (sum.g * mul) >> shr;
+        val.b = (sum.b * mul) >> shr;
+        val.a = (sum.a * mul) >> shr;
+    }
+
+    private inline function subColor(val: Color4B, op: Color4B): Void
+    {
+        val.r -= op.r;
+        val.g -= op.g;
+        val.b -= op.b;
+        val.a -= op.a;
     }
 }
