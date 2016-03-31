@@ -108,6 +108,7 @@ class StackBlur
             {
                 var x = (i > wm) ? wm : i;
                 image.getPixel(x, y, pix);
+                stack[i + radius] = new Color4B();
                 stack[i + radius].setRGBA(pix.r, pix.g, pix.b, pix.a);
                 sumMulColor(sum, pix, radius + 1 - i);
                 sumColor(sumIn, pix);

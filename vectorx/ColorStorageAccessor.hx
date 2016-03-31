@@ -34,6 +34,9 @@ class ColorStorageAccessor
             stride = storage.width * ColorStorage.COMPONENTS;
         }
 
+        width = storage.width;
+        height = storage.height;
+
         transposed = false;
     }
 
