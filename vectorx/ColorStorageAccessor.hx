@@ -60,18 +60,18 @@ class ColorStorageAccessor
     {
         var addr: Int = addr(x, y);
         storage.data.offset = addr;
-        storage.data.writeUInt32(color.r << 24 | color.g << 16 | color.b << 8 || color.a);
+        storage.data.writeUInt32(color.r << 24 | color.g << 16 | color.b << 8 | color.a);
     }
 
     private inline function addr(x: Int, y: Int): Int
     {
         if (transposed)
         {
-            return stride * x + y * ColorStorage.COMPONENTS
+            return stride * x + y * ColorStorage.COMPONENTS;
         }
         else
         {
-            return stride * y + x * ColorStorage.COMPONENTS
+            return stride * y + x * ColorStorage.COMPONENTS;
         }
     }
 }

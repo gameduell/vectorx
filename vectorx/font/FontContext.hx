@@ -234,6 +234,10 @@ class FontContext
                 if (shadow != null && spanString != null && spanString.length > 0)
                 {
                     renderSpanShadow(span, pixelRatio, fontEngine, shadow.color);
+                    if (shadow.blurRadius > 0)
+                    {
+                        StackBlur.blur(shadowBuffer, Math.ceil(shadow.blurRadius));
+                    }
                     var dstX = Math.ceil(x + shadow.offset.x * pixelRatio);
                     var dstY = Math.ceil(spanY + shadow.offset.y * pixelRatio);
                     blendFromColorStorage(dstX, dstY, outStorage, shadowBuffer, shadowBuffer.selectedRect);

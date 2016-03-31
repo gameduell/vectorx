@@ -45,7 +45,7 @@ class StackBlur
         24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24
     ]);
 
-    private static var accessor: ColorStorageAccessor;
+    private static var accessor: ColorStorageAccessor = new ColorStorageAccessor();
 
     public static function blur(image: ColorStorage, radius: UInt): Void
     {
@@ -120,7 +120,7 @@ class StackBlur
                 calcPix(buf[x], sum, mulSum, shrSum);
                 subColor(sum, sumOut);
 
-                var stackStart = stack_ptr + div - radius;
+                var stackStart = stackPtr + div - radius;
                 if(stackStart >= div)
                 {
                     stackStart -= div;
@@ -147,7 +147,7 @@ class StackBlur
                     stackPtr = 0;
                 }
 
-                var stackPix = &m_stack[stack_ptr];
+                var stackPix = stack[stackPtr];
 
                 sumColor(sumOut, stackPix);
                 sumColor(sumIn, stackPix);
@@ -156,12 +156,13 @@ class StackBlur
             for (i in 0 ... w)
             {
                 image.setPixel(i, y, buf[i]);
+                trace('${buf[i]}');
             }
 
         }
     }
 
-    private inline function sumColor(val: Color4B, op: Color4B): Void
+    private static inline function sumColor(val: Color4B, op: Color4B): Void
     {
         val.r += op.r;
         val.g += op.g;
@@ -169,7 +170,7 @@ class StackBlur
         val.a += op.a;
     }
 
-    private inline function sumMulColor(val: Color4B, op: Color4B, coef: UInt): Void
+    private static inline function sumMulColor(val: Color4B, op: Color4B, coef: UInt): Void
     {
         val.r += op.r * coef;
         val.g += op.g * coef;
@@ -177,7 +178,7 @@ class StackBlur
         val.a += op.a * coef;
     }
 
-    private inline function calcPix(val: Color4B, sum: Color4B, mul: UInt, shr: UInt): Void
+    private static inline function calcPix(val: Color4B, sum: Color4B, mul: UInt, shr: UInt): Void
     {
         val.r = (sum.r * mul) >> shr;
         val.g = (sum.g * mul) >> shr;
@@ -185,7 +186,7 @@ class StackBlur
         val.a = (sum.a * mul) >> shr;
     }
 
-    private inline function subColor(val: Color4B, op: Color4B): Void
+    private static inline function subColor(val: Color4B, op: Color4B): Void
     {
         val.r -= op.r;
         val.g -= op.g;
