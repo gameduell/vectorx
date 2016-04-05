@@ -1,5 +1,6 @@
 package vectorx.font;
 
+import aggx.color.RgbaColor;
 import png.Data.Color;
 import types.Color4B;
 import haxe.ds.Vector;
@@ -55,6 +56,10 @@ class StackBlur
         blurX(accessor, radius);
     }
 
+    private static var sum: RgbaCalculator = new RgbaCalculator();
+    private static var sumIn: RgbaCalculator = new RgbaCalculator();
+    private static var sumOut: RgbaCalculator = new RgbaCalculator();
+
     private static function blurX(image: ColorStorageAccessor, radius: UInt)
     {
         if (radius < 1)
@@ -64,10 +69,6 @@ class StackBlur
 
         var stackStart: UInt = 0;
         var pix: Color4B = new Color4B();
-
-        var sum = new Color4B();
-        var sumIn = new Color4B();
-        var sumOut = new Color4B();
 
         var w: UInt = image.width;
         var h: UInt = image.height;
@@ -90,36 +91,40 @@ class StackBlur
 
         for (y in 0 ... h)
         {
-            sum.setRGBA(0, 0, 0, 0);
-            sumIn.setRGBA(0, 0, 0, 0);
-            sumOut.setRGBA(0, 0, 0, 0);
+            sum.reset();
+            sumIn.reset();
+            sumOut.reset();
 
             image.getPixel(0, y, pix);
+            trace('pix: $pix');
 
             for (i in 0 ... radius + 1)
             {
                 stack[i] = new Color4B();
                 stack[i].setRGBA(pix.r, pix.g, pix.b, pix.a);
-                sumMulColor(sum, pix, i + 1);
-                sumColor(sumOut, pix);
+
+                sum.sumMul(pix, i + 1);
+                sumOut.sum(pix);
             }
 
             for (i in 1 ... radius + 1)
             {
                 var x = (i > wm) ? wm : i;
                 image.getPixel(x, y, pix);
+
                 stack[i + radius] = new Color4B();
                 stack[i + radius].setRGBA(pix.r, pix.g, pix.b, pix.a);
-                sumMulColor(sum, pix, radius + 1 - i);
-                sumColor(sumIn, pix);
+
+                sum.sumMul(pix, radius + 1 - i);
+                sumIn.sum(pix);
             }
 
             var stackPtr = radius;
 
             for (x in 0 ... w)
             {
-                calcPix(buf[x], sum, mulSum, shrSum);
-                subColor(sum, sumOut);
+                sum.calcPix(buf[x], mulSum, shrSum);
+                sum.subCalc(sumOut);
 
                 var stackStart = stackPtr + div - radius;
                 if(stackStart >= div)
@@ -128,7 +133,7 @@ class StackBlur
                 }
 
                 var stackPix: Color4B = stack[stackStart];
-                subColor(sumOut, stackPix);
+                sumOut.sub(stackPix);
 
                 var xp = x + radius + 1;
                 if(xp > wm)
@@ -139,8 +144,8 @@ class StackBlur
                 image.getPixel(xp, y, pix);
                 stackPix.setRGBA(pix.r, pix.g, pix.b, pix.a);
 
-                sumColor(sumIn, pix);
-                sumColor(sum, sumIn);
+                sumIn.sum(pix);
+                sum.sumCalc(sumIn);
 
                 ++stackPtr;
                 if(stackPtr >= div)
@@ -150,48 +155,90 @@ class StackBlur
 
                 var stackPix = stack[stackPtr];
 
-                sumColor(sumOut, stackPix);
-                sumColor(sumIn, stackPix);
+                sumOut.sum(stackPix);
+                sumIn.sum(stackPix);
             }
 
             for (i in 0 ... w)
             {
                 image.setPixel(i, y, buf[i]);
-                trace('${buf[i]}');
             }
-
         }
     }
+}
 
-    private static inline function sumColor(val: Color4B, op: Color4B): Void
+class RgbaCalculator
+{
+    private var r: UInt;
+    private var g: UInt;
+    private var b: UInt;
+    private var a: UInt;
+
+    public function new()
     {
-        val.r += op.r;
-        val.g += op.g;
-        val.b += op.b;
-        val.a += op.a;
+        reset();
     }
 
-    private static inline function sumMulColor(val: Color4B, op: Color4B, coef: UInt): Void
+    public function reset(): Void
     {
-        val.r += op.r * coef;
-        val.g += op.g * coef;
-        val.b += op.b * coef;
-        val.a += op.a * coef;
+        r = 0;
+        g = 0;
+        b = 0;
+        a = 0;
     }
 
-    private static inline function calcPix(val: Color4B, sum: Color4B, mul: UInt, shr: UInt): Void
+    public inline function sum(op: Color4B): Void
     {
-        val.r = (sum.r * mul) >> shr;
-        val.g = (sum.g * mul) >> shr;
-        val.b = (sum.b * mul) >> shr;
-        val.a = (sum.a * mul) >> shr;
+        r += op.r;
+        g += op.g;
+        b += op.b;
+        a += op.a;
     }
 
-    private static inline function subColor(val: Color4B, op: Color4B): Void
+    public inline function sumCalc(op: RgbaCalculator): Void
     {
-        val.r -= op.r;
-        val.g -= op.g;
-        val.b -= op.b;
-        val.a -= op.a;
+        r += op.r;
+        g += op.g;
+        b += op.b;
+        a += op.a;
+    }
+
+    public inline function sub(op: Color4B): Void
+    {
+        r -= op.r;
+        g -= op.g;
+        b -= op.b;
+        a -= op.a;
+    }
+
+    public inline function subCalc(op: RgbaCalculator): Void
+    {
+        r -= op.r;
+        g -= op.g;
+        b -= op.b;
+        a -= op.a;
+    }
+
+    public inline function sumMul(op: Color4B, coef: UInt): Void
+    {
+        r += op.r * coef;
+        g += op.g * coef;
+        b += op.b * coef;
+        a += op.a * coef;
+    }
+
+    public inline function calcPix(val: Color4B, mul: UInt, shr: UInt): Void
+    {
+        var r = (r * mul) >> shr;
+        var g = (g * mul) >> shr;
+        var b = (b * mul) >> shr;
+        var a = (a * mul) >> shr;
+
+        val.setRGBA(r, g, b, a);
+    }
+
+    public function toString(): String
+    {
+        return '[$r, $g, $b, $a]';
     }
 }
