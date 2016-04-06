@@ -78,6 +78,8 @@ class FontContext
     private var shadowBuffer: ColorStorage;
     private var shadowRenderingStack: RenderingStack;
 
+    private var blur: StackBlur = new StackBlur();
+
     private var measure: Vector2;
 
     private static var defaultAttributes: StringAttributes =
@@ -230,13 +232,14 @@ class FontContext
                 var spanY: Float = y + alignY + baseLineOffset;
 
                 //render text shadows
+
                 var shadow: FontShadow = span.shadow;
                 if (shadow != null && spanString != null && spanString.length > 0)
                 {
                     renderSpanShadow(span, pixelRatio, fontEngine, shadow.color);
                     if (shadow.blurRadius > 0)
                     {
-                        StackBlur.blur(shadowBuffer, Math.ceil(shadow.blurRadius));
+                        blur.blur(shadowBuffer, Math.ceil(shadow.blurRadius));
                     }
                     var dstX = Math.ceil(x + shadow.offset.x * pixelRatio);
                     var dstY = Math.ceil(spanY + shadow.offset.y * pixelRatio);

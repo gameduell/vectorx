@@ -45,21 +45,42 @@ class StackBlur
         24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24
     ];
 
-    private static var accessor: ColorStorageAccessor = new ColorStorageAccessor();
+    private var accessor: ColorStorageAccessor = new ColorStorageAccessor();
 
-    public static function blur(image: ColorStorage, radius: UInt): Void
+    private var sum: RgbaCalculator = new RgbaCalculator();
+    private var sumIn: RgbaCalculator = new RgbaCalculator();
+    private var sumOut: RgbaCalculator = new RgbaCalculator();
+
+    private var buffer: Vector<Color4B>;
+    private var stack: Vector<Color4B>;
+
+    public function new()
+    {
+
+    }
+
+    public function blur(image: ColorStorage, radius: UInt): Void
     {
         accessor.set(image);
         blurX(accessor, radius);
-        //accessor.transpose();
-        //blurX(accessor, radius);
+        accessor.transpose();
+        blurX(accessor, radius);
     }
 
-    private static var sum: RgbaCalculator = new RgbaCalculator();
-    private static var sumIn: RgbaCalculator = new RgbaCalculator();
-    private static var sumOut: RgbaCalculator = new RgbaCalculator();
+    private function allocate(bufferSize: UInt, stackSize: UInt): Void
+    {
+        if (buffer == null || buffer.length < bufferSize)
+        {
+            buffer = new Vector<Color4B>(bufferSize);
+        }
 
-    private static function blurX(image: ColorStorageAccessor, radius: UInt)
+        if (stack == null || stack.length < stackSize)
+        {
+            stack = new Vector<Color4B>(stackSize);
+        }
+    }
+
+    private function blurX(image: ColorStorageAccessor, radius: UInt)
     {
         if (radius < 1)
         {
@@ -75,18 +96,29 @@ class StackBlur
         var div: UInt = radius * 2 + 1;
 
         var divSum: UInt = (radius + 1) * (radius + 1);
-        var maxVal: UInt = 0xffffffff;
 
         var mulSum: UInt = stackBlur8Mul[radius];
         var shrSum: UInt = stackBlur8Shr[radius];
 
-        var buf: Vector<Color4B> = new Vector<Color4B>(w);
+        allocate(w, div);
+
         for (i in 0 ... w)
         {
-            buf[i] = new Color4B();
+            if (buffer[i] != null)
+            {
+                continue;
+            }
+            buffer[i] = new Color4B();
         }
 
-        var stack: Vector<Color4B> = new Vector<Color4B>(div);
+        for (i in 0 ... div)
+        {
+            if (stack[i] != null)
+            {
+                continue;
+            }
+            stack[i] = new Color4B();
+        }
 
         for (y in 0 ... h)
         {
@@ -95,25 +127,19 @@ class StackBlur
             sumOut.reset();
 
             image.getPixel(0, y, pix);
-            trace('pix: $pix');
 
             for (i in 0 ... radius + 1)
             {
-                stack[i] = new Color4B();
                 stack[i].setRGBA(pix.r, pix.g, pix.b, pix.a);
-
                 sum.sumMul(pix, i + 1);
                 sumOut.sum(pix);
             }
-
-            break;
 
             for (i in 1 ... radius + 1)
             {
                 var x = (i > wm) ? wm : i;
                 image.getPixel(x, y, pix);
 
-                stack[i + radius] = new Color4B();
                 stack[i + radius].setRGBA(pix.r, pix.g, pix.b, pix.a);
 
                 sum.sumMul(pix, radius + 1 - i);
@@ -124,7 +150,7 @@ class StackBlur
 
             for (x in 0 ... w)
             {
-                sum.calcPix(buf[x], mulSum, shrSum);
+                sum.calcPix(buffer[x], mulSum, shrSum);
                 sum.subCalc(sumOut);
 
                 var stackStart = stackPtr + div - radius;
@@ -157,13 +183,12 @@ class StackBlur
                 var stackPix = stack[stackPtr];
 
                 sumOut.sum(stackPix);
-                sumIn.sum(stackPix);
+                sumIn.sub(stackPix);
             }
 
             for (i in 0 ... w)
             {
-                image.setPixel(i, y, buf[i]);
-                trace('${buf[i]}');
+                image.setPixel(i, y, buffer[i]);
             }
         }
     }
