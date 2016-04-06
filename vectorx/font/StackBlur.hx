@@ -1,7 +1,6 @@
 package vectorx.font;
 
 import aggx.color.RgbaColor;
-import png.Data.Color;
 import types.Color4B;
 import haxe.ds.Vector;
 import aggx.core.memory.Byte;
