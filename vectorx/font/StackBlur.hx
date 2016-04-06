@@ -7,7 +7,7 @@ import aggx.core.memory.Byte;
 
 class StackBlur
 {
-    private static var stackBlur8Mul:Vector<Byte> = Vector.fromArrayCopy([
+    private static var stackBlur8Mul: Array<Int> = [
         512,512,456,512,328,456,335,512,405,328,271,456,388,335,292,512,
         454,405,364,328,298,271,496,456,420,388,360,335,312,292,273,512,
         482,454,428,405,383,364,345,328,312,298,284,271,259,496,475,456,
@@ -24,9 +24,9 @@ class StackBlur
         385,381,377,374,370,367,363,360,357,354,350,347,344,341,338,335,
         332,329,326,323,320,318,315,312,310,307,304,302,299,297,294,292,
         289,287,285,282,280,278,275,273,271,269,267,265,263,261,259
-    ]);
+    ];
 
-    private static var stackBlur8Shr:Vector<Byte> = Vector.fromArrayCopy([
+    private static var stackBlur8Shr: Array<Int> = [
         9, 11, 12, 13, 13, 14, 14, 15, 15, 15, 15, 16, 16, 16, 16, 17,
         17, 17, 17, 17, 17, 17, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19,
         19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 20, 20, 20,
@@ -43,7 +43,7 @@ class StackBlur
         24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24,
         24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24,
         24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24
-    ]);
+    ];
 
     private static var accessor: ColorStorageAccessor = new ColorStorageAccessor();
 
@@ -51,8 +51,8 @@ class StackBlur
     {
         accessor.set(image);
         blurX(accessor, radius);
-        accessor.transpose();
-        blurX(accessor, radius);
+        //accessor.transpose();
+        //blurX(accessor, radius);
     }
 
     private static var sum: RgbaCalculator = new RgbaCalculator();
@@ -105,6 +105,8 @@ class StackBlur
                 sum.sumMul(pix, i + 1);
                 sumOut.sum(pix);
             }
+
+            break;
 
             for (i in 1 ... radius + 1)
             {
@@ -161,6 +163,7 @@ class StackBlur
             for (i in 0 ... w)
             {
                 image.setPixel(i, y, buf[i]);
+                trace('${buf[i]}');
             }
         }
     }
