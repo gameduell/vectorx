@@ -65,8 +65,8 @@ typedef StringAttributes =
     /**
     * Float value, as percent of font point size
     * Default 0.0, no stroke;
-    * positive, stroke alone;
-    * negative, stroke and fill
+    * negative, stroke alone;
+    * positive, stroke and fill
     * (a typical value for outlined text would be 3.0)
     **/
     @:optional var strokeWidth: Null<Float>; // Default 0.0

@@ -81,33 +81,38 @@ class ColorStorage
         this.selectedRect.height = height;
     }
 
+    public function clear(): Void
+    {
+        for (i in 0 ... this.width * this.height)
+        {
+            data.offset = i * COMPONENTS;
+            data.writeUInt32(0);
+        }
+    }
+
     public function resize(width: Int, height: Int): Void
     {
-        var newSize = width * height * COMPONENTS;
-        if (newSize == data.allocedLength)
+        clear();
+
+        if (width == this.width && height == this.height)
         {
             return;
         }
 
+        var newSize = width * height * COMPONENTS;
         if (data.allocedLength < newSize)
         {
             data.resize(newSize);
         }
 
-        data.offset = 0;
-        for (i in 0 ... Calc.intDiv(data.allocedLength, 4))
-        {
-            data.offset = i * 4;
-            data.writeUInt32(0);
-        }
-
-        for (i in 0 ... data.allocedLength % 4)
-        {
-            data.offset = (data.allocedLength - 1) - i;
-            data.writeUInt8(0);
-        }
-
         this.width = width;
         this.height = height;
+
+        this.selectedRect.width = width;
+        this.selectedRect.height = height;
+        this.selectedRect.x = 0;
+        this.selectedRect.y = 0;
+
+        data.offset = 0;
     }
 }

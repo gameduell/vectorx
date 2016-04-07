@@ -1,6 +1,7 @@
 package vectorx.font;
 
 //import logger.Logger;
+import haxe.Utf8;
 import types.Color4F;
 import haxe.ds.StringMap;
 import types.Range;
@@ -32,6 +33,8 @@ class StyledStringParser
     private var currentChar: String;
     private var resultAttributes: Array<StyledStringAttribute>;
     private var isEscapeChar: Bool = false;
+
+    private static inline var TAB = 9;
 
     public function new()
     {
@@ -123,6 +126,51 @@ class StyledStringParser
         pushAttribute(attr);
     }
 
+    private function parseShadow(string: String, colors: StringMap<Color4F>): FontShadow
+    {
+        var shadow = new FontShadow();
+
+        var attributes = string.split(";");
+        for (attr in attributes)
+        {
+            var kv: Array<String> = attr.trim().split(":");
+            if (kv.length != 2)
+            {
+                throw "Invalid shadow format";
+            }
+
+            switch(kv[0].trim())
+            {
+                case "x":
+                    {
+                        shadow.offset.x = Std.parseFloat(kv[1]);
+                    }
+
+                case "y":
+                    {
+                        shadow.offset.y = Std.parseFloat(kv[1]);
+                    }
+
+                case "blur" | "b":
+                    {
+                        shadow.blurRadius = Std.parseFloat(kv[1]);
+                    }
+
+                case "color" | "c":
+                    {
+                        var color = colors.get(kv[1].trim());
+                        if (color == null)
+                        {
+                            throw 'Color ${kv[1]} is not found';
+                        }
+                        shadow.color = color;
+                    }
+            }
+        }
+
+        return shadow;
+    }
+
     private function parseCode(aliases: FontAliasesStorage, cache: FontCache, colors: StringMap<Color4F>): Void
     {
         var code = readCode();
@@ -146,7 +194,7 @@ class StyledStringParser
                 continue;
             }
 
-            switch(kv[0])
+            switch(kv[0].trim())
             {
                 case "f" | "font":
                     {
@@ -196,6 +244,7 @@ class StyledStringParser
                 case "kern": attr.kern = Std.parseFloat(kv[1]);
                 case "strokeWidth" | "sw": attr.strokeWidth = Std.parseFloat(kv[1]);
                 case "strokeColor" | "sc": attr.strokeColor = colors.get(kv[1]);
+                case "shadow" | "shdw" | "sh": attr.shadow = parseShadow(kv[1], colors);
                 default: throw('undefined code "${kv[0]}"');
             }
         }
@@ -267,7 +316,14 @@ class StyledStringParser
             }
             else
             {
-                currentString.add(currentChar);
+                if (Utf8.charCodeAt(currentChar, 0) != TAB)
+                {
+                    currentString.add(currentChar);
+                }
+                else
+                {
+                    currentString.add(" ");
+                }
                 //trace(currentString);
                 updateAttributes();
             }

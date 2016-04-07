@@ -73,11 +73,12 @@ class FontContext
     private var path: VectorPath = new VectorPath();
     private var debugPathStroke: ConvStroke;
 
-
     private var renderingStack: RenderingStack;
 
     private var shadowBuffer: ColorStorage;
     private var shadowRenderingStack: RenderingStack;
+
+    private var blur: StackBlur = new StackBlur();
 
     private var measure: Vector2;
 
@@ -189,6 +190,7 @@ class FontContext
                 //intentionally left for debugging
                 //debugBox(x, y + alignY, measureX + attachmentWidth, measureY);
 
+                //render glyphs bboxes
 #if vectorDebugDraw
                 var dbgSpanWidth: Float = 0.0;
                 var bboxX = x;
@@ -216,6 +218,7 @@ class FontContext
                 Debug.assert(Math.abs(dbgSpanWidth) - Math.abs(measure.x) < 0.001, 'span width calculation');
 #end
 
+                //fill background if present
                 if (span.backgroundColor != null)
                 {
                     scanlineRenderer.color.setFromColor4F(span.backgroundColor);
@@ -228,6 +231,22 @@ class FontContext
 
                 var spanY: Float = y + alignY + baseLineOffset;
 
+                //render text shadows
+
+                var shadow: FontShadow = span.shadow;
+                if (shadow != null && spanString != null && spanString.length > 0)
+                {
+                    renderSpanShadow(span, pixelRatio, fontEngine, shadow.color);
+                    if (shadow.blurRadius > 0)
+                    {
+                        blur.blur(shadowBuffer, Math.ceil(shadow.blurRadius));
+                    }
+                    var dstX = Math.ceil(x + shadow.offset.x * pixelRatio);
+                    var dstY = Math.ceil(spanY + shadow.offset.y * pixelRatio);
+                    blendFromColorStorage(dstX, dstY, outStorage, shadowBuffer, shadowBuffer.selectedRect);
+                }
+
+                //render glyphs
                 if (span.foregroundColor != null)
                 {
                     scanlineRenderer.color.setFromColor4F(span.foregroundColor);
@@ -237,8 +256,12 @@ class FontContext
                     scanlineRenderer.color.setFromColor4F(defaultAttributes.foregroundColor);
                 }
 
-                fontEngine.renderString(spanString, span.font.sizeInPt * pixelRatio, x, spanY, scanlineRenderer, kern);
+                if (span.strokeWidth == null || span.strokeWidth >= 0)
+                {
+                    fontEngine.renderString(spanString, span.font.sizeInPt * pixelRatio, x, spanY, scanlineRenderer, kern);
+                }
 
+                //render outline
                 if (span.strokeWidth != null)
                 {
                     if (span.strokeColor != null)
@@ -253,6 +276,7 @@ class FontContext
 
                 x += measure.x;
 
+                //render attachment
                 if (span.attachment != null)
                 {
                     var attachment = span.attachment;
@@ -272,52 +296,11 @@ class FontContext
                     var spanY: Float = y + alignY + baseLineOffset;
                     debugBox(dstX, spanY, width, height);
 
-                    for (i in 0 ... height)
-                    {
-                        var srcYOffset: Int = i + attachment.bounds.y;
-                        if (srcYOffset > outStorage.selectedRect.y + outStorage.selectedRect.height)
-                        {
-                            break;
-                        }
-
-                        var src: Int = (attachment.image.width * srcYOffset + attachment.bounds.x) * ColorStorage.COMPONENTS;
-
-                        var dstY: Int = Math.ceil(spanY) + i + Math.ceil(baseLineOffset);
-                        if (dstY >= outStorage.selectedRect.y + outStorage.selectedRect.height)
-                        {
-                            break;
-                        }
-
-                        if (dstY < outStorage.selectedRect.y)
-                        {
-                            continue;
-                        }
-
-                        var dst: Int = (outStorage.width * dstY + dstX) * ColorStorage.COMPONENTS;
-
-                        srcData.offset = src;
-
-                        for (j in 0 ... width)
-                        {
-                            var r: Byte = srcData.readUInt8();
-                            srcData.offset++;
-                            var g: Byte = srcData.readUInt8();
-                            srcData.offset++;
-                            var b: Byte = srcData.readUInt8();
-                            srcData.offset++;
-                            var a: Byte = srcData.readUInt8();
-                            srcData.offset++;
-
-                            BlenderBase.blendPix(dst, r, g, b, a);
-
-                            dst += ColorStorage.COMPONENTS;
-                        }
-                    }
+                    blendFromColorStorage(Math.ceil(x), Math.ceil(spanY), outStorage, attachment.image, attachment.bounds);
 
                     x += attachment.bounds.width + 1;
                     srcData.offset = srcOffset;
                     dstData.offset = dstOffset;
-
                 }
 
                 fontEngine.rasterizer = null;
@@ -353,7 +336,7 @@ class FontContext
                 break;
             }
 
-            var src: Int = (sourceRect.width * srcYOffset + sourceRect.x) * ColorStorage.COMPONENTS;
+            var src: Int = (source.width * srcYOffset + sourceRect.x) * ColorStorage.COMPONENTS;
 
             var dstY: Int = y + i;
             if (dstY >= destination.selectedRect.y + destination.selectedRect.height)
@@ -394,7 +377,7 @@ class FontContext
 
     private function renderSpanShadow(span: AttributedSpan, pixelRatio: Float, fontEngine: FontEngine, color: Color4F): ColorStorage
     {
-        var width: Int = Math.ceil(measure.x);
+        var width: Int = Math.ceil(Math.abs(measure.x));
         var height: Int = Math.ceil(measure.y);
 
         if (shadowBuffer == null)
@@ -404,6 +387,11 @@ class FontContext
         else
         {
             shadowBuffer.resize(width, height);
+        }
+
+        if (width == 0 || height == 0)
+        {
+            return shadowBuffer;
         }
 
         var memory = MemoryAccess.domainMemory;
