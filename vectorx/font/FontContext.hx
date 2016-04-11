@@ -42,7 +42,7 @@ import aggx.vectorial.VectorPath;
 import types.Range;
 import types.Vector2;
 import types.Color4F;
-import vectorx.font.AttributedString.StringAttributes;
+import vectorx.font.StringAttributes;
 import aggx.core.memory.MemoryAccess;
 import aggx.rfpx.TrueTypeCollection;
 import aggx.color.RgbaColor;

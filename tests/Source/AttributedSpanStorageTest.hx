@@ -101,15 +101,32 @@ class AttributedSpanStorageTest extends unittest.TestCase
         assertTrue(storage.spans[2].kern == 1);
     }
 
+	public function testAppending(): Void
+	{
+		var string = "abcdefghjiklmnopqrstuvwxyz";
+        var storage = new AttributedSpanStorage();
+		var startIndexes: Array<Int> = [0, 5, 10, 15, 20];
+		var lengths: Array<Int> = [5, 5, 5, 5, 6];
+		var totalLength: Int = 0;
+		for (i in 0...startIndexes.length)
+		{
+			var span = new AttributedSpan(string, startIndexes[i], lengths[i]);
+	        span.kern = i + 1;
+	        storage.addSpan(span);
+			totalLength += lengths[i];
+			checkSpanContinuity(totalLength, storage);
+		}
+	}
+
     private function checkSpanContinuity(len: Int, store: AttributedSpanStorage): Void
     {
         var index: Int = 0;
         for (span in store.spans)
         {
-            assertTrue(index == span.range.index);
+			assertTrue(index == span.range.index);
             index += span.range.length;
         }
 
-        assertTrue(index == len);
+		assertTrue(index == len);
     }
 }

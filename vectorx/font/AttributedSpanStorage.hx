@@ -18,11 +18,14 @@ class AttributedSpanStorage
         if (spans.length == 0)
         {
             spans.push(newSpan);
+			//intentionally left for debugging
+			//trace('First span added');
             return;
         }
 
         var generatedSpans: Array<AttributedSpan> = [];
         var newSpanRange: AttributedRange = newSpan.range;
+		var updated: Bool = false;
 
         for (span in spans)
         {
@@ -44,7 +47,7 @@ class AttributedSpanStorage
                 break;
             }
 
-            //intentionally left for debugging
+			//intentionally left for debugging
             //trace('newSpanRightBound($newSpanRightBound) >=  spanRange.index(${spanRange.index}) && newSpanRightBound($newSpanRightBound) < spanRightBound($spanRightBound) && newSpanRange.index(${newSpanRange.index}) < spanRange.index(${spanRange.index})');
             if (newSpanRightBound >  spanRange.index && newSpanRightBound < spanRightBound && newSpanRange.index <= spanRange.index)
             {
@@ -60,7 +63,8 @@ class AttributedSpanStorage
                 coverSpan.apply(newSpan);
                 generatedSpans.push(coverSpan);
                 span.updateString();
-                continue;
+				updated = true;
+				continue;
             }
 
 
@@ -69,7 +73,8 @@ class AttributedSpanStorage
                 //intentionally left for debugging
                 //trace('new span fully covers current one');
                 span.apply(newSpan);
-                continue;
+				updated = true;
+				continue;
             }
 
             if (newSpanRange.index > spanRange.index && newSpanRange.index < spanRightBound && newSpanRightBound >= spanRightBound)
@@ -85,13 +90,14 @@ class AttributedSpanStorage
                 coverSpan.apply(newSpan);
                 generatedSpans.push(coverSpan);
                 span.updateString();
-                continue;
+				updated = true;
+				continue;
             }
 
             if (newSpanRange.index > spanRange.index && newSpanRightBound < spanRightBound)
             {
                 //intentionally left for debugging
-                //('new span area is fully inside current span');
+                //trace('new span area is fully inside current span');
                 var tempSpan = new AttributedSpan("");
                 tempSpan.setFromSpan(newSpan);
                 tempSpan.applyBefore(span);
@@ -106,12 +112,18 @@ class AttributedSpanStorage
                 span.attachmentId = null;
                 generatedSpans.push(remainderSpan);
                 span.updateString();
-                continue;
+				updated = true;
+				continue;
             }
 
             //intentionally left for debugging
             //trace('should not get here');
         }
+
+		if (generatedSpans.length == 0 && !updated)
+		{
+			generatedSpans.push(newSpan);
+		}
 
         spans = spans.concat(generatedSpans);
 

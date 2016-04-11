@@ -5,7 +5,7 @@ import haxe.Utf8;
 import types.Color4F;
 import haxe.ds.StringMap;
 import types.Range;
-import vectorx.font.AttributedString.StringAttributes;
+import vectorx.font.StringAttributes;
 import haxe.Utf8;
 import StringTools;
 

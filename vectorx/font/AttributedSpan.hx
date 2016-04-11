@@ -2,7 +2,7 @@ package vectorx.font;
 
 import types.Vector2;
 import types.Color4F;
-import vectorx.font.AttributedString.StringAttributes;
+import vectorx.font.StringAttributes;
 import types.Range;
 
 class AttributedSpan
@@ -76,22 +76,12 @@ class AttributedSpan
 
     private inline function choose<T>(dst: T, src: T)
     {
-        if (src == null)
-        {
-            return dst;
-        }
-
-        return src;
+		return src == null ? dst : src;
     }
 
     private inline function chooseBefore<T>(dst: T, src: T)
     {
-        if (dst == null)
-        {
-            return src;
-        }
-
-        return dst;
+		return dst == null ? src : dst;
     }
 
     public function applyBefore(source: AttributedSpan)

@@ -5,7 +5,7 @@
 
 	<duelllib name="duellkit" version="6.0.0+" />
 	<duelllib name="unittest" version="5.0.0+" />
-	<duelllib name="vectorx" version="development" />
+	<duelllib name="vectorx" version="master" />
 
 	<main name="MainTester" />
 

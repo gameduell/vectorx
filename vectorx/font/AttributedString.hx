@@ -27,62 +27,6 @@
 package vectorx.font;
 
 import haxe.xml.Check.Attrib;
-import types.Color4F;
-import types.Range;
-
-typedef StringAttributes =
-{
-    /** Range to apply the attributes on the string **/
-    var range: AttributedRange; // Default entire string range
-
-    /** Font from FontCache **/
-    @:optional var font: Font; // Defaul null (default font)
-
-    /** Background color of the string **/
-    @:optional var backgroundColor: Color4F; // null (no background color)
-
-    /** Foreground color of the string **/
-    @:optional var foregroundColor: Color4F; // Default black
-
-    /**
-    * Float value, as points offset from baseline
-    * The baseline offset attribute is a literal distance,
-    * in pixels, by which the characters should be shifted
-    * above the baseline (for positive offsets) or below (for negative offsets).
-    **/
-    @:optional var baselineOffset:  Null<Float>; // Default 0.0
-
-    /**
-    * Default null, use default kerning specified in font file;
-    * 0.0, kerning off; non-zero, points by which to modify default kerning
-    * The kerning attribute indicates how much the following character
-    * should be shifted from its default offset as defined by the
-    * current character’s font; a positive kern indicates a shift
-    * farther along and a negative kern indicates a shift closer to the current character.
-    **/
-    @:optional var kern: Null<Float>; // Defaul null
-
-    /**
-    * Float value, as percent of font point size
-    * Default 0.0, no stroke;
-    * negative, stroke alone;
-    * positive, stroke and fill
-    * (a typical value for outlined text would be 3.0)
-    **/
-    @:optional var strokeWidth: Null<Float>; // Default 0.0
-
-    /** Stroke color of the string **/
-    @:optional var strokeColor: Color4F; // null (same as foregroundColor)
-
-    /** Shadow object **/
-    @:optional var shadow: FontShadow; // null (no shadow)
-
-    /** Attachment object **/
-    //@:optional var attachment: FontAttachment; // null (no attachment)
-
-    @:optional var attachmentId: String; // null (no attachment)
-
-}
 
 class AttributedString
 {
@@ -146,4 +90,62 @@ class AttributedString
     {
         return 'AttributedString {string: $string attributes:\n$attributeStorage}';
     }
+
+	public function toAttributedStringPartArray(): Array<AttributedStringPart>
+	{
+		var result = new Array<AttributedStringPart>();
+
+		for (i in 0...attributeStorage.spans.length)
+		{
+			var originalSpan: AttributedSpan = attributeStorage.spans[i];
+			var origin: Int = originalSpan.range.index;
+			var length: Int = originalSpan.range.length;
+			var text: String = string.substr(origin, length);
+			var span = new AttributedSpan(text, 0, length);
+			span.setFromSpan(originalSpan);
+			span.range.index = 0;
+			span.range.length = length;
+
+			var simpleString: AttributedStringPart = AttributedStringPart.makeWithSpan(text, span);
+			result.push(simpleString);
+		}
+
+		return result;
+	}
+
+	public static function fromAttributedStringPartArray(strings: Array<AttributedStringPart>): AttributedString
+	{
+		if (strings.length == 0)
+		{
+			return new AttributedString("", null);
+		}
+
+		var text: String = "";
+		for (i in 0...strings.length)
+		{
+			text += strings[i].text;
+		}
+		var firstAttribute: StringAttributes = strings[0].attributes;
+		var result = new AttributedString(text, firstAttribute);
+		var position: Int = firstAttribute.range.length;
+		for (i in 1...strings.length)
+		{
+			var attributes: StringAttributes = {
+				range: new AttributedRange(position, strings[i].attributes.range.length),
+				font: strings[i].attributes.font,
+				backgroundColor: strings[i].attributes.backgroundColor,
+				foregroundColor: strings[i].attributes.foregroundColor,
+				baselineOffset: strings[i].attributes.baselineOffset,
+				kern: strings[i].attributes.kern,
+				strokeWidth: strings[i].attributes.strokeWidth,
+				strokeColor: strings[i].attributes.strokeColor,
+				shadow: strings[i].attributes.shadow,
+				attachmentId: strings[i].attributes.attachmentId
+			};
+			result.applyAttributes(attributes);
+			position += attributes.range.length;
+		}
+
+		return result;
+	}
 }

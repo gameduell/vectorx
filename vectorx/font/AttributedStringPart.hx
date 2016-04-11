@@ -24,57 +24,53 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+package vectorx.font;
 
-import vectorx.font.StyledStringParser;
-import types.haxeinterop.HaxeInputInteropStream;
-
-import unittest.TestRunner;
-import unittest.implementations.TestHTTPLogger;
-import unittest.implementations.TestJUnitLogger;
-import unittest.implementations.TestSimpleLogger;
-
-
-import duellkit.DuellKit;
-
-import AttributedSpanStorageTest;
-import StyledStringParserTest;
-import SvgSerializerTest;
-import AttributedStringTest;
-
-class MainTester
+class AttributedStringPart
 {
-    static var r: TestRunner;
+	public var text (default, default): String;
+	public var attributes (default, set): StringAttributes;
 
-    static function main(): Void
+	private var span: AttributedSpan;
+
+	public static function makeWithSpan(text: String, span: AttributedSpan): AttributedStringPart
+	{
+		var attributes: StringAttributes = {
+			range: span.range,
+			font: span.font,
+			backgroundColor: span.backgroundColor,
+			foregroundColor: span.foregroundColor,
+			baselineOffset: span.baselineOffset,
+			kern: span.kern,
+			strokeWidth: span.strokeWidth,
+			strokeColor: span.strokeColor,
+			shadow: span.shadow,
+			attachmentId: span.attachmentId
+		};
+		return new AttributedStringPart(text, attributes);
+	}
+
+	public function new(text: String, attributes: StringAttributes)
+	{
+		span = new AttributedSpan(text, 0, text.length);
+
+		this.text = text;
+		this.attributes = attributes;
+	}
+
+	public function toString(): String
     {
-        DuellKit.initialize(start);
+        return 'AttributedStringPart {string: $text span:\n$span}';
     }
 
-    static function start(): Void
-    {
-        r = new TestRunner(testComplete, DuellKit.instance().onError);
-        r.add(new AttributedSpanStorageTest());
-        r.add(new StyledStringParserTest());
-        r.add(new SvgSerializerTest());
-		r.add(new AttributedStringTest());
+	private function set_attributes(value: StringAttributes): StringAttributes
+	{
+		this.attributes = value;
+		if (value != null)
+		{
+			span.applyAttributes(value);
+		}
 
-        #if test
-
-        #if jenkins
-        r.addLogger(new TestHTTPLogger(new TestJUnitLogger()));
-        #else
-        r.addLogger(new TestHTTPLogger(new TestSimpleLogger()));
-        #end
-
-        #else
-        r.addLogger(new TestSimpleLogger());
-        #end
-
-        r.run();
-    }
-
-    static function testComplete(): Void
-    {
-        trace(r.result);
-    }
+		return value;
+	}
 }
