@@ -1,10 +1,10 @@
+package csharp;
 import vectorx.font.LayoutBehaviour;
 import types.VerticalAlignment;
 import types.HorizontalAlignment;
 import types.Vector2;
 import types.Data;
 import vectorx.font.AttributedRange;
-import vectorx.font.AttributedString.StringAttributes;
 import types.Color4F;
 import vectorx.font.Font;
 import vectorx.font.FontCache;
@@ -37,6 +37,10 @@ class MainCs
 {
     public static function main(): Void
     {
+        var ellipse = new aggx.vectorial.Ellipse();
+        var convDash = new aggx.vectorial.converters.ConvDash(null);
+        var vcgenDash = new aggx.vectorial.generators.VcgenDash();
+
         DataTest.testAll();
         var colorStorage: ColorStorage = new ColorStorage(512, 512);
         var svgData = new SVGData();
@@ -45,12 +49,6 @@ class MainCs
 
         var fontCache = new FontCache(null);
         var styleStringContext = new StyledStringContext(fontCache);
-    }
-
-    public static function _createStringAttributes(range: AttributedRange, font: Font, color: Color4F): StringAttributes
-    {
-        var attr: StringAttributes = {range: range, font: font, foregroundColor: color};
-        return attr;
     }
 
     public static function createLayoutConfig(scale: Float, horizontalAlignment: HorizontalAlignment, verticalAlignment: VerticalAlignment, layoutBehaviour: LayoutBehaviour)
