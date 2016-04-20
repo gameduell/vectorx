@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 
 #compile
-haxe -main csharp.MainCs -cp vectorx -cp csharp -cs Export/csharp -lib duell_aggx -D dll -D erase-generics -D net-ver=20 -v -D real-position
+
+#debug
+#haxe -main csharp.VectorxCs -cp vectorx -cp csharp -cs Export/csharp -lib duell_aggx -D dll -D erase-generics -D net-ver=20 -v -D real-position -D vectorDebugDraw -debug
+
+haxe -main csharp.VectorxCs -cp vectorx -cp csharp -cs Export/csharp -lib duell_aggx -D dll -D erase-generics -D net-ver=20 -v -D real-position
 
 cd Export/csharp
 
@@ -137,7 +141,7 @@ src/aggx/rfpx/data/Panose.cs \
 src/aggx/typography/FontEngine.cs \
 src/haxe/Constraints.cs \
 src/aggx/color/GammaLookupTable.cs \
-src/csharp/MainCs.cs \
+src/csharp/VectorxCs.cs \
 src/aggx/color/SpanAllocator.cs \
 src/aggx/rfpx/data/HmtxTable.cs \
 src/haxe/ds/ObjectMap.cs \
@@ -236,6 +240,6 @@ src/types/Color4B.cs \
 /sdk:2.0
 
 #copy result to unitilayout
-cp bin/MainCs*.* ~/.duell/lib/duellbuildunitylayout/unityshared/
+cp bin/VectorxCs*.* ~/.duell/lib/duellbuildunitylayout/unityshared/
 
-cd ..
+cd ../..

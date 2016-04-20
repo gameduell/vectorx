@@ -1,4 +1,5 @@
 package csharp;
+import vectorx.font.StringAttributes;
 import vectorx.font.LayoutBehaviour;
 import types.VerticalAlignment;
 import types.HorizontalAlignment;
@@ -33,7 +34,7 @@ class StyledStringResourceProvider
     }
 }
 
-class MainCs
+class VectorxCs
 {
     public static function main(): Void
     {
@@ -49,6 +50,13 @@ class MainCs
 
         var fontCache = new FontCache(null);
         var styleStringContext = new StyledStringContext(fontCache);
+    }
+
+    //used by unity tests
+    public static function _createStringAttributes(range: AttributedRange, font: Font, color: Color4F): StringAttributes
+    {
+        var attr: StringAttributes = {range: range, font: font, foregroundColor: color};
+        return attr;
     }
 
     public static function createLayoutConfig(scale: Float, horizontalAlignment: HorizontalAlignment, verticalAlignment: VerticalAlignment, layoutBehaviour: LayoutBehaviour)
