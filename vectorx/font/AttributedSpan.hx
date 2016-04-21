@@ -148,6 +148,11 @@ class AttributedSpan
         return measure;
     }
 
+    public function haveShadow()
+    {
+        return shadow != null && spanString != null && spanString.length > 0;
+    }
+
     public function getFinalSize(pixelRatio: Float, ?output: Vector2): Vector2
     {
         if (output == null)

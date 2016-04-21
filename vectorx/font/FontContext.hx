@@ -234,7 +234,10 @@ class FontContext
                 //render text shadows
 
                 var shadow: FontShadow = span.shadow;
-                if (shadow != null && spanString != null && spanString.length > 0)
+                shadow = new FontShadow();
+                shadow.offset.x = 10;
+                shadow.offset.y = 10;
+                if (span.haveShadow())
                 {
                     renderSpanShadow(span, pixelRatio, fontEngine, shadow.color);
                     if (shadow.blurRadius > 0)

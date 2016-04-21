@@ -15,6 +15,7 @@ class TextLine
     public var width(default, null): Float = 0;
     public var maxSpanHeight(default, null): Float = 0;
     public var maxBgHeight(default, null): Float = 0;
+    public var maxBgHeightWithShadow(default, null): Float = 0;
 
     public var spans: Array<AttributedSpan> = [];
 
@@ -119,6 +120,12 @@ class TextLine
             {
                 maxBgHeight = ext;
             }
+
+            var shadowExt = ext + span.shadow.offset.y * pixelRatio + span.shadow.blurRadius;
+            if (shadowExt > maxBgHeightWithShadow)
+            {
+                maxBgHeightWithShadow = shadowExt;
+            }
         }
 
         if (span.attachment != null)
@@ -131,6 +138,7 @@ class TextLine
         }
 
         maxBgHeight = Math.max(maxSpanHeight, maxBgHeight);
+        maxBgHeightWithShadow = Math.max(maxBgHeightWithShadow, maxBgHeight);
     }
 
     private static var currentWidth: Float = 0;
