@@ -7,7 +7,7 @@ import aggx.core.memory.Ref;
 import aggx.color.GradientRadialFocus;
 import aggx.color.SpanGradient.SpreadMethod;
 import aggx.color.RgbaColor;
-import aggxtest.AATest.ColorArray;
+import aggx.color.ColorArray;
 import haxe.Utf8;
 import aggx.core.math.Calc;
 import haxe.Utf8;

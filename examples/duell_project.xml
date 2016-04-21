@@ -9,7 +9,8 @@
 	<source path="source" />
 
 	<duelllib name="duellkit" version="7.0.0+" />
-    	<haxelib name="format" version="3.1.2" />
+
+    <haxelib name="format" version="3.1.2" />
 
     <library-config>
 
