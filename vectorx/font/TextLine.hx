@@ -206,7 +206,7 @@ class TextLine
                     advance = face.glyph.advanceWidth * scale + kern;
                 }
 
-                span = newLine(code, output, shadowExt, advance);
+                span = newLine(code, output, advance, shadowExt);
                 pos++;
             }
 
