@@ -150,7 +150,7 @@ class AttributedSpan
 
     public function haveShadow()
     {
-        return shadow != null && spanString != null && spanString.length > 0;
+        return shadow != null && string != null && string.length > 0;
     }
 
     public function getFinalSize(pixelRatio: Float, ?output: Vector2): Vector2
