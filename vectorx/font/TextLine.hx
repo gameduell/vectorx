@@ -290,7 +290,7 @@ class TextLine
                 lastSpanInLine.updateString();
             }
 
-            if(lastSpanInLine.haveShadow())
+            if(lastSpanInLine.haveShadow() && lastSpanInLine.attachmentId == null)
             {
                 currentLine.width += Math.ceil(shadow);
             }
