@@ -15,6 +15,7 @@ class TextLine
     public var width(default, null): Float = 0;
     public var maxSpanHeight(default, null): Float = 0;
     public var maxBgHeight(default, null): Float = 0;
+    public var maxBgHeightWithShadow(default, null): Float = 0;
 
     public var spans: Array<AttributedSpan> = [];
 
@@ -119,6 +120,15 @@ class TextLine
             {
                 maxBgHeight = ext;
             }
+
+            if (span.haveShadow())
+            {
+                var shadowExt = ext + span.shadow.offset.y * pixelRatio + span.shadow.blurRadius;
+                if (shadowExt > maxBgHeightWithShadow)
+                {
+                    maxBgHeightWithShadow = shadowExt;
+                }
+            }
         }
 
         if (span.attachment != null)
@@ -131,6 +141,7 @@ class TextLine
         }
 
         maxBgHeight = Math.max(maxSpanHeight, maxBgHeight);
+        maxBgHeightWithShadow = Math.max(maxBgHeightWithShadow, maxBgHeight);
     }
 
     private static var currentWidth: Float = 0;
@@ -165,6 +176,12 @@ class TextLine
             var kern = span.kern == null ? 0 : span.kern;
             kern *= pixelRatio;
 
+            var shadowExt: Float = 0;
+            if (span.haveShadow())
+            {
+                shadowExt = span.shadow.offset.x * pixelRatio + span.shadow.blurRadius;
+            }
+
             for (i in 0 ... Utf8.length(spanString))
             {
                 var advance: Float = 0;
@@ -174,7 +191,7 @@ class TextLine
                 if (code == NEWLINE)
                 {
                     var force: Bool = true;
-                    span = newLine(code, output, 0, force);
+                    span = newLine(code, output, 0, 0, force);
                 }
                 else
                 {
@@ -189,7 +206,7 @@ class TextLine
                     advance = face.glyph.advanceWidth * scale + kern;
                 }
 
-                span = newLine(code, output, advance);
+                span = newLine(code, output, advance, shadowExt);
                 pos++;
             }
 
@@ -197,7 +214,7 @@ class TextLine
             {
                 var code: Int = 0x1F601;
                 var advance: Float = span.attachment.bounds.width + 2;
-                span = newLine(code, output, advance);
+                span = newLine(code, output, advance, 0);
             }
         }
 
@@ -221,11 +238,11 @@ class TextLine
         return output;
     }
 
-    private static function newLine(code: Int, output: Array<TextLine>, advance: Float, force: Bool = false): AttributedSpan
+    private static function newLine(code: Int, output: Array<TextLine>, advance: Float, shadow:Float, force: Bool = false): AttributedSpan
     {
         var currentSpan = currentLine.spans[currentLine.spans.length - 1];
 
-        if (currentWidth + advance > textWidth || force)
+        if (currentWidth + advance + shadow > textWidth || force)
         {
             if (currentLine.breakAt == -1)
             {
@@ -271,6 +288,11 @@ class TextLine
             {
                 lastSpanInLine.range.length--;
                 lastSpanInLine.updateString();
+            }
+
+            if(lastSpanInLine.haveShadow() && lastSpanInLine.attachmentId == null)
+            {
+                currentLine.width += Math.ceil(shadow);
             }
 
             currentLine = new TextLine(startAt);

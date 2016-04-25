@@ -116,10 +116,27 @@ class TextLayout
 
     private static function calculateTextHeight(lines: Array<TextLine>, string: String): Float
     {
-        var height: Float = 0;
-        for (line in lines)
+        if (lines.length == 0)
         {
-            height += line.maxBgHeight;
+            return 0;
+        }
+
+        var height: Float = 0;
+
+        for (i in 0 ... lines.length)
+        {
+            var line: TextLine = lines[i];
+            var isLastLine: Bool = i == lines.length - 1;
+
+            if (isLastLine)
+            {
+                height += line.maxBgHeightWithShadow;
+            }
+            else
+            {
+                height += line.maxBgHeight;
+            }
+
             //trace('line: ${string.substr(line.begin, line.lenght)} lineHeight: ${line.maxBgHeight} total: $height}');
         }
 
