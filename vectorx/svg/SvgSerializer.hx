@@ -304,6 +304,9 @@ class SvgSerializer
         }
 
         data.writeFloat32(value.expandValue);
+
+        data.writeFloat32(value.width);
+        data.writeFloat32(value.height);
     }
 
     public static function readSvgData(data: SvgDataWrapper, value: SVGData): Void
@@ -333,5 +336,8 @@ class SvgSerializer
         }
 
         value.expandValue = data.readFloat32();
+
+        value.width = data.readFloat32();
+        value.height = data.readFloat32();
     }
 }
