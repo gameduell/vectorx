@@ -20,7 +20,7 @@ find . -name "*.cs" -print0 | xargs -0 sed -i '' \
 # -e '/global::Array _/b' -e 's/(global::Array)/ /g'
 
 #build assembly manually
-mcs /noconfig /debug:full /debug- /optimize+ /out:bin/MainCs.dll \
+mcs /noconfig /debug:full /debug- /optimize+ /out:bin/VectorxCs.dll \
 src/aggx/renderer/PixelFormatRenderer.cs \
 src/aggx/core/utils/Debug.cs \
 src/types/VerticalAlignment.cs \
