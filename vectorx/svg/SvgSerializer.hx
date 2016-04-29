@@ -1,5 +1,6 @@
 package vectorx.svg;
 
+import aggx.core.StreamInterface;
 import aggx.svg.SVGElement;
 import aggx.svg.SVGData;
 import aggx.core.geometry.AffineTransformer;
@@ -10,10 +11,7 @@ import aggx.color.RgbaColor;
 import aggx.color.ColorArray;
 import haxe.Utf8;
 import aggx.core.math.Calc;
-import haxe.Utf8;
 import aggx.svg.gradients.SVGGradient;
-import types.Data;
-import types.DataStringTools;
 
 class SvgSerializer
 {
@@ -183,7 +181,7 @@ class SvgSerializer
         return buf.toString();
     }
 
-    public static function writeString(data: SvgDataWrapper, value: String): Void
+    public static function writeString(data: StreamInterface, value: String): Void
     {
         if (value == null)
         {
@@ -211,7 +209,7 @@ class SvgSerializer
         }
     }
 
-    public static function readString(data: SvgDataWrapper): String
+    public static function readString(data: StreamInterface): String
     {
         var len = data.readUInt16();
 
@@ -230,7 +228,7 @@ class SvgSerializer
         #end
     }
 
-    public static function writeRgbaColor(data: SvgDataWrapper, value: RgbaColor): Void
+    public static function writeRgbaColor(data: StreamInterface, value: RgbaColor): Void
     {
         data.writeUInt8(value.r);
         data.writeUInt8(value.g);
@@ -238,7 +236,7 @@ class SvgSerializer
         data.writeUInt8(value.a);
     }
 
-    public static function readRgbaColor(data: SvgDataWrapper, value: RgbaColor): Void
+    public static function readRgbaColor(data: StreamInterface, value: RgbaColor): Void
     {
         value.r = data.readUInt8();
         value.g = data.readUInt8();
@@ -246,7 +244,7 @@ class SvgSerializer
         value.a = data.readUInt8();
     }
 
-    public static function writeColorArray(data: SvgDataWrapper, value: ColorArray): Void
+    public static function writeColorArray(data: StreamInterface, value: ColorArray): Void
     {
         data.writeUInt16(value.size);
         for (i in 0 ... value.size)
@@ -255,7 +253,7 @@ class SvgSerializer
         }
     }
 
-    public static function readColorArray(data: SvgDataWrapper): ColorArray
+    public static function readColorArray(data: StreamInterface): ColorArray
     {
         var size: Int = data.readUInt16();
         var value = new ColorArray(size);
@@ -270,7 +268,7 @@ class SvgSerializer
         return value;
     }
 
-    public static function writeAffineTransformer(data: SvgDataWrapper, value: AffineTransformer): Void
+    public static function writeAffineTransformer(data: StreamInterface, value: AffineTransformer): Void
     {
 
         data.writeFloat32(value.sx);
@@ -281,7 +279,7 @@ class SvgSerializer
         data.writeFloat32(value.ty);
     }
 
-    public static function readAffineTransformer(data: SvgDataWrapper, value: AffineTransformer): Void
+    public static function readAffineTransformer(data: StreamInterface, value: AffineTransformer): Void
     {
         value.sx = data.readFloat32();
         value.shy = data.readFloat32();
@@ -291,7 +289,7 @@ class SvgSerializer
         value.ty = data.readFloat32();
     }
 
-    public static function writeSvgData(data: SvgDataWrapper, value: SVGData): Void
+    public static function writeSvgData(data: StreamInterface, value: SVGData): Void
     {
         data.writeUInt32(header);
         data.writeUInt32(currentVersion);
@@ -314,7 +312,7 @@ class SvgSerializer
         data.writeFloat32(value.height);
     }
 
-    public static function readSvgData(data: SvgDataWrapper, value: SVGData): Void
+    public static function readSvgData(data: StreamInterface, value: SVGData): Void
     {
         if (data.readUInt32() != header)
         {

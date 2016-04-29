@@ -1,8 +1,9 @@
 package vectorx.svg;
 
+import aggx.core.StreamInterface;
 import types.Data;
 
-class SvgDataWrapper
+class SvgDataWrapper implements StreamInterface
 {
     public var data: Data;
 
@@ -13,7 +14,7 @@ class SvgDataWrapper
 
     public function writeUInt8(value: Int): Void
     {
-        checkAllocationSize(1);
+        preallocate(1);
         data.writeUInt8(value);
         data.offset += 1;
     }
@@ -27,7 +28,7 @@ class SvgDataWrapper
 
     public function writeUInt16(value: Int): Void
     {
-        checkAllocationSize(2);
+        preallocate(2);
         data.writeUInt16(value);
         data.offset += 2;
     }
@@ -41,7 +42,7 @@ class SvgDataWrapper
 
     public function writeUInt32(value: Int): Void
     {
-        checkAllocationSize(4);
+        preallocate(4);
         data.writeUInt32(value);
         data.offset += 4;
     }
@@ -55,7 +56,7 @@ class SvgDataWrapper
 
     public function writeFloat32(value: Float): Void
     {
-        checkAllocationSize(4);
+        preallocate(4);
         data.writeFloat32(value);
         data.offset += 4;
     }
@@ -67,7 +68,7 @@ class SvgDataWrapper
         return ret;
     }
 
-    private function checkAllocationSize(next: Int): Void
+    public function preallocate(next: Int): Void
     {
         var bytesLeft: Int = data.allocedLength - data.offset;
         if (bytesLeft > next)

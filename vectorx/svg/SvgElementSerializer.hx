@@ -1,5 +1,6 @@
 package vectorx.svg;
 
+import aggx.core.StreamInterface;
 import aggx.core.geometry.AffineTransformer;
 import aggx.svg.SVGStringParsers;
 import aggx.color.RgbaColor;
@@ -14,7 +15,7 @@ class SvgElementSerializer
     private static var flagStroke: Int = 1 << 2;
     private static var flagEvenOdd: Int = 1 << 3;
 
-    public static function writeSVGElement(data: SvgDataWrapper, element: SVGElement)
+    public static function writeSVGElement(data: StreamInterface, element: SVGElement)
     {
         var flags: Int = 0;
 
@@ -75,7 +76,7 @@ class SvgElementSerializer
         data.writeFloat32(element.miter_limit);
     }
 
-    public static function readSVGElement(data: SvgDataWrapper, element: SVGElement)
+    public static function readSVGElement(data: StreamInterface, element: SVGElement)
     {
         var flags: Int = 0;
         flags = data.readUInt8();
