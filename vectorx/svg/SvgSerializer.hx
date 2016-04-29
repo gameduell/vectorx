@@ -17,6 +17,9 @@ import types.DataStringTools;
 
 class SvgSerializer
 {
+    private static var header: Int = 0x5643424e;//VCBN
+    private static var currentVersion: Int = 1;
+
     public static function isUtf8String(value: String): Bool
     {
         for (i in 0 ... value.length)
@@ -290,6 +293,8 @@ class SvgSerializer
 
     public static function writeSvgData(data: SvgDataWrapper, value: SVGData): Void
     {
+        data.writeUInt32(header);
+        data.writeUInt32(currentVersion);
         SvgVectorPathSerializer.writeVectorPath(data, value.storage);
         data.writeUInt32(value.elementStorage.length);
         for(i in 0 ... value.elementStorage.length)
@@ -311,6 +316,17 @@ class SvgSerializer
 
     public static function readSvgData(data: SvgDataWrapper, value: SVGData): Void
     {
+        if (data.readUInt32() != header)
+        {
+            throw "Invalid file, wrong header";
+        }
+
+        var version = data.readUInt32();
+        if (currentVersion != version)
+        {
+            throw "Invalid file, invalid version $version (expected $currentVersion)";
+        }
+
         SvgVectorPathSerializer.readVectorData(data, value.storage);
 
         var elements: Int = data.readUInt32();
