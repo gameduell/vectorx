@@ -1,14 +1,12 @@
 package vectorx.svg;
 
+import aggx.core.StreamInterface;
 import aggx.core.memory.Ref;
 import aggx.core.geometry.AffineTransformer;
-import vectorx.svg.SvgSerializer;
 import aggx.color.RgbaColor;
 import vectorx.svg.SvgSerializer;
 import aggx.color.SpanGradient.SpreadMethod;
 import aggx.svg.gradients.SVGGradient;
-
-import types.Data;
 
 class SvgGradientSerializer
 {
@@ -18,13 +16,13 @@ class SvgGradientSerializer
     private static var isRepeat: Int = 1 << 3;
     private static var isUserSpace: Int = 1 << 4;
 
-    public static function writeSvgStop(data: SvgDataWrapper, value: SVGStop): Void
+    public static function writeSvgStop(data: StreamInterface, value: SVGStop): Void
     {
         SvgSerializer.writeRgbaColor(data, value.color);
         data.writeFloat32(value.offset);
     }
 
-    public static function readSvgStop(data: SvgDataWrapper, value: SVGStop): Void
+    public static function readSvgStop(data: StreamInterface, value: SVGStop): Void
     {
         if (value.color == null)
         {
@@ -35,7 +33,7 @@ class SvgGradientSerializer
         value.offset = data.readFloat32();
     }
 
-    public static function writeGradient(data: SvgDataWrapper, value: SVGGradient): Void
+    public static function writeGradient(data: StreamInterface, value: SVGGradient): Void
     {
         var flags: Int = 0;
         if (value.type == GradientType.Radial)
@@ -83,7 +81,7 @@ class SvgGradientSerializer
         }
     }
 
-    public static function readGradient(data: SvgDataWrapper, value: SVGGradient)
+    public static function readGradient(data: StreamInterface, value: SVGGradient)
     {
         var flags: Int = data.readUInt8();
 
