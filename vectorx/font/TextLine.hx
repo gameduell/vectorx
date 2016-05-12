@@ -284,15 +284,18 @@ class TextLine
             }
 
             var lastSpanInLine = currentLine.lastSpan();
-            if (lastSpanInLine != null && lastSpanInLine.string != null && lastSpanInLine.string.endsWith("\n"))
+            if (lastSpanInLine != null)
             {
-                lastSpanInLine.range.length--;
-                lastSpanInLine.updateString();
-            }
+                if (lastSpanInLine.string != null && lastSpanInLine.string.endsWith("\n"))
+                {
+                    lastSpanInLine.range.length--;
+                    lastSpanInLine.updateString();
+                }
 
-            if(lastSpanInLine.haveShadow() && lastSpanInLine.attachmentId == null)
-            {
-                currentLine.width += Math.ceil(shadow);
+                if(lastSpanInLine.haveShadow() && lastSpanInLine.attachmentId == null)
+                {
+                    currentLine.width += Math.ceil(shadow);
+                }
             }
 
             currentLine = new TextLine(startAt);
