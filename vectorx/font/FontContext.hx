@@ -164,8 +164,11 @@ class FontContext
             //baseline
             debugBox(x, y + line.maxSpanHeight, line.width, 1);
 
-            for (span in line.spans)
+            for (i in 0 ... line.spans.length)
             {
+                var span = line.spans[i];
+                var isLastLine = i == line.spans.length - 1;
+
                 var fontEngine: FontEngine = span.font.internalFont;
                 fontEngine.rasterizer = rasterizer;
                 fontEngine.scanline = scanline;
@@ -219,10 +222,11 @@ class FontContext
 #end
 
                 //fill background if present
-                if (span.backgroundColor != null)
+                if (span.backgroundColor != null || span.backgroundColor.a >= 1.0/255)
                 {
                     scanlineRenderer.color.setFromColor4F(span.backgroundColor);
-                    box(path, x, y, measure.x + 1 + attachmentWidth, line.maxBgHeight + 1);
+                    var height = isLastLine ? line.maxBgHeightWithShadow : line.maxBgHeight;
+                    box(path, x, y, measure.x + 1 + attachmentWidth,  height + 1);
                     rasterizer.reset();
                     rasterizer.addPath(path);
                     SolidScanlineRenderer.renderScanlines(rasterizer, scanline, scanlineRenderer);
