@@ -226,7 +226,7 @@ class StyledStringParser
                         try
                         {
                             var size = Std.parseFloat(kv[1]);
-                            if (size != 0)
+                            if (size != 0 && !(Math.isNaN(size)))
                             {
                                 sizeOverride = size;
                             }
