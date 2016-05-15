@@ -229,7 +229,7 @@ class StyledStringParser
                         }
                     }
                 case "bg" | "background": attr.backgroundColor = parseColor(kv[1], colors);
-                case "basline": attr.baselineOffset = Std.parseFloat(kv[1]);
+                case "baseline": attr.baselineOffset = Std.parseFloat(kv[1]);
                 case "kern": attr.kern = Std.parseFloat(kv[1]);
                 case "strokeWidth" | "sw": attr.strokeWidth = Std.parseFloat(kv[1]);
                 case "strokeColor" | "sc": attr.strokeColor = parseColor(kv[1], colors);
