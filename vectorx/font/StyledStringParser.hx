@@ -206,11 +206,18 @@ class StyledStringParser
                         var font = aliases.getFont(kv[1], cache);
                         if (font == null)
                         {
-                            throw 'Font alias ${kv[1]} is not found';
+                            font = cache.createFontWithNameAndSize(kv[1], 1);
+                            if (font == null)
+                            {
+                                throw 'Font or font alias ${kv[1]} is not found';
+                            }
+                        }
+                        else
+                        {
+                            attr.size = Math.ceil(font.sizeInPt);
                         }
 
                         attr.font = font;
-                        attr.size = Math.ceil(font.sizeInPt);
                     }
 
                 case "c" | "color": attr.foregroundColor = parseColor(kv[1], colors);
