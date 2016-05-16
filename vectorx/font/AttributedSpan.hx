@@ -13,6 +13,7 @@ class AttributedSpan
     public var foregroundColor: Color4F = null;
     public var baselineOffset:  Null<Float>;
     public var kern: Null<Float> = null;
+    @:isVar public var size(get, set): Null<Int> = null;
     public var strokeWidth: Null<Float> = null;
     public var strokeColor: Color4F = null;
     public var shadow: FontShadow = null;
@@ -44,6 +45,7 @@ class AttributedSpan
         this.attachmentId = other.attachmentId;
         this.baseString = other.baseString;
         this.string = other.string;
+        this.size = other.size;
         this.measured = false;
     }
 
@@ -96,6 +98,7 @@ class AttributedSpan
         shadow = chooseBefore(shadow, source.shadow);
         attachment = chooseBefore(attachment, source.attachment);
         attachmentId = chooseBefore(attachmentId, source.attachmentId);
+        size = chooseBefore(size, source.size);
         measured = false;
     }
 
@@ -111,6 +114,8 @@ class AttributedSpan
         shadow = choose(shadow, source.shadow);
         attachment = choose(attachment, source.attachment);
         attachmentId = choose(attachmentId, source.attachmentId);
+        size = choose(size, source.size);
+
         measured = false;
     }
 
@@ -125,11 +130,23 @@ class AttributedSpan
         strokeColor = choose(strokeColor, source.strokeColor);
         shadow = choose(shadow, source.shadow);
         attachmentId = choose(attachmentId, source.attachmentId);
+        size = choose(size, source.size);
         measured = false;
+    }
+
+    public function get_size(): Int
+    {
+        return this.size != null ? this.size : FontContext.defaultAttributes.size;
+    }
+
+    public function set_size(val: Int): Int
+    {
+        return size = val;
     }
 
     public function getMeasure(): Vector2
     {
+
         if (!measured)
         {
             if (range.length == 0)
@@ -139,7 +156,7 @@ class AttributedSpan
             else
             {
                 var kern = this.kern == null ? 0 : this.kern;
-                font.internalFont.measureString(string, font.sizeInPt, measure, kern);
+                font.internalFont.measureString(string, size, measure, kern);
             }
 
             measured = true;

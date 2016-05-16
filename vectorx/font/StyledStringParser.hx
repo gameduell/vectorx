@@ -210,6 +210,7 @@ class StyledStringParser
                         }
 
                         attr.font = font;
+                        attr.size = Math.ceil(font.sizeInPt);
                     }
 
                 case "c" | "color": attr.foregroundColor = parseColor(kv[1], colors);
@@ -217,10 +218,10 @@ class StyledStringParser
                     {
                         try
                         {
-                            var size = Std.parseFloat(kv[1]);
-                            if (size != 0 && !(Math.isNaN(size)))
+                            var size = Std.parseInt(kv[1]);
+                            if (size != 0)
                             {
-                                sizeOverride = size;
+                                attr.size = size;
                             }
                         }
                         catch(ex: Dynamic)
@@ -238,18 +239,6 @@ class StyledStringParser
             }
         }
 
-        if (sizeOverride != null)
-        {
-            if (attr.font == null)
-            {
-                attr.font = cache.createFontWithNameAndSize("", sizeOverride);
-            }
-            else
-            {
-                attr.font = attr.font.clone(sizeOverride);
-            }
-
-        }
         pushAttribute(attr);
     }
 
