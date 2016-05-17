@@ -34,6 +34,9 @@ src/Xml.cs \
 src/vectorx/svg/SvgContext.cs \
 src/aggx/svg/SVGPathTokenizer.cs \
 src/aggx/core/geometry/AffineTransformer.cs \
+src/aggx/core/geometry/Vector2D.cs \
+src/aggx/core/geometry/Rect.cs \
+src/aggx/core/StreamInterface.cs \
 src/aggx/vectorial/QuadCurveFitterInc.cs \
 src/aggx/vectorial/converters/ConvStroke.cs \
 src/aggx/color/IGradientFunction.cs \

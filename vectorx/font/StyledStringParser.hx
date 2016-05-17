@@ -1,6 +1,7 @@
 package vectorx.font;
 
 //import logger.Logger;
+import aggx.svg.SVGStringParsers;
 import haxe.Utf8;
 import types.Color4F;
 import haxe.ds.StringMap;
@@ -212,9 +213,13 @@ class StyledStringParser
                         var color = colors.get(kv[1]);
                         if (color == null)
                         {
-                            throw 'Color ${kv[1]} is not found';
+                            var color = SVGStringParsers.parseColor(kv[1]);
+                            attr.foregroundColor = new Color4F(color.r / 255.0, color.g / 255.0, color.b / 255.0, color.a / 255.0);
                         }
-                        attr.foregroundColor = color;
+                        else
+                        {
+                            attr.foregroundColor = color;
+                        }
                     }
                 case "s" | "size":
                     {
