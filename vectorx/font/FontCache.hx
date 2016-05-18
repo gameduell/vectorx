@@ -26,6 +26,7 @@
 
 package vectorx.font;
 
+import haxe.ds.Vector;
 import aggx.core.utils.Debug;
 import aggx.typography.FontEngine;
 import aggx.rfpx.TrueTypeCollection;
@@ -62,6 +63,22 @@ class FontCache
     public function unloadFontWithName(fontName: String): Void
     {
         fonts.set(fontName, null);
+    }
+
+    public function getFontNames(): Array<String>
+    {
+        var arr: Array<String> = [];
+        for (font in fonts.keys())
+        {
+            arr.push(font);
+        }
+
+        return arr;
+    }
+
+    public function getDefaultFontName(): String
+    {
+        return fonts.get(defaultFont).currentFont.getName();
     }
 
     public function createFontWithNameAndSize(fontName: String, sizeInPt: Float): Font

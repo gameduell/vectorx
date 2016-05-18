@@ -20,6 +20,8 @@ find . -name "*.cs" -print0 | xargs -0 sed -i '' \
 # -e '/global::Array _/b' -e 's/(global::Array)/ /g'
 
 #build assembly manually
+#debug
+#mcs /noconfig /debug:full /debug+ /optimize- /out:bin/VectorxCs.dll \
 mcs /noconfig /debug:full /debug- /optimize+ /out:bin/VectorxCs.dll \
 src/aggx/renderer/PixelFormatRenderer.cs \
 src/aggx/core/utils/Debug.cs \
@@ -243,6 +245,7 @@ src/types/Color4B.cs \
 /sdk:2.0
 
 #copy result to unitilayout
+rm -f bin/VectorxCs-Debug*.*
 cp bin/VectorxCs*.* ~/.duell/lib/duellbuildunitylayout/unityshared/
 
 cd ../..

@@ -36,6 +36,9 @@ typedef StringAttributes = {
     /** Font from FontCache **/
     @:optional var font: Font; // Defaul null (default font)
 
+    /** Font size **/
+    @:optional var size: Int; // Default 25
+
     /** Background color of the string **/
     @:optional var backgroundColor: Color4F; // null (no background color)
 

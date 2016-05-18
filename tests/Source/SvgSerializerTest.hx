@@ -224,6 +224,8 @@ class SvgSerializerTest extends unittest.TestCase
     public function testVertexBlockStorage(): Void
     {
         var data = new Data(1024);
+        var wrap = new SvgDataWrapper();
+        wrap.data = data;
 
         var storage = new VertexBlockStorage();
         storage.addVertex(0.1, 0.2, 0);
@@ -231,11 +233,11 @@ class SvgSerializerTest extends unittest.TestCase
         storage.addVertex(0.3, 0.6, 2);
         storage.addVertex(0.4, 0.8, 3);
 
-        storage.save(data);
+        storage.save(wrap);
         data.offset = 0;
 
         var storage2 = new VertexBlockStorage();
-        storage2.load(data);
+        storage2.load(wrap);
 
         assertEquals(storage.verticesCount, storage2.verticesCount);
 

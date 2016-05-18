@@ -157,19 +157,23 @@ class StyledStringParser
                         shadow.blurRadius = Std.parseFloat(kv[1]);
                     }
 
-                case "color" | "c":
-                    {
-                        var color = colors.get(kv[1].trim());
-                        if (color == null)
-                        {
-                            throw 'Color ${kv[1]} is not found';
-                        }
-                        shadow.color = color;
-                    }
+                case "color" | "c": shadow.color = parseColor(kv[1].trim(), colors);
             }
         }
 
         return shadow;
+    }
+
+    private function parseColor(value: String, colors: StringMap<Color4F>): Color4F
+    {
+        var color = colors.get(value);
+        if (color == null)
+        {
+            var color = SVGStringParsers.parseColor(value);
+            return new Color4F(color.r / 255.0, color.g / 255.0, color.b / 255.0, color.a / 255.0);
+        }
+
+        return color;
     }
 
     private function parseCode(aliases: FontAliasesStorage, cache: FontCache, colors: StringMap<Color4F>): Void
@@ -202,33 +206,29 @@ class StyledStringParser
                         var font = aliases.getFont(kv[1], cache);
                         if (font == null)
                         {
-                            throw 'Font alias ${kv[1]} is not found';
+                            font = cache.createFontWithNameAndSize(kv[1], 1);
+                            if (font == null)
+                            {
+                                throw 'Font or font alias ${kv[1]} is not found';
+                            }
+                        }
+                        else
+                        {
+                            attr.size = Math.ceil(font.sizeInPt);
                         }
 
                         attr.font = font;
                     }
 
-                case "c" | "color":
-                    {
-                        var color = colors.get(kv[1]);
-                        if (color == null)
-                        {
-                            var color = SVGStringParsers.parseColor(kv[1]);
-                            attr.foregroundColor = new Color4F(color.r / 255.0, color.g / 255.0, color.b / 255.0, color.a / 255.0);
-                        }
-                        else
-                        {
-                            attr.foregroundColor = color;
-                        }
-                    }
+                case "c" | "color": attr.foregroundColor = parseColor(kv[1], colors);
                 case "s" | "size":
                     {
                         try
                         {
-                            var size = Std.parseFloat(kv[1]);
+                            var size = Std.parseInt(kv[1]);
                             if (size != 0)
                             {
-                                sizeOverride = size;
+                                attr.size = size;
                             }
                         }
                         catch(ex: Dynamic)
@@ -236,36 +236,16 @@ class StyledStringParser
 
                         }
                     }
-                case "bg" | "background":
-                    {
-                        var color = colors.get(kv[1]);
-                        if (color == null)
-                        {
-                            throw 'Background color ${kv[1]} is not found';
-                        }
-                        attr.backgroundColor = color;
-                    }
-                case "basline": attr.baselineOffset = Std.parseFloat(kv[1]);
+                case "bg" | "background": attr.backgroundColor = parseColor(kv[1], colors);
+                case "baseline": attr.baselineOffset = Std.parseFloat(kv[1]);
                 case "kern": attr.kern = Std.parseFloat(kv[1]);
                 case "strokeWidth" | "sw": attr.strokeWidth = Std.parseFloat(kv[1]);
-                case "strokeColor" | "sc": attr.strokeColor = colors.get(kv[1]);
+                case "strokeColor" | "sc": attr.strokeColor = parseColor(kv[1], colors);
                 case "shadow" | "shdw" | "sh": attr.shadow = parseShadow(kv[1], colors);
                 default: throw('undefined code "${kv[0]}"');
             }
         }
 
-        if (sizeOverride != null)
-        {
-            if (attr.font == null)
-            {
-                attr.font = cache.createFontWithNameAndSize("", sizeOverride);
-            }
-            else
-            {
-                attr.font = attr.font.clone(sizeOverride);
-            }
-
-        }
         pushAttribute(attr);
     }
 

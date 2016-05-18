@@ -82,13 +82,14 @@ class FontContext
 
     private var measure: Vector2;
 
-    private static var defaultAttributes: StringAttributes =
+    public static var defaultAttributes: StringAttributes =
     {
         range: new AttributedRange(),
         foregroundColor: new Color4F(1, 1, 1, 1),
         baselineOffset: 0,
         strokeWidth: 0,
-        strokeColor: new Color4F()
+        strokeColor: new Color4F(),
+        size: 25
     };
 
     private static var defaultTextlayout: TextLayoutConfig =
@@ -164,8 +165,11 @@ class FontContext
             //baseline
             debugBox(x, y + line.maxSpanHeight, line.width, 1);
 
-            for (span in line.spans)
+            for (i in 0 ... line.spans.length)
             {
+                var span = line.spans[i];
+                var isLastLine = i == line.spans.length - 1;
+
                 var fontEngine: FontEngine = span.font.internalFont;
                 fontEngine.rasterizer = rasterizer;
                 fontEngine.scanline = scanline;
@@ -197,7 +201,7 @@ class FontContext
                 for (i in 0 ... Utf8.length(spanString))
                 {
                     var face = fontEngine.getFace(Utf8.charCodeAt(spanString, i));
-                    var scale = fontEngine.getScale(span.font.sizeInPt) * pixelRatio;
+                    var scale = fontEngine.getScale(span.size) * pixelRatio;
                     if (face.glyph.bounds != null)
                     {
                         var bx =  face.glyph.bounds.x1 * scale;
@@ -219,10 +223,11 @@ class FontContext
 #end
 
                 //fill background if present
-                if (span.backgroundColor != null)
+                if (span.backgroundColor != null && span.backgroundColor.a >= 1.0/255)
                 {
                     scanlineRenderer.color.setFromColor4F(span.backgroundColor);
-                    box(path, x, y, measure.x + 1 + attachmentWidth, line.maxBgHeight + 1);
+                    var height = isLastLine ? line.maxBgHeightWithShadow : line.maxBgHeight;
+                    box(path, x, y, measure.x + 1 + attachmentWidth,  height + 1);
                     rasterizer.reset();
                     rasterizer.addPath(path);
                     SolidScanlineRenderer.renderScanlines(rasterizer, scanline, scanlineRenderer);
@@ -258,7 +263,7 @@ class FontContext
 
                 if (span.strokeWidth == null || span.strokeWidth >= 0)
                 {
-                    fontEngine.renderString(spanString, span.font.sizeInPt * pixelRatio, x, spanY, scanlineRenderer, kern);
+                    fontEngine.renderString(spanString, span.size * pixelRatio, x, spanY, scanlineRenderer, kern);
                 }
 
                 //render outline
@@ -271,7 +276,7 @@ class FontContext
 
                     var strokeWidth = Math.abs(span.strokeWidth);
 
-                    fontEngine.renderStringStroke(spanString, span.font.sizeInPt * pixelRatio, x, spanY, scanlineRenderer, strokeWidth, kern);
+                    fontEngine.renderStringStroke(spanString, span.size * pixelRatio, x, spanY, scanlineRenderer, strokeWidth, kern);
                 }
 
                 x += measure.x;
@@ -403,7 +408,7 @@ class FontContext
             shadowRenderingStack = RenderingStack.initialise(shadowRenderingStack, width, height, stride);
             var renderer = shadowRenderingStack.scanlineRenderer;
             renderer.color.setFromColor4F(color);
-            fontEngine.renderString(span.string, span.font.sizeInPt * pixelRatio, 0, 0, renderer, span.kern * pixelRatio);
+            fontEngine.renderString(span.string, span.size * pixelRatio, 0, 0, renderer, span.kern * pixelRatio);
         }
         catch(ex: Dynamic)
         {

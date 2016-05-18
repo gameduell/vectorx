@@ -110,7 +110,7 @@ class TextLine
             {
                 continue;
             }
-            var scale = fontEngine.getScale(span.font.sizeInPt);
+            var scale = fontEngine.getScale(span.size);
 
             var by =  -face.glyph.bounds.y1 * scale * pixelRatio;
             var h = (-face.glyph.bounds.y2 - -face.glyph.bounds.y1) * scale * pixelRatio;
@@ -172,7 +172,7 @@ class TextLine
 
             var fontEngine: FontEngine = span.font.internalFont;
             var spanString: String = span.string;
-            var scale = fontEngine.getScale(span.font.sizeInPt) * pixelRatio;
+            var scale = fontEngine.getScale(span.size) * pixelRatio;
             var kern = span.kern == null ? 0 : span.kern;
             kern *= pixelRatio;
 
@@ -284,15 +284,18 @@ class TextLine
             }
 
             var lastSpanInLine = currentLine.lastSpan();
-            if (lastSpanInLine != null && lastSpanInLine.string != null && lastSpanInLine.string.endsWith("\n"))
+            if (lastSpanInLine != null)
             {
-                lastSpanInLine.range.length--;
-                lastSpanInLine.updateString();
-            }
+                if (lastSpanInLine.string != null && lastSpanInLine.string.endsWith("\n"))
+                {
+                    lastSpanInLine.range.length--;
+                    lastSpanInLine.updateString();
+                }
 
-            if(lastSpanInLine.haveShadow() && lastSpanInLine.attachmentId == null)
-            {
-                currentLine.width += Math.ceil(shadow);
+                if(lastSpanInLine.haveShadow() && lastSpanInLine.attachmentId == null)
+                {
+                    currentLine.width += Math.ceil(shadow);
+                }
             }
 
             currentLine = new TextLine(startAt);
