@@ -317,8 +317,39 @@ class FontContext
 
         renderDebugPath(scanlineRenderer);
 
+        #if vectorFontRectDebug
+        {
+            var color = new Color4F(0, 0, 0, 0.3);
+            if (dbgCount++ % 2 == 0)
+            {
+                trace('red');
+                color.r = 1;
+            }
+            else
+            {
+                trace('green');
+                color.g = 1;
+            }
+            scanlineRenderer.color.setFromColor4F(color);
+            if (renderTrimmed)
+            {
+                box(path, 0, 0, textLayout.outputRect.width,  textLayout.outputRect.height);
+            }
+            else
+            {
+                box(path, textLayout.outputRect.x, textLayout.outputRect.y, textLayout.outputRect.width,  textLayout.outputRect.height);
+            }
+            rasterizer.reset();
+            rasterizer.addPath(path);
+            SolidScanlineRenderer.renderScanlines(rasterizer, scanline, scanlineRenderer);
+            path.removeAll();
+        }
+        #end //vectorFontRectDebug
+
         MemoryAccess.select(prevMemory);
     }
+
+    private static var dbgCount: UInt = 0;
 
     private static function blendFromColorStorage(x: Int, y: Int, destination: ColorStorage, source: ColorStorage, sourceRect: RectI)
     {
@@ -425,7 +456,7 @@ class FontContext
     {
         #if vectorDebugDraw
             rasterizer.addPath(debugPathStroke);
-            renderer.color.set(SVGColors.get("hotpink"));
+            renderer.color.set(SVGColors.get("turquoise"));
             SolidScanlineRenderer.renderScanlines(rasterizer, scanline, renderer);
             rasterizer.reset();
             debugPath.removeAll();
