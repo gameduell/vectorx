@@ -1,12 +1,40 @@
 package vectorx.font;
 
+import vectorx.font.StyleStorage.StyleConfig;
+
 class StringStyle
 {
     public var name(default, null): String;
-    public var attr(default, null): AttributedSpan;
+    public var attr: AttributedSpan;
+    public var parent: StringStyle;
+    public var style(default, null): String;
 
-    public function new(): Void
+    private var finalStyle: String;
+
+    public function new(name: String, style: String): Void
     {
+        this.name = name;
+        this.style = style;
+    }
 
+    public function getFinalStyle(): String
+    {
+        if (finalStyle != null)
+        {
+            return finalStyle;
+        }
+
+        finalStyle = style;
+
+        if (parent != null)
+        {
+            var parentStyle = parent.getFinalStyle();
+            if (parentStyle != null && parentStyle.trim().length > 0)
+            {
+                finalStyle = '$finalStyle,$parentStyle';
+            }
+        }
+
+        return finalStyle;
     }
 }

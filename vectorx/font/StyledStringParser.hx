@@ -1,6 +1,7 @@
 package vectorx.font;
 
 //import logger.Logger;
+import csharp.VectorxCs.StyledStringResourceProvider;
 import aggx.svg.SVGStringParsers;
 import haxe.Utf8;
 import types.Color4F;
@@ -176,7 +177,7 @@ class StyledStringParser
         return color;
     }
 
-    public static function parseAttributes(code: String, colors: StringMap<Color4F>, aliases: FontAliasesStorage, cache: FontCache, attr: StringAttributes): StringAttributes
+    public static function parseAttributes(code: String, provider: StyleProviderInterface, attr: StringAttributes): StringAttributes
     {
         var codes = code.split(",");
         for (code in codes)
@@ -192,10 +193,10 @@ class StyledStringParser
             {
                 case "f" | "font":
                     {
-                        var font = aliases.getFont(kv[1], cache);
+                        var font = provider.getFontAliases().getFont(kv[1], provider.getFontCache());
                         if (font == null)
                         {
-                            font = cache.createFontWithNameAndSize(kv[1], 1);
+                            font = provider.getFontCache().createFontWithNameAndSize(kv[1], 1);
                             if (font == null)
                             {
                                 throw 'Font or font alias ${kv[1]} is not found';
@@ -209,7 +210,7 @@ class StyledStringParser
                         attr.font = font;
                     }
 
-                case "c" | "color": attr.foregroundColor = parseColor(kv[1], colors);
+                case "c" | "color": attr.foregroundColor = parseColor(kv[1], provider.getColors());
                 case "s" | "size":
                     {
                         try
@@ -225,12 +226,12 @@ class StyledStringParser
 
                         }
                     }
-                case "bg" | "background": attr.backgroundColor = parseColor(kv[1], colors);
+                case "bg" | "background": attr.backgroundColor = parseColor(kv[1], provider.getColors());
                 case "baseline": attr.baselineOffset = Std.parseFloat(kv[1]);
                 case "kern": attr.kern = Std.parseFloat(kv[1]);
                 case "strokeWidth" | "sw": attr.strokeWidth = Std.parseFloat(kv[1]);
-                case "strokeColor" | "sc": attr.strokeColor = parseColor(kv[1], colors);
-                case "shadow" | "shdw" | "sh": attr.shadow = parseShadow(kv[1], colors);
+                case "strokeColor" | "sc": attr.strokeColor = parseColor(kv[1], provider.getColors());
+                case "shadow" | "shdw" | "sh": attr.shadow = parseShadow(kv[1], provider.getColors());
                 default: throw('undefined code "${kv[0]}"');
             }
         }
@@ -238,7 +239,7 @@ class StyledStringParser
         return attr;
     }
 
-    private function parseCode(aliases: FontAliasesStorage, cache: FontCache, colors: StringMap<Color4F>): Void
+    private function parseCode(provider: StyleProviderInterface): Void
     {
         var code = readCode();
         if (code.trim().startsWith("/"))
@@ -250,7 +251,7 @@ class StyledStringParser
         var range: AttributedRange = new AttributedRange(currentString.length, 0);
         var attr: StringAttributes = {range: range};
 
-        pushAttribute(parseAttributes(code, colors, aliases, cache, attr));
+        pushAttribute(parseAttributes(code, provider, attr));
     }
 
     private function pushAttribute(attribute: StringAttributes): StringAttributes
@@ -286,7 +287,7 @@ class StyledStringParser
         }
     }
 
-    public function toAttributedString(styledString: String, fontAliases: FontAliasesStorage, fontCache: FontCache, colors: StringMap<Color4F>): AttributedString
+    public function toAttributedString(styledString: String, provider: StyleProviderInterface): AttributedString
     {
         reset();
 
@@ -297,7 +298,7 @@ class StyledStringParser
         {
             if (currentChar == '[' && !isEscapeChar)
             {
-                parseCode(fontAliases, fontCache, colors);
+                parseCode(provider);
             }
             else if (currentChar == '{' && !isEscapeChar)
             {
@@ -337,7 +338,7 @@ class StyledStringParser
         var attrString = new AttributedString(currentString.toString());
         var defaultAttr =
         {
-            font: fontCache.createFontWithNameAndSize(null, 25),
+            font: provider.getFontCache().createFontWithNameAndSize(null, 25),
             range: new AttributedRange(0, currentString.length)
         };
         attrString.applyAttributes(defaultAttr);
