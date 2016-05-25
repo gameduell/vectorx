@@ -5,7 +5,7 @@ class StyledString
 {
     private static var parser: StyledStringParser = new StyledStringParser();
 
-    public static function toAttributedStringWithParameters(styledString: String, fontAliases: FontAliasesStorage, fontCache: FontCache, colors: StringMap<Color4F>): AttributedString
+    public static function toAttributedStringWithParameters(styledString: String, fontAliases: FontAliasesStorage, fontCache: FontCache, colors: StringMap<Color4F>, ?classes: StyledStringClassStorage): AttributedString
     {
         return parser.toAttributedString(styledString, fontAliases, fontCache, colors);
     }

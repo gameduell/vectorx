@@ -127,7 +127,7 @@ class StyledStringParser
         pushAttribute(attr);
     }
 
-    private function parseShadow(string: String, colors: StringMap<Color4F>): FontShadow
+    private static function parseShadow(string: String, colors: StringMap<Color4F>): FontShadow
     {
         var shadow = new FontShadow();
 
@@ -164,7 +164,7 @@ class StyledStringParser
         return shadow;
     }
 
-    private function parseColor(value: String, colors: StringMap<Color4F>): Color4F
+    private static function parseColor(value: String, colors: StringMap<Color4F>): Color4F
     {
         var color = colors.get(value);
         if (color == null)
@@ -176,23 +176,12 @@ class StyledStringParser
         return color;
     }
 
-    private function parseCode(aliases: FontAliasesStorage, cache: FontCache, colors: StringMap<Color4F>): Void
+    public static function parseAttributes(code: String, colors: StringMap<Color4F>, aliases: FontAliasesStorage, cache: FontCache, attr: StringAttributes): StringAttributes
     {
-        var code = readCode();
         var codes = code.split(",");
-        var range: AttributedRange = new AttributedRange(currentString.length, 0);
-        var attr: StringAttributes = {range: range};
-        var sizeOverride: Null<Float> = null;
-
         for (code in codes)
         {
             var kv: Array<String> = code.trim().split('=');
-
-            if (kv[0].startsWith("/"))
-            {
-                popAttribute();
-                return;
-            }
 
             if (kv[0].length == 0)
             {
@@ -246,7 +235,22 @@ class StyledStringParser
             }
         }
 
-        pushAttribute(attr);
+        return attr;
+    }
+
+    private function parseCode(aliases: FontAliasesStorage, cache: FontCache, colors: StringMap<Color4F>): Void
+    {
+        var code = readCode();
+        if (code.trim().startsWith("/"))
+        {
+            popAttribute();
+            return;
+        }
+
+        var range: AttributedRange = new AttributedRange(currentString.length, 0);
+        var attr: StringAttributes = {range: range};
+
+        pushAttribute(parseAttributes(code, colors, aliases, cache, attr));
     }
 
     private function pushAttribute(attribute: StringAttributes): StringAttributes
