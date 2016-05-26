@@ -177,6 +177,56 @@ class StyledStringParser
         return color;
     }
 
+    private static function applyStyle(attr: StringAttributes, style: StringAttributes): StringAttributes
+    {
+        if (style.font != null)
+        {
+            attr.font = style.font;
+        }
+
+        if (style.size != null)
+        {
+            attr.size = style.size;
+        }
+
+        if (style.backgroundColor != null)
+        {
+            attr.backgroundColor = style.backgroundColor;
+        }
+
+        if (style.foregroundColor != null)
+        {
+            attr.foregroundColor = style.foregroundColor;
+        }
+
+        if (style.kern != null)
+        {
+            attr.kern = style.kern;
+        }
+
+        if (style.strokeWidth != null)
+        {
+            attr.strokeWidth = style.strokeWidth;
+        }
+
+        if (style.strokeColor != null)
+        {
+            attr.strokeColor = style.strokeColor;
+        }
+
+        if (style.shadow != null)
+        {
+            attr.shadow = style.shadow;
+        }
+
+        if (style.foregroundColor != null)
+        {
+            attr.foregroundColor = style.foregroundColor;
+        }
+
+        return attr;
+    }
+
     public static function parseAttributes(code: String, provider: StyleProviderInterface, attr: StringAttributes): StringAttributes
     {
         var codes = code.split(",");
@@ -226,6 +276,7 @@ class StyledStringParser
 
                         }
                     }
+                case "style": applyStyle(attr, provider.getStyles().getStyle(kv[1]).attr);
                 case "bg" | "background": attr.backgroundColor = parseColor(kv[1], provider.getColors());
                 case "baseline": attr.baselineOffset = Std.parseFloat(kv[1]);
                 case "kern": attr.kern = Std.parseFloat(kv[1]);

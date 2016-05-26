@@ -94,6 +94,11 @@ class StyledStringContext implements StyleProviderInterface
         fontContext.renderStringToColorStorage(layout, colorStorage, renderTrimmed);
     }
 
+    public function loadStyles(styleConfig: String)
+    {
+        styles.load(styleConfig, this);
+    }
+
     public static function create(configJson: String, loadFontFunc: String -> Data,
                                   loadImage: String -> Vector2 -> Vector2 -> ColorStorage,
                                   getImageSize: String -> Vector2 -> Vector2 -> Vector2,

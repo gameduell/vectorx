@@ -1,6 +1,5 @@
 package vectorx.font;
 
-import flash.utils.JSON;
 import haxe.Json;
 import types.Color4F;
 import haxe.ds.StringMap;
@@ -31,7 +30,7 @@ class StyleStorage implements StyleProviderInterface
     {
         this.provider = provider;
 
-        var json: StyleStorageConfig = Json.parse(configJson);
+        var json: StyleStorageConfig = Json.parse(json);
         if (json.styles == null || json.styles.length == 0)
         {
             return;
@@ -111,7 +110,7 @@ class StyleStorage implements StyleProviderInterface
             return "";
         }
 
-        stylesArr.sort(function(a,b) return Reflect.compare(a.toLowerCase(), b.toLowerCase()));
+        stylesArr.sort(function(a,b) return Reflect.compare(a.name.toLowerCase(), b.name.toLowerCase()));
 
         var configStyles = new List<StyleConfig>();
         for (style in stylesArr)
@@ -119,7 +118,8 @@ class StyleStorage implements StyleProviderInterface
             var styleConfig: StyleConfig =
             {
                 name: style.name,
-                style: style.style
+                style: style.style,
+                parent: null
             };
 
             if (style.parent != null)
@@ -131,7 +131,7 @@ class StyleStorage implements StyleProviderInterface
         }
 
         var config: StyleStorageConfig = {styles: configStyles};
-        return JSON.stringify(config, null, "");
+        return Json.stringify(config, null, "");
     }
 
     public function getFontAliases(): FontAliasesStorage

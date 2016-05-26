@@ -1,11 +1,14 @@
 package vectorx.font;
 
 import vectorx.font.StyleStorage.StyleConfig;
+import StringTools;
+
+using StringTools;
 
 class StringStyle
 {
     public var name(default, null): String;
-    public var attr: AttributedSpan;
+    public var attr: StringAttributes;
     public var parent: StringStyle;
     public var style(default, null): String;
 
