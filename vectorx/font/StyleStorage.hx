@@ -13,7 +13,7 @@ typedef StyleConfig =
 
 typedef StyleStorageConfig =
 {
-    ?styles: List<StyleConfig>
+    styles: Array<StyleConfig>
 };
 
 class StyleStorage implements StyleProviderInterface
@@ -35,8 +35,6 @@ class StyleStorage implements StyleProviderInterface
         {
             return;
         }
-
-        var parentMap = new StringMap<String>();
 
         for (styleConfig in json.styles)
         {
@@ -112,13 +110,13 @@ class StyleStorage implements StyleProviderInterface
 
         stylesArr.sort(function(a,b) return Reflect.compare(a.name.toLowerCase(), b.name.toLowerCase()));
 
-        var configStyles = new List<StyleConfig>();
+        var configStyles = new Array<StyleConfig>();
         for (style in stylesArr)
         {
             var styleConfig: StyleConfig =
             {
                 name: style.name,
-                style: style.style,
+                value: style.style,
                 parent: null
             };
 
