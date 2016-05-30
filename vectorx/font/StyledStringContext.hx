@@ -99,6 +99,11 @@ class StyledStringContext implements StyleProviderInterface
         styles.load(styleConfig, this);
     }
 
+    public function getColor(value: String)
+    {
+        return StyledStringParser.parseColor(value, colors);
+    }
+
     public static function create(configJson: String, loadFontFunc: String -> Data,
                                   loadImage: String -> Vector2 -> Vector2 -> ColorStorage,
                                   getImageSize: String -> Vector2 -> Vector2 -> Vector2,

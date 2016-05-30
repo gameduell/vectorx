@@ -165,7 +165,7 @@ class StyledStringParser
         return shadow;
     }
 
-    private static function parseColor(value: String, colors: StringMap<Color4F>): Color4F
+    public static function parseColor(value: String, colors: StringMap<Color4F>): Color4F
     {
         var color = colors.get(value);
         if (color == null)
