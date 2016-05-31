@@ -241,13 +241,13 @@ class FontContext
                 if (span.haveShadow())
                 {
                     var shadow = span.shadow;
-                    renderSpanShadow(span, pixelRatio, fontEngine, shadow.color);
+                    renderSpanShadow(span, pixelRatio, fontEngine, shadow.color, Math.ceil(shadow.blurRadius));
                     if (shadow.blurRadius > 0)
                     {
                         blur.blur(shadowBuffer, Math.ceil(shadow.blurRadius));
                     }
-                    var dstX = Math.ceil(x + shadow.offset.x * pixelRatio);
-                    var dstY = Math.ceil(spanY + shadow.offset.y * pixelRatio);
+                    var dstX = Math.ceil(x + shadow.offset.x * pixelRatio - shadow.blurRadius);
+                    var dstY = Math.ceil(spanY + shadow.offset.y * pixelRatio - shadow.blurRadius);
                     blendFromColorStorage(dstX, dstY, outStorage, shadowBuffer, shadowBuffer.selectedRect);
                 }
 
@@ -411,10 +411,10 @@ class FontContext
         dstData.offset = dstOffset;
     }
 
-    private function renderSpanShadow(span: AttributedSpan, pixelRatio: Float, fontEngine: FontEngine, color: Color4F): ColorStorage
+    private function renderSpanShadow(span: AttributedSpan, pixelRatio: Float, fontEngine: FontEngine, color: Color4F, blurRadius: Int): ColorStorage
     {
-        var width: Int = Math.ceil(Math.abs(measure.x));
-        var height: Int = Math.ceil(measure.y);
+        var width: Int = Math.ceil(Math.abs(measure.x + blurRadius * 2));
+        var height: Int = Math.ceil(measure.y + blurRadius * 2);
 
         if (shadowBuffer == null)
         {
@@ -440,7 +440,7 @@ class FontContext
             var renderer: SolidScanlineRenderer = shadowRenderingStack.scanlineRenderer;
             renderer.color.setFromColor4F(color);
             shadowBuffer.fill(renderer.color.b << 16 | renderer.color.g << 8 | renderer.color.r);
-            fontEngine.renderString(span.string, span.size * pixelRatio, 0, 0, renderer, span.kern * pixelRatio);
+            fontEngine.renderString(span.string, span.size * pixelRatio, blurRadius, blurRadius, renderer, span.kern * pixelRatio);
         }
         catch(ex: Dynamic)
         {
