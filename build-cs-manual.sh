@@ -59,7 +59,6 @@ src/cs/internal/Function.cs \
 src/aggx/vectorial/InnerJoin.cs \
 src/vectorx/svg/SvgElementSerializer.cs \
 src/aggx/vectorial/VectorPath.cs \
-src/types/DataTest.cs \
 src/aggx/svg/XmlExtender.cs \
 src/vectorx/font/StyledStringContext.cs \
 src/types/RectF.cs \
@@ -78,6 +77,7 @@ src/aggx/color/SpanInterpolatorLinear.cs \
 src/aggx/vectorial/IVertexSource.cs \
 src/aggx/vectorial/Ellipse.cs \
 src/haxe/format/JsonParser.cs \
+src/haxe/format/JsonPrinter.cs \
 src/aggx/renderer/ClippingRenderer.cs \
 src/aggx/core/math/Calc.cs \
 src/aggx/svg/SVGData.cs \
@@ -93,6 +93,7 @@ src/haxe/io/Eof.cs \
 src/aggx/rasterizer/FillingRule.cs \
 src/aggx/rfpx/data/CmapFormat6.cs \
 src/Type.cs \
+src/Date.cs \
 src/types/HorizontalAlignment.cs \
 src/vectorx/font/FontAttachment.cs \
 src/aggx/vectorial/VertexBlockStorage.cs \
@@ -127,6 +128,9 @@ src/aggx/color/IColorFunction.cs \
 src/aggx/renderer/SolidScanlineRenderer.cs \
 src/Reflect.cs \
 src/vectorx/font/LayoutBehaviour.cs \
+src/vectorx/font/StyleProviderInterface.cs \
+src/vectorx/font/StyleStorage.cs \
+src/vectorx/font/StringStyle.cs \
 src/aggx/renderer/IRenderer.cs \
 src/aggx/vectorial/LineJoin.cs \
 src/aggx/vectorial/NullMarkers.cs \

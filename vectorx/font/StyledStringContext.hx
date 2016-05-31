@@ -41,12 +41,13 @@ typedef StyledStringContextConfing =
     ?attachments: Array<AttachmentConfig>
 };
 
-class StyledStringContext
+class StyledStringContext implements StyleProviderInterface
 {
     public var fontCache(default, null): FontCache;
     public var fontAttachments(default, null): FontAttachmentStorage;
     public var fontAliases(default, null): FontAliasesStorage;
     public var colors(default, null): StringMap<Color4F>;
+    public var styles(default, null): StyleStorage;
     public var fontContext: FontContext;
 
     private var loadImage: String -> Vector2 -> Vector2 -> ColorStorage;
@@ -62,6 +63,7 @@ class StyledStringContext
         fontAttachments = new FontAttachmentStorage();
         fontAliases = new FontAliasesStorage();
         colors = new StringMap<Color4F>();
+        styles = new StyleStorage();
     }
 
     public function calculateTextLayout(styledString: String, rect: RectI, layoutConfig: TextLayoutConfig): TextLayout
@@ -90,6 +92,16 @@ class StyledStringContext
         }
 
         fontContext.renderStringToColorStorage(layout, colorStorage, renderTrimmed);
+    }
+
+    public function loadStyles(styleConfig: String)
+    {
+        styles.load(styleConfig, this);
+    }
+
+    public function getColor(value: String)
+    {
+        return StyledStringParser.parseColor(value, colors);
     }
 
     public static function create(configJson: String, loadFontFunc: String -> Data,
@@ -151,5 +163,25 @@ class StyledStringContext
         }
 
         return context;
+    }
+
+    public function getFontAliases(): FontAliasesStorage
+    {
+        return fontAliases;
+    }
+
+    public function getFontCache(): FontCache
+    {
+        return fontCache;
+    }
+
+    public function getColors(): StringMap<Color4F>
+    {
+        return colors;
+    }
+
+    public function getStyles(): StyleStorage
+    {
+        return styles;
     }
 }

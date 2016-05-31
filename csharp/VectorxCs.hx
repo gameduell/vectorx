@@ -14,7 +14,7 @@ import vectorx.font.FontContext;
 import vectorx.svg.SvgContext;
 import aggx.svg.SVGData;
 import vectorx.ColorStorage;
-import types.DataTest;
+//import types.DataTest;
 
 class StyledStringResourceProvider
 {
@@ -42,7 +42,7 @@ class VectorxCs
         var convDash = new aggx.vectorial.converters.ConvDash(null);
         var vcgenDash = new aggx.vectorial.generators.VcgenDash();
 
-        DataTest.testAll();
+        //DataTest.testAll();
         var colorStorage: ColorStorage = new ColorStorage(512, 512);
         var svgData = new SVGData();
         var context = new SvgContext();
