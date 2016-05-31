@@ -80,6 +80,17 @@ class StyleStorage implements StyleProviderInterface
         throw "not implemented";
     }
 
+    public function getStyleNames(): Array<String>
+    {
+        var arr: Array<String> = [];
+        for (i in styles)
+        {
+            arr.push(i.name);
+        }
+
+        return arr;
+    }
+
     public function getStyle(name: String): StringStyle
     {
         return styles.get(name);
