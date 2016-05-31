@@ -90,6 +90,15 @@ class ColorStorage
         }
     }
 
+    public function fill(color: Int): Void
+    {
+        for (i in 0 ... this.width * this.height)
+        {
+            data.offset = i * COMPONENTS;
+            data.writeUInt32(color);
+        }
+    }
+
     public function resize(width: Int, height: Int): Void
     {
         clear();

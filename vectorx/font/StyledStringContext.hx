@@ -99,7 +99,7 @@ class StyledStringContext implements StyleProviderInterface
         styles.load(styleConfig, this);
     }
 
-    public function getColor(value: String)
+    public function getColor(value: String): Color4F
     {
         return StyledStringParser.parseColor(value, colors);
     }
