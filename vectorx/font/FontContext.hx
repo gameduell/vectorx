@@ -437,8 +437,9 @@ class FontContext
         {
             var stride: Int = ColorStorage.COMPONENTS * width;
             shadowRenderingStack = RenderingStack.initialise(shadowRenderingStack, width, height, stride);
-            var renderer = shadowRenderingStack.scanlineRenderer;
+            var renderer: SolidScanlineRenderer = shadowRenderingStack.scanlineRenderer;
             renderer.color.setFromColor4F(color);
+            shadowBuffer.fill(renderer.color.b << 16 | renderer.color.g << 8 | renderer.color.r);
             fontEngine.renderString(span.string, span.size * pixelRatio, 0, 0, renderer, span.kern * pixelRatio);
         }
         catch(ex: Dynamic)
