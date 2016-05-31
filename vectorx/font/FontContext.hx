@@ -414,7 +414,8 @@ class FontContext
     private function renderSpanShadow(span: AttributedSpan, pixelRatio: Float, fontEngine: FontEngine, color: Color4F, blurRadius: Int): ColorStorage
     {
         var width: Int = Math.ceil(Math.abs(measure.x + blurRadius * 2));
-        var height: Int = Math.ceil(measure.y + blurRadius * 2);
+        var height: Int = Math.ceil(span.bboxHeight + blurRadius * 2);
+        trace('height: $height my: ${measure.y}');
 
         if (shadowBuffer == null)
         {

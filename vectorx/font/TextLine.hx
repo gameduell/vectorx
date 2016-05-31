@@ -113,12 +113,12 @@ class TextLine
             var scale = fontEngine.getScale(span.size);
 
             var by =  -face.glyph.bounds.y1 * scale * pixelRatio;
-            var h = (-face.glyph.bounds.y2 - -face.glyph.bounds.y1) * scale * pixelRatio;
 
             var ext: Float = alignY + measure.y + by;
             if (ext > maxBgHeight)
             {
                 maxBgHeight = ext;
+                span.bboxHeight = ext;
             }
 
             if (span.haveShadow())
