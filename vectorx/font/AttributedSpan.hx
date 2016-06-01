@@ -22,6 +22,7 @@ class AttributedSpan
 
     public var baseString(default, null): String;
     public var string(default, null): String;
+    public var bboxHeight: Float;
 
     private var measure: Vector2 = new Vector2();
     private var measured: Bool = false;
