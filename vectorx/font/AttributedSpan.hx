@@ -135,12 +135,12 @@ class AttributedSpan
         measured = false;
     }
 
-    public function get_size(): Int
+    public function get_size(): Null<Int>
     {
         return this.size != null ? this.size : FontContext.defaultAttributes.size;
     }
 
-    public function set_size(val: Int): Int
+    public function set_size(val: Int): Null<Int>
     {
         return size = val;
     }
