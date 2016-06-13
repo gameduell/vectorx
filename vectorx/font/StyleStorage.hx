@@ -16,6 +16,7 @@ typedef StyleStorageConfig =
     styles: Array<StyleConfig>
 };
 
+@:access(vectorx.font.StringStyle)
 class StyleStorage implements StyleProviderInterface
 {
     private var styles: StringMap<StringStyle> = new StringMap<StringStyle>();
@@ -80,6 +81,17 @@ class StyleStorage implements StyleProviderInterface
         throw "not implemented";
     }
 
+    public function getStyleNames(): Array<String>
+    {
+        var arr: Array<String> = [];
+        for (i in styles)
+        {
+            arr.push(i.name);
+        }
+
+        return arr;
+    }
+
     public function getStyle(name: String): StringStyle
     {
         return styles.get(name);
@@ -93,6 +105,29 @@ class StyleStorage implements StyleProviderInterface
     public function removeStyle(name: String): Bool
     {
         return styles.remove(name);
+    }
+
+    public function renameStyle(name: String, newName: String): Void
+    {
+        var style = getStyle(name);
+        if (style == null)
+        {
+            throw 'Style "$name" is not found';
+        }
+
+        if (name == newName)
+        {
+            return;
+        }
+
+        if (getStyle(newName) != null)
+        {
+            throw 'Failed to rename style "$name"". "$newName"" is already exists';
+        }
+
+        styles.remove(name);
+        styles.set(newName, style);
+        style.name = newName;
     }
 
     public function save(): String
