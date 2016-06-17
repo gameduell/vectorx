@@ -1,5 +1,6 @@
 package vectorx.font;
 
+import vectorx.misc.UnionFind;
 import haxe.Json;
 import types.Color4F;
 import haxe.ds.StringMap;
@@ -100,6 +101,47 @@ class StyleStorage implements StyleProviderInterface
     public function addStyle(style: StringStyle)
     {
         styles.set(style.name, style);
+    }
+    
+    public function setStyleParent(styleName: String, parentName: String): Void
+    {
+        var style = styles.get(styleName);
+        if (style == null)
+        {
+            throw 'Style $styleName is not found';
+        }
+
+        var parent = styles.get(parentName);
+        if (parent == null)
+        {
+            throw 'Parent style $parentName is not found';
+        }
+
+        var names = getStyleNames();
+        names.sort((function(a,b) return Reflect.compare(a, b)));
+
+        var uf = new UnionFind(names.length);
+        for (style in styles)
+        {
+            if (style.parent == null)
+            {
+                continue;
+            }
+
+            if (style.name == styleName)
+            {
+                continue;
+            }
+
+            uf.unite(names.indexOf(style.name), names.indexOf(style.parent.name));
+        }
+
+        if (uf.find(names.indexOf(styleName), names.indexOf(parentName)))
+        {
+            throw 'Could not set $styleName parent to $parentName, because it will create circular dependancy';
+        }
+
+        style.parent = parent;
     }
 
     public function removeStyle(name: String): Bool
