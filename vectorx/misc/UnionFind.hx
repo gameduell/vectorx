@@ -35,7 +35,6 @@ class UnionFind
             data[prev] = root;
         }
 
-        trace('id: $id root: $root');
         return root;
     }
 
@@ -46,22 +45,23 @@ class UnionFind
 
     public function unite(a: Int, b: Int): Void
     {
-
         var rootA = root(a);
         var rootB = root(b);
-        trace('ra: $rootA rb: $rootB');
+
         var sizeA = sizes[rootA];
         var sizeB = sizes[rootB];
 
-        if (sizeB > sizeA)
+        if (sizeA > sizeB)
         {
             data[rootB] = rootA;
-            sizes[rootA] += sizes[rootB];
         }
         else
         {
             data[rootA] = rootB;
-            sizes[rootB] += sizes[rootA];
+            if (sizeA == sizeB)
+            {
+                sizes[rootB] = sizes[rootB] + 1;
+            }
         }
     }
 }
