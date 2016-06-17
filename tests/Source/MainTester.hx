@@ -57,6 +57,7 @@ class MainTester
         r.add(new StyledStringParserTest());
         r.add(new SvgSerializerTest());
 		r.add(new AttributedStringTest());
+		r.add(new UnionFindTest());
 
         #if test
 

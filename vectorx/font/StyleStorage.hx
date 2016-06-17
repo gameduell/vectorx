@@ -102,7 +102,7 @@ class StyleStorage implements StyleProviderInterface
     {
         styles.set(style.name, style);
     }
-    
+
     public function setStyleParent(styleName: String, parentName: String): Void
     {
         var style = styles.get(styleName);
