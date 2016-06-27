@@ -3,8 +3,8 @@
 
 	<app title="VectorX Tests" package="com.gameduell.tests" version="0.0.1" company="GameDuell GmbH" />
 
-	<duelllib name="duellkit" version="6.0.0+" />
-	<duelllib name="unittest" version="5.0.0+" />
+	<duelllib name="duellkit" version="7.0.0+" />
+	<duelllib name="unittest" version="6.0.0+" />
 	<duelllib name="vectorx" version="master" />
 
 	<main name="MainTester" />
