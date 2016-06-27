@@ -13,7 +13,7 @@ class AttributedSpan
     public var foregroundColor: Color4F = null;
     public var baselineOffset:  Null<Float>;
     public var kern: Null<Float> = null;
-    @:isVar public var size(get, set): Null<Int> = null;
+    public var size(get, set): Null<Int>;
     public var strokeWidth: Null<Float> = null;
     public var strokeColor: Color4F = null;
     public var shadow: FontShadow = null;
@@ -28,6 +28,8 @@ class AttributedSpan
     private var measured: Bool = false;
 
     private var id(default, null): Int;
+
+    private var cSize: Null<Int> = null;
     private static var nextId: Int = 0;
 
     public function setFromSpan(other: AttributedSpan)
@@ -137,12 +139,12 @@ class AttributedSpan
 
     public function get_size(): Null<Int>
     {
-        return this.size != null ? this.size : FontContext.defaultAttributes.size;
+        return this.cSize != null ? this.cSize : FontContext.defaultAttributes.size;
     }
 
     public function set_size(val: Int): Null<Int>
     {
-        return size = val;
+        return cSize = val;
     }
 
     public function getMeasure(): Vector2

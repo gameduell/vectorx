@@ -1,3 +1,4 @@
+import StyledStringParserTest.MockProvider;
 import vectorx.font.AttributedString;
 import vectorx.font.AttributedStringPart;
 import vectorx.font.StyledStringParser;
@@ -11,7 +12,8 @@ class AttributedStringTest extends unittest.TestCase
 		var originalString: String = "[kern=5]abc[kern=10]def[/kern]ghi[/kern]";
 		var parser = new StyledStringParser();
 		var cache = new FontCache(null);
-		var attributedString: AttributedString = parser.toAttributedString(originalString, null, cache, null);
+		var provider = new MockProvider();
+		var attributedString: AttributedString = parser.toAttributedString(originalString, provider);
 		var strings: Array<AttributedStringPart> = attributedString.toAttributedStringPartArray();
 		assertTrue(strings.length == 3);
 		assertTrue(strings[0].text == "abc");

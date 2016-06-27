@@ -239,6 +239,7 @@ src/aggx/color/ColorArray.cs \
 src/haxe/CallStack.cs \
 src/StringBuf.cs \
 src/vectorx/font/StackBlur.cs \
+src/vectorx/misc/UnionFind.cs \
 src/vectorx/ColorStorageAccessor.cs \
 src/vectorx/font/AttributedStringPart.cs \
 src/types/Color4B.cs \
