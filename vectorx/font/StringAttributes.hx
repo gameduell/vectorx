@@ -78,5 +78,8 @@ typedef StringAttributes = {
     /** Shadow object **/
     @:optional var shadow: FontShadow; // null (no shadow)
 
+    /** Extra line spacing **/
+    @:optional var extraLineSpacing: Null<Float>; // Default 0.0
+
     @:optional var attachmentId: String; // null (no attachment)
 }

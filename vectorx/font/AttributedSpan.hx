@@ -19,6 +19,7 @@ class AttributedSpan
     public var shadow: FontShadow = null;
     public var attachment: FontAttachment = null;
     public var attachmentId: String = null;
+    public var extraLineSpacing: Null<Float> = null;
 
     public var baseString(default, null): String;
     public var string(default, null): String;
@@ -49,6 +50,7 @@ class AttributedSpan
         this.baseString = other.baseString;
         this.string = other.string;
         this.size = other.size;
+        this.extraLineSpacing = other.extraLineSpacing;
         this.measured = false;
     }
 
@@ -102,6 +104,8 @@ class AttributedSpan
         attachment = chooseBefore(attachment, source.attachment);
         attachmentId = chooseBefore(attachmentId, source.attachmentId);
         size = chooseBefore(size, source.size);
+        extraLineSpacing = chooseBefore(extraLineSpacing, source.extraLineSpacing);
+
         measured = false;
     }
 
@@ -118,6 +122,7 @@ class AttributedSpan
         attachment = choose(attachment, source.attachment);
         attachmentId = choose(attachmentId, source.attachmentId);
         size = choose(size, source.size);
+        extraLineSpacing = choose(extraLineSpacing, source.extraLineSpacing);
 
         measured = false;
     }
@@ -134,6 +139,8 @@ class AttributedSpan
         shadow = choose(shadow, source.shadow);
         attachmentId = choose(attachmentId, source.attachmentId);
         size = choose(size, source.size);
+        extraLineSpacing = choose(extraLineSpacing, source.extraLineSpacing);
+
         measured = false;
     }
 

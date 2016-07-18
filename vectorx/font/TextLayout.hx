@@ -26,7 +26,7 @@ class TextLayout
         this.pixelRatio = config.scale;
 
         lines = TextLine.calculate(string, rect.width, attachmentResolver, config.scale);
-        outputRect.height = calculateTextHeight(lines, string.string);
+        outputRect.height = calculateTextHeight(lines, string.string, config.scale);
 
         if (config.layoutBehaviour == LayoutBehaviour.AlwaysFit)
         {
@@ -61,7 +61,7 @@ class TextLayout
         {
             lastRatio = (begin + end) / 2;
             lines = TextLine.calculate(string, rect.width, attachmentResolver, lastRatio);
-            height = calculateTextHeight(lines, string.string);
+            height = calculateTextHeight(lines, string.string, lastRatio);
 
             if (textFits(lines, height, rect))
             {
@@ -114,7 +114,7 @@ class TextLayout
         return true;
     }
 
-    private static function calculateTextHeight(lines: Array<TextLine>, string: String): Float
+    private static function calculateTextHeight(lines: Array<TextLine>, string: String, pixelRatio: Float): Float
     {
         if (lines.length == 0)
         {
@@ -127,6 +127,7 @@ class TextLayout
         {
             var line: TextLine = lines[i];
             var isLastLine: Bool = i == lines.length - 1;
+            var isFirstLine: Bool = i == 0;
 
             if (isLastLine)
             {
@@ -135,6 +136,15 @@ class TextLayout
             else
             {
                 height += line.maxBgHeight;
+            }
+
+            if(!isFirstLine && line.spans.length > 0)
+            {
+                var span = line.spans[0];
+                if (span.extraLineSpacing != null)
+                {
+                    height += span.extraLineSpacing * pixelRatio;
+                }
             }
 
             //trace('line: ${string.substr(line.begin, line.lenght)} lineHeight: ${line.maxBgHeight} total: $height}');

@@ -89,7 +89,8 @@ class FontContext
         baselineOffset: 0,
         strokeWidth: 0,
         strokeColor: new Color4F(),
-        size: 25
+        size: 25,
+        extraLineSpacing: 0
     };
 
     private static var defaultTextlayout: TextLayoutConfig =
@@ -152,24 +153,35 @@ class FontContext
 
         debugBox(textLayout.outputRect.x, textLayout.outputRect.y, textLayout.outputRect.width, textLayout.outputRect.height);
 
-        for (line in textLayout.lines)
+        for (i in 0 ... textLayout.lines.length)
         {
+            var line = textLayout.lines[i];
+            var isLastLine = i == textLayout.lines.length - 1;
+            var isFirstLine = i == 0;
+
             var x: Float = textLayout.alignX(line);
+
+            var extraLineSpacing = 0;
+            if ( !isFirstLine && line.spans.length > 0)
+            {
+                var span = line.spans[0];
+                extraLineSpacing += span.extraLineSpacing != null ? span.extraLineSpacing : defaultAttributes.extraLineSpacing;
+            }
+            extraLineSpacing *= pixelRatio
 
             if (renderTrimmed)
             {
                 x -= textLayout.outputRect.x;
             }
 
+            //y += extraLineSpacing;
+
             debugBox(x, y, line.width, line.maxBgHeight);
             //baseline
-            debugBox(x, y + line.maxSpanHeight, line.width, 1);
+            debugBox(x, y + line.maxSpanHeight + extraLineSpacing, line.width, 1);
 
-            for (i in 0 ... line.spans.length)
+            for (span in line.spans)
             {
-                var span = line.spans[i];
-                var isLastLine = i == line.spans.length - 1;
-
                 var fontEngine: FontEngine = span.font.internalFont;
                 fontEngine.rasterizer = rasterizer;
                 fontEngine.scanline = scanline;
@@ -227,6 +239,11 @@ class FontContext
                 {
                     scanlineRenderer.color.setFromColor4F(span.backgroundColor);
                     var height = isLastLine ? line.maxBgHeightWithShadow : line.maxBgHeight;
+                    if (!isFirstLine)
+                    {
+                        height += extraLineSpacing * pixelRatio;
+                    }
+
                     box(path, x, y, measure.x + 1 + attachmentWidth,  height + 1);
                     rasterizer.reset();
                     rasterizer.addPath(path);
