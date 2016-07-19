@@ -325,7 +325,7 @@ class FontContext
                 fontEngine.scanline = null;
             }
 
-            y += line.maxBgHeight;
+            y += line.maxBgHeight + extraLineSpacing;
         }
 
         renderDebugPath(scanlineRenderer);
