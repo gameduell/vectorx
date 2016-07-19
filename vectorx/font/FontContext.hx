@@ -161,13 +161,13 @@ class FontContext
 
             var x: Float = textLayout.alignX(line);
 
-            var extraLineSpacing = 0;
+            var extraLineSpacing: Float = 0.;
             if ( !isFirstLine && line.spans.length > 0)
             {
                 var span = line.spans[0];
                 extraLineSpacing += span.extraLineSpacing != null ? span.extraLineSpacing : defaultAttributes.extraLineSpacing;
             }
-            extraLineSpacing *= pixelRatio
+            extraLineSpacing *= pixelRatio;
 
             if (renderTrimmed)
             {
@@ -176,7 +176,7 @@ class FontContext
 
             //y += extraLineSpacing;
 
-            debugBox(x, y, line.width, line.maxBgHeight);
+            debugBox(x, y, line.width, line.maxBgHeight + extraLineSpacing);
             //baseline
             debugBox(x, y + line.maxSpanHeight + extraLineSpacing, line.width, 1);
 
@@ -223,7 +223,7 @@ class FontContext
                         //intentionally left for debugging
                         //trace('h: $h y: ${measureY + by + alignY} max: $maxSpanHeight');
                         //trace('${Utf8.sub(spanString, i, 1)} w: $w h: $h advance: ${face.glyph.advanceWidth * scale} kern: $kern bboxX: ${bboxX + face.glyph.advanceWidth * scale + kern - textLayout.alignX(line)}');
-                        debugBox(bboxX + bx, y + measure.y + by + alignY + baseLineOffset, w, h);
+                        debugBox(bboxX + bx, y + measure.y + by + alignY + baseLineOffset + extraLineSpacing, w, h);
                         ////debugBox(bboxX, y + measureY + by + alignY + baseLineOffset, face.glyph.advanceWidth * scale + kern, line.maxSpanHeight);
                     }
 
@@ -238,11 +238,7 @@ class FontContext
                 if (span.backgroundColor != null && span.backgroundColor.a >= 1.0/255)
                 {
                     scanlineRenderer.color.setFromColor4F(span.backgroundColor);
-                    var height = isLastLine ? line.maxBgHeightWithShadow : line.maxBgHeight;
-                    if (!isFirstLine)
-                    {
-                        height += extraLineSpacing * pixelRatio;
-                    }
+                    var height = isLastLine ? line.maxBgHeightWithShadow : line.maxBgHeight + extraLineSpacing;
 
                     box(path, x, y, measure.x + 1 + attachmentWidth,  height + 1);
                     rasterizer.reset();
@@ -251,7 +247,7 @@ class FontContext
                     path.removeAll();
                 }
 
-                var spanY: Float = y + alignY + baseLineOffset;
+                var spanY: Float = y + alignY + baseLineOffset + extraLineSpacing;
 
                 //render text shadows
 
@@ -457,7 +453,7 @@ class FontContext
             var renderer: SolidScanlineRenderer = shadowRenderingStack.scanlineRenderer;
             renderer.color.setFromColor4F(color);
             shadowBuffer.fill(renderer.color.b << 16 | renderer.color.g << 8 | renderer.color.r);
-            fontEngine.renderString(span.string, span.size * pixelRatio, blurRadius, blurRadius, renderer, span.kern * pixelRatio);
+            fontEngine.renderString(span.string, span.getFontSize() * pixelRatio, blurRadius, blurRadius, renderer, span.kern * pixelRatio);
         }
         catch(ex: Dynamic)
         {
@@ -486,7 +482,7 @@ class FontContext
         target.moveTo(x, y);
         target.lineTo(x + w, y);
         target.lineTo(x + w, y + h);
-        target.lineTo(x,y + h);
+        target.lineTo(x, y + h);
         target.endPoly(PathFlags.CLOSE);
     }
 

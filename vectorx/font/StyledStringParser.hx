@@ -204,6 +204,16 @@ class StyledStringParser
             attr.kern = style.kern;
         }
 
+        if (style.baselineOffset != null)
+        {
+            attr.baselineOffset = style.baselineOffset;
+        }
+
+        if (style.extraLineSpacing != null)
+        {
+            attr.extraLineSpacing = style.extraLineSpacing;
+        }
+
         if (style.strokeWidth != null)
         {
             attr.strokeWidth = style.strokeWidth;
@@ -279,6 +289,7 @@ class StyledStringParser
                 case "style": applyStyle(attr, provider.getStyles().getStyle(kv[1]).attr);
                 case "bg" | "background": attr.backgroundColor = parseColor(kv[1], provider.getColors());
                 case "baseline": attr.baselineOffset = Std.parseFloat(kv[1]);
+                case "extraSpacing" | "xspc": attr.extraLineSpacing = Std.parseFloat(kv[1]);
                 case "kern": attr.kern = Std.parseFloat(kv[1]);
                 case "strokeWidth" | "sw": attr.strokeWidth = Std.parseFloat(kv[1]);
                 case "strokeColor" | "sc": attr.strokeColor = parseColor(kv[1], provider.getColors());
