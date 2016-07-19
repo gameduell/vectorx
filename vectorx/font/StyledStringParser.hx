@@ -237,6 +237,17 @@ class StyledStringParser
         return attr;
     }
 
+    private static function parseFloat(value: String): Float
+    {
+        var val = Std.parseFloat(value);
+        if (Math.isNaN(val))
+        {
+            return 0.0;
+        }
+
+        return val;
+    }
+
     public static function parseAttributes(code: String, provider: StyleProviderInterface, attr: StringAttributes): StringAttributes
     {
         var codes = code.split(",");
@@ -288,10 +299,10 @@ class StyledStringParser
                     }
                 case "style": applyStyle(attr, provider.getStyles().getStyle(kv[1]).attr);
                 case "bg" | "background": attr.backgroundColor = parseColor(kv[1], provider.getColors());
-                case "baseline": attr.baselineOffset = Std.parseFloat(kv[1]);
-                case "extraSpacing" | "xspc": attr.extraLineSpacing = Std.parseFloat(kv[1]);
-                case "kern": attr.kern = Std.parseFloat(kv[1]);
-                case "strokeWidth" | "sw": attr.strokeWidth = Std.parseFloat(kv[1]);
+                case "baseline": attr.baselineOffset = parseFloat(kv[1]);
+                case "extraSpacing" | "xspc": attr.extraLineSpacing = parseFloat(kv[1]);
+                case "kern": attr.kern = parseFloat(kv[1]);
+                case "strokeWidth" | "sw": attr.strokeWidth = parseFloat(kv[1]);
                 case "strokeColor" | "sc": attr.strokeColor = parseColor(kv[1], provider.getColors());
                 case "shadow" | "shdw" | "sh": attr.shadow = parseShadow(kv[1], provider.getColors());
                 default: throw('undefined code "${kv[0]}"');
