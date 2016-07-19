@@ -213,7 +213,7 @@ class FontContext
                 for (i in 0 ... Utf8.length(spanString))
                 {
                     var face = fontEngine.getFace(Utf8.charCodeAt(spanString, i));
-                    var scale = fontEngine.getScale(span.size) * pixelRatio;
+                    var scale = fontEngine.getScale(span.getFontSize()) * pixelRatio;
                     if (face.glyph.bounds != null)
                     {
                         var bx =  face.glyph.bounds.x1 * scale;
@@ -280,7 +280,7 @@ class FontContext
 
                 if (span.strokeWidth == null || span.strokeWidth >= 0)
                 {
-                    fontEngine.renderString(spanString, span.size * pixelRatio, x, spanY, scanlineRenderer, kern);
+                    fontEngine.renderString(spanString, span.getFontSize() * pixelRatio, x, spanY, scanlineRenderer, kern);
                 }
 
                 //render outline
@@ -293,7 +293,7 @@ class FontContext
 
                     var strokeWidth = Math.abs(span.strokeWidth);
 
-                    fontEngine.renderStringStroke(spanString, span.size * pixelRatio, x, spanY, scanlineRenderer, strokeWidth, kern);
+                    fontEngine.renderStringStroke(spanString, span.getFontSize() * pixelRatio, x, spanY, scanlineRenderer, strokeWidth, kern);
                 }
 
                 x += measure.x;

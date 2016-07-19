@@ -110,7 +110,7 @@ class TextLine
             {
                 continue;
             }
-            var scale = fontEngine.getScale(span.size);
+            var scale = fontEngine.getScale(span.getFontSize());
 
             var by =  -face.glyph.bounds.y1 * scale * pixelRatio;
 
@@ -172,7 +172,7 @@ class TextLine
 
             var fontEngine: FontEngine = span.font.internalFont;
             var spanString: String = span.string;
-            var scale = fontEngine.getScale(span.size) * pixelRatio;
+            var scale = fontEngine.getScale(span.getFontSize()) * pixelRatio;
             var kern = span.kern == null ? 0 : span.kern;
             kern *= pixelRatio;
 

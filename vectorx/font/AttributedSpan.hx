@@ -13,7 +13,7 @@ class AttributedSpan
     public var foregroundColor: Color4F = null;
     public var baselineOffset:  Null<Float>;
     public var kern: Null<Float> = null;
-    public var size(get, set): Null<Int>;
+    public var size: Null<Int>;
     public var strokeWidth: Null<Float> = null;
     public var strokeColor: Color4F = null;
     public var shadow: FontShadow = null;
@@ -30,7 +30,6 @@ class AttributedSpan
 
     private var id(default, null): Int;
 
-    private var cSize: Null<Int> = null;
     private static var nextId: Int = 0;
 
     public function setFromSpan(other: AttributedSpan)
@@ -138,25 +137,16 @@ class AttributedSpan
         strokeColor = choose(strokeColor, source.strokeColor);
         shadow = choose(shadow, source.shadow);
         attachmentId = choose(attachmentId, source.attachmentId);
+
         size = choose(size, source.size);
+
         extraLineSpacing = choose(extraLineSpacing, source.extraLineSpacing);
 
         measured = false;
     }
 
-    public function get_size(): Null<Int>
-    {
-        return this.cSize != null ? this.cSize : FontContext.defaultAttributes.size;
-    }
-
-    public function set_size(val: Int): Null<Int>
-    {
-        return cSize = val;
-    }
-
     public function getMeasure(): Vector2
     {
-
         if (!measured)
         {
             if (range.length == 0)
@@ -166,7 +156,7 @@ class AttributedSpan
             else
             {
                 var kern = this.kern == null ? 0 : this.kern;
-                font.internalFont.measureString(string, size, measure, kern);
+                font.internalFont.measureString(string, getFontSize(), measure, kern);
             }
 
             measured = true;
@@ -180,6 +170,15 @@ class AttributedSpan
         return shadow != null && string != null && string.length > 0;
     }
 
+    public function getFontSize(): Int
+    {
+        if (size == null)
+        {
+            return FontContext.defaultAttributes.size;
+        }
+
+        return size;
+    }
     public function getFinalSize(pixelRatio: Float, ?output: Vector2): Vector2
     {
         if (output == null)
