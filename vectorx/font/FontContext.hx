@@ -167,6 +167,7 @@ class FontContext
                 var span = line.spans[0];
                 extraLineSpacing += span.extraLineSpacing != null ? span.extraLineSpacing : defaultAttributes.extraLineSpacing;
             }
+
             extraLineSpacing *= pixelRatio;
 
             if (renderTrimmed)
@@ -366,7 +367,7 @@ class FontContext
 
     private static function blendFromColorStorage(x: Int, y: Int, destination: ColorStorage, source: ColorStorage, sourceRect: RectI)
     {
-        var dstX = x;
+        var dstX = x < 0 ? 0 : x;
 
         var srcData = source.data;
         var dstData = destination.data;
@@ -377,7 +378,8 @@ class FontContext
         var distanceToBorder: Int = destination.selectedRect.x + destination.selectedRect.width - dstX;
         var width: Int = Calc.min(distanceToBorder, sourceRect.width);
 
-        for (i in 0 ... sourceRect.height)
+        var beginY = x < 0 ? -x : 0;
+        for (i in beginY ... sourceRect.height)
         {
             var srcYOffset: Int = i + sourceRect.y;
             if (srcYOffset > destination.selectedRect.y + destination.selectedRect.height)
@@ -402,7 +404,9 @@ class FontContext
 
             srcData.offset = src;
 
-            for (j in 0 ... width)
+            var beginX = x < 0 ? -x : 0;
+            srcData.offset += beginX * ColorStorage.COMPONENTS;
+            for (j in beginX ... width)
             {
                 var r: Byte = srcData.readUInt8();
                 srcData.offset++;
