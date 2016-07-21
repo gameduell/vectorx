@@ -89,7 +89,8 @@ class FontContext
         baselineOffset: 0,
         strokeWidth: 0,
         strokeColor: new Color4F(),
-        size: 25
+        size: 25,
+        extraLineSpacing: 0
     };
 
     private static var defaultTextlayout: TextLayoutConfig =
@@ -152,24 +153,36 @@ class FontContext
 
         debugBox(textLayout.outputRect.x, textLayout.outputRect.y, textLayout.outputRect.width, textLayout.outputRect.height);
 
-        for (line in textLayout.lines)
+        for (i in 0 ... textLayout.lines.length)
         {
+            var line = textLayout.lines[i];
+            var isLastLine = i == textLayout.lines.length - 1;
+            var isFirstLine = i == 0;
+
             var x: Float = textLayout.alignX(line);
+
+            var extraLineSpacing: Float = 0.;
+            if ( !isFirstLine && line.spans.length > 0)
+            {
+                var span = line.spans[0];
+                extraLineSpacing += span.extraLineSpacing != null ? span.extraLineSpacing : defaultAttributes.extraLineSpacing;
+            }
+
+            extraLineSpacing *= pixelRatio;
 
             if (renderTrimmed)
             {
                 x -= textLayout.outputRect.x;
             }
 
-            debugBox(x, y, line.width, line.maxBgHeight);
+            //y += extraLineSpacing;
+
+            debugBox(x, y, line.width, line.maxBgHeight + extraLineSpacing);
             //baseline
-            debugBox(x, y + line.maxSpanHeight, line.width, 1);
+            debugBox(x, y + line.maxSpanHeight + extraLineSpacing, line.width, 1);
 
-            for (i in 0 ... line.spans.length)
+            for (span in line.spans)
             {
-                var span = line.spans[i];
-                var isLastLine = i == line.spans.length - 1;
-
                 var fontEngine: FontEngine = span.font.internalFont;
                 fontEngine.rasterizer = rasterizer;
                 fontEngine.scanline = scanline;
@@ -201,7 +214,7 @@ class FontContext
                 for (i in 0 ... Utf8.length(spanString))
                 {
                     var face = fontEngine.getFace(Utf8.charCodeAt(spanString, i));
-                    var scale = fontEngine.getScale(span.size) * pixelRatio;
+                    var scale = fontEngine.getScale(span.getFontSize()) * pixelRatio;
                     if (face.glyph.bounds != null)
                     {
                         var bx =  face.glyph.bounds.x1 * scale;
@@ -211,7 +224,7 @@ class FontContext
                         //intentionally left for debugging
                         //trace('h: $h y: ${measureY + by + alignY} max: $maxSpanHeight');
                         //trace('${Utf8.sub(spanString, i, 1)} w: $w h: $h advance: ${face.glyph.advanceWidth * scale} kern: $kern bboxX: ${bboxX + face.glyph.advanceWidth * scale + kern - textLayout.alignX(line)}');
-                        debugBox(bboxX + bx, y + measure.y + by + alignY + baseLineOffset, w, h);
+                        debugBox(bboxX + bx, y + measure.y + by + alignY + baseLineOffset + extraLineSpacing, w, h);
                         ////debugBox(bboxX, y + measureY + by + alignY + baseLineOffset, face.glyph.advanceWidth * scale + kern, line.maxSpanHeight);
                     }
 
@@ -226,7 +239,8 @@ class FontContext
                 if (span.backgroundColor != null && span.backgroundColor.a >= 1.0/255)
                 {
                     scanlineRenderer.color.setFromColor4F(span.backgroundColor);
-                    var height = isLastLine ? line.maxBgHeightWithShadow : line.maxBgHeight;
+                    var height = isLastLine ? line.maxBgHeightWithShadow : line.maxBgHeight + extraLineSpacing;
+
                     box(path, x, y, measure.x + 1 + attachmentWidth,  height + 1);
                     rasterizer.reset();
                     rasterizer.addPath(path);
@@ -234,7 +248,7 @@ class FontContext
                     path.removeAll();
                 }
 
-                var spanY: Float = y + alignY + baseLineOffset;
+                var spanY: Float = y + alignY + baseLineOffset + extraLineSpacing;
 
                 //render text shadows
 
@@ -263,7 +277,7 @@ class FontContext
 
                 if (span.strokeWidth == null || span.strokeWidth >= 0)
                 {
-                    fontEngine.renderString(spanString, span.size * pixelRatio, x, spanY, scanlineRenderer, kern);
+                    fontEngine.renderString(spanString, span.getFontSize() * pixelRatio, x, spanY, scanlineRenderer, kern);
                 }
 
                 //render outline
@@ -276,7 +290,7 @@ class FontContext
 
                     var strokeWidth = Math.abs(span.strokeWidth);
 
-                    fontEngine.renderStringStroke(spanString, span.size * pixelRatio, x, spanY, scanlineRenderer, strokeWidth, kern);
+                    fontEngine.renderStringStroke(spanString, span.getFontSize() * pixelRatio, x, spanY, scanlineRenderer, strokeWidth, kern);
                 }
 
                 x += measure.x;
@@ -312,7 +326,7 @@ class FontContext
                 fontEngine.scanline = null;
             }
 
-            y += line.maxBgHeight;
+            y += line.maxBgHeight + extraLineSpacing;
         }
 
         renderDebugPath(scanlineRenderer);
@@ -353,7 +367,7 @@ class FontContext
 
     private static function blendFromColorStorage(x: Int, y: Int, destination: ColorStorage, source: ColorStorage, sourceRect: RectI)
     {
-        var dstX = x;
+        var dstX = x < 0 ? 0 : x;
 
         var srcData = source.data;
         var dstData = destination.data;
@@ -364,7 +378,8 @@ class FontContext
         var distanceToBorder: Int = destination.selectedRect.x + destination.selectedRect.width - dstX;
         var width: Int = Calc.min(distanceToBorder, sourceRect.width);
 
-        for (i in 0 ... sourceRect.height)
+        var beginY = x < 0 ? -x : 0;
+        for (i in beginY ... sourceRect.height)
         {
             var srcYOffset: Int = i + sourceRect.y;
             if (srcYOffset > destination.selectedRect.y + destination.selectedRect.height)
@@ -389,7 +404,9 @@ class FontContext
 
             srcData.offset = src;
 
-            for (j in 0 ... width)
+            var beginX = x < 0 ? -x : 0;
+            srcData.offset += beginX * ColorStorage.COMPONENTS;
+            for (j in beginX ... width)
             {
                 var r: Byte = srcData.readUInt8();
                 srcData.offset++;
@@ -440,7 +457,7 @@ class FontContext
             var renderer: SolidScanlineRenderer = shadowRenderingStack.scanlineRenderer;
             renderer.color.setFromColor4F(color);
             shadowBuffer.fill(renderer.color.b << 16 | renderer.color.g << 8 | renderer.color.r);
-            fontEngine.renderString(span.string, span.size * pixelRatio, blurRadius, blurRadius, renderer, span.kern * pixelRatio);
+            fontEngine.renderString(span.string, span.getFontSize() * pixelRatio, blurRadius, blurRadius, renderer, span.kern * pixelRatio);
         }
         catch(ex: Dynamic)
         {
@@ -469,7 +486,7 @@ class FontContext
         target.moveTo(x, y);
         target.lineTo(x + w, y);
         target.lineTo(x + w, y + h);
-        target.lineTo(x,y + h);
+        target.lineTo(x, y + h);
         target.endPoly(PathFlags.CLOSE);
     }
 

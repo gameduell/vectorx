@@ -13,12 +13,13 @@ class AttributedSpan
     public var foregroundColor: Color4F = null;
     public var baselineOffset:  Null<Float>;
     public var kern: Null<Float> = null;
-    public var size(get, set): Null<Int>;
+    public var size: Null<Int>;
     public var strokeWidth: Null<Float> = null;
     public var strokeColor: Color4F = null;
     public var shadow: FontShadow = null;
     public var attachment: FontAttachment = null;
     public var attachmentId: String = null;
+    public var extraLineSpacing: Null<Float> = null;
 
     public var baseString(default, null): String;
     public var string(default, null): String;
@@ -29,7 +30,6 @@ class AttributedSpan
 
     private var id(default, null): Int;
 
-    private var cSize: Null<Int> = null;
     private static var nextId: Int = 0;
 
     public function setFromSpan(other: AttributedSpan)
@@ -49,6 +49,7 @@ class AttributedSpan
         this.baseString = other.baseString;
         this.string = other.string;
         this.size = other.size;
+        this.extraLineSpacing = other.extraLineSpacing;
         this.measured = false;
     }
 
@@ -102,6 +103,8 @@ class AttributedSpan
         attachment = chooseBefore(attachment, source.attachment);
         attachmentId = chooseBefore(attachmentId, source.attachmentId);
         size = chooseBefore(size, source.size);
+        extraLineSpacing = chooseBefore(extraLineSpacing, source.extraLineSpacing);
+
         measured = false;
     }
 
@@ -118,6 +121,7 @@ class AttributedSpan
         attachment = choose(attachment, source.attachment);
         attachmentId = choose(attachmentId, source.attachmentId);
         size = choose(size, source.size);
+        extraLineSpacing = choose(extraLineSpacing, source.extraLineSpacing);
 
         measured = false;
     }
@@ -133,23 +137,16 @@ class AttributedSpan
         strokeColor = choose(strokeColor, source.strokeColor);
         shadow = choose(shadow, source.shadow);
         attachmentId = choose(attachmentId, source.attachmentId);
+
         size = choose(size, source.size);
+
+        extraLineSpacing = choose(extraLineSpacing, source.extraLineSpacing);
+
         measured = false;
-    }
-
-    public function get_size(): Null<Int>
-    {
-        return this.cSize != null ? this.cSize : FontContext.defaultAttributes.size;
-    }
-
-    public function set_size(val: Int): Null<Int>
-    {
-        return cSize = val;
     }
 
     public function getMeasure(): Vector2
     {
-
         if (!measured)
         {
             if (range.length == 0)
@@ -159,7 +156,7 @@ class AttributedSpan
             else
             {
                 var kern = this.kern == null ? 0 : this.kern;
-                font.internalFont.measureString(string, size, measure, kern);
+                font.internalFont.measureString(string, getFontSize(), measure, kern);
             }
 
             measured = true;
@@ -173,6 +170,15 @@ class AttributedSpan
         return shadow != null && string != null && string.length > 0;
     }
 
+    public function getFontSize(): Int
+    {
+        if (size == null)
+        {
+            return FontContext.defaultAttributes.size;
+        }
+
+        return size;
+    }
     public function getFinalSize(pixelRatio: Float, ?output: Vector2): Vector2
     {
         if (output == null)

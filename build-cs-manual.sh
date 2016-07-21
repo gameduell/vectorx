@@ -249,8 +249,9 @@ src/types/Color4B.cs \
 /warn:4 \
 /sdk:2.0
 
-#copy result to unitilayout
+#copy result to unitilayout and unity_editor
 rm -f bin/VectorxCs-Debug*.*
 cp bin/VectorxCs*.* ~/.duell/lib/duellbuildunitylayout/unityshared/
+cp bin/VectorxCs*.* ~/.duell/lib/unity_editor/demo/Assets/UnityLayout/
 
 cd ../..
