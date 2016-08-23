@@ -105,9 +105,14 @@ class Data
 
     public function writeData(data: Data): Void
     {
-        data.stream.Seek(0, SeekOrigin.Begin);
-        stream.Seek(0, SeekOrigin.Begin);
-        data.memory.WriteTo(stream);
+        data.stream.Seek(data.offset, SeekOrigin.Begin);
+        offset = 0;
+        for (i in 0 ... data.offsetLength)
+        {
+            this.writeUInt8(data.readUInt8());
+            data.offset++;
+            offset++;
+        }
     }
 
 // Int write and read functions
