@@ -41,12 +41,11 @@ class LibraryBuild
 
     private function process(): Void
     {
-        trace('folders: ${AssetProcessorRegister.foldersThatChanged}');
         var changedFontFiles: Array<String> = [];
 
         for (folder in AssetProcessorRegister.foldersThatChanged)
         {
-            LogHelper.info("", 'svgcompiler - Processing changed folder $folder');
+            LogHelper.info("", 'vecrorx - Processing changed folder $folder');
 
             var path = Path.join([AssetProcessorRegister.pathToTemporaryAssetArea, folder]);
             if (!FileSystem.exists(path))
@@ -64,9 +63,7 @@ class LibraryBuild
                 }
 
                 LogHelper.info("", 'vectrox font collector - Processing changed file $file');
-
-                var srcPath = Path.join([path, file]);
-                changedFontFiles.push(srcPath);
+                changedFontFiles.push(Path.join([folder, file]));
             }
         }
 
