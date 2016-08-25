@@ -69,7 +69,8 @@ class LibraryBuild
             }
         }
 
-        var fontsManifestFile = Path.join([AssetProcessorRegister.pathToTemporaryAssetArea, "vectorx", "fonts.json"]);
+
+        var fontsManifestFile = Path.join([Configuration.getData().OUTPUT, "vectorx", "fonts.json"]);
 
         var oldFiles = getCurrentFonts(fontsManifestFile);
         var fileMap: StringMap<Int> = new StringMap<Int>();
@@ -81,7 +82,6 @@ class LibraryBuild
             var fullPath = Path.join([AssetProcessorRegister.pathToTemporaryAssetArea, file]);
             if (!FileSystem.exists(fullPath))
             {
-                trace('del: $fullPath');
                 LogHelper.info("", 'vectorx font collector - $fullPath is deleted');
                 continue;
             }
@@ -97,15 +97,19 @@ class LibraryBuild
 
         var dynObj  = {fonts: newFiles};
 
+        PathHelper.mkdir(Path.join([Configuration.getData().OUTPUT, "vectorx"]));
         var output = Json.stringify(dynObj);
         File.saveContent(fontsManifestFile, output);
+
+        PathHelper.mkdir(Path.join([AssetProcessorRegister.pathToTemporaryAssetArea, "vectorx"]));
+        var exportFile = Path.join([AssetProcessorRegister.pathToTemporaryAssetArea, "vectorx", "fonts.json"]);
+        File.saveContent(exportFile, output);
     }
 
     private function getCurrentFonts(filename: String): Array<String>
     {
         if (!FileSystem.exists(filename))
         {
-            trace('no manifest');
             LogHelper.info("", 'vectorx font collector - manifest not found $filename');
             return [];
         }
