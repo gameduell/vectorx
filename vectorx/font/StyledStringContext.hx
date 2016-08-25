@@ -49,6 +49,8 @@ class StyledStringContext implements StyleProviderInterface
     public var colors(default, null): StringMap<Color4F>;
     public var styles(default, null): StyleStorage;
     public var fontContext: FontContext;
+    public var defaultFont: String;
+    public var loadFontFunc: String -> Data;
 
     private var loadImage: String -> Vector2 -> Vector2 -> ColorStorage;
 
@@ -111,16 +113,19 @@ class StyledStringContext implements StyleProviderInterface
     {
         var json: StyledStringContextConfing = Json.parse(configJson);
 
-        var defaultFont: String = json.defaultFont;
+        var defaultFont = json.defaultFont;
         if (defaultFont == null)
         {
             throw "No default font speciefied in config JSON";
         }
 
+
         var fontCache = new FontCache(loadFontFunc(defaultFont));
         var context = new StyledStringContext(fontCache);
+        context.defaultFont = defaultFont;
         context.fontAttachments.loadImage = loadImage;
         context.fontAttachments.getImageSize = getImageSize;
+        context.loadFontFunc = loadFontFunc;
 
         if (fontContext == null)
         {
@@ -133,7 +138,7 @@ class StyledStringContext implements StyleProviderInterface
         {
             for (fontName in json.loadFonts)
             {
-                fontCache.preloadFontFromTTFData(loadFontFunc(fontName));
+                context.loadFont(fontName);
             }
         }
 
@@ -163,6 +168,17 @@ class StyledStringContext implements StyleProviderInterface
         }
 
         return context;
+    }
+
+    public function loadFont(fontFilename: String)
+    {
+        //skip default font
+        if (fontFilename == defaultFont)
+        {
+            return;
+        }
+
+        fontCache.preloadFontFromTTFData(loadFontFunc(fontFilename));
     }
 
     public function getFontAliases(): FontAliasesStorage

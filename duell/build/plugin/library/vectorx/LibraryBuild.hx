@@ -47,7 +47,7 @@ class LibraryBuild
 
         for (folder in AssetProcessorRegister.foldersThatChanged)
         {
-            LogHelper.info("", 'vecrorx - Processing changed folder $folder');
+            LogHelper.info("", 'vectorx - Processing changed folder $folder');
 
             var path = Path.join([AssetProcessorRegister.pathToTemporaryAssetArea, folder]);
             if (!FileSystem.exists(path))
@@ -64,7 +64,7 @@ class LibraryBuild
                     continue;
                 }
 
-                LogHelper.info("", 'vectrox font collector - Processing changed file $file');
+                LogHelper.info("", 'vectorx font collector - Processing changed file $file');
                 changedFontFiles.push(Path.join([folder, file]));
             }
         }
@@ -79,7 +79,14 @@ class LibraryBuild
         for (file in oldFiles)
         {
             var fullPath = Path.join([AssetProcessorRegister.pathToTemporaryAssetArea, file]);
-            if (FileSystem.exists(fullPath) && !fileMap.exists(file))
+            if (!FileSystem.exists(fullPath))
+            {
+                trace('del: $fullPath');
+                LogHelper.info("", 'vectorx font collector - $fullPath is deleted');
+                continue;
+            }
+
+            if (!fileMap.exists(file))
             {
                 newFiles.push(file);
                 fileMap.set(file, 1);
@@ -98,7 +105,8 @@ class LibraryBuild
     {
         if (!FileSystem.exists(filename))
         {
-            LogHelper.info("", 'vectrox font collector - manifest not found $filename');
+            trace('no manifest');
+            LogHelper.info("", 'vectorx font collector - manifest not found $filename');
             return [];
         }
 
