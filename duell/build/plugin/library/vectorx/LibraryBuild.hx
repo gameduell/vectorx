@@ -69,13 +69,9 @@ class LibraryBuild
             }
         }
 
-        trace('changed: $changedFontFiles');
-
         var fontsManifestFile = Path.join([AssetProcessorRegister.pathToTemporaryAssetArea, "vectorx", "fonts.json"]);
-        trace('manifest: $fontsManifestFile');
 
         var oldFiles = getCurrentFonts(fontsManifestFile);
-        trace('oldFile: $oldFiles');
         var fileMap: StringMap<Int> = new StringMap<Int>();
 
         oldFiles = oldFiles.concat(changedFontFiles);
@@ -95,15 +91,14 @@ class LibraryBuild
         var dynObj  = {fonts: newFiles};
 
         var output = Json.stringify(dynObj);
-        trace(output);
         File.saveContent(fontsManifestFile, output);
-        throw "Debug";
     }
 
     private function getCurrentFonts(filename: String): Array<String>
     {
         if (!FileSystem.exists(filename))
         {
+            LogHelper.info("", 'vectrox font collector - manifest not found $filename');
             return [];
         }
 
