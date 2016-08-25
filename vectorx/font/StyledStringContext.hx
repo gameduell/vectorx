@@ -111,14 +111,17 @@ class StyledStringContext implements StyleProviderInterface
                                   getImageSize: String -> Vector2 -> Vector2 -> Vector2,
                                   ?fontContext: FontContext): StyledStringContext
     {
-        var json: StyledStringContextConfing = Json.parse(configJson);
-
-        var defaultFont = json.defaultFont;
-        if (defaultFont == null)
+        var json: StyledStringContextConfing = {defaultFont: "vectorx/arial.ttf.bytes"};
+        if (configJson != null)
         {
-            throw "No default font speciefied in config JSON";
+            json = Json.parse(configJson);
         }
 
+        var defaultFont: String = json.defaultFont;
+        if (defaultFont == null)
+        {
+            defaultFont = "vectorx/arial.ttf.bytes";
+        }
 
         var fontCache = new FontCache(loadFontFunc(defaultFont));
         var context = new StyledStringContext(fontCache);
@@ -133,14 +136,6 @@ class StyledStringContext implements StyleProviderInterface
         }
 
         context.fontContext = fontContext;
-
-        if (json.loadFonts != null)
-        {
-            for (fontName in json.loadFonts)
-            {
-                context.loadFont(fontName);
-            }
-        }
 
         if (json.fontAliases != null)
         {
