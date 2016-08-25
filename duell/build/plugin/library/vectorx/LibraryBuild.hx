@@ -4,6 +4,8 @@
  */
 package duell.build.plugin.library.vectorx;
 
+import haxe.ds.StringMap;
+import haxe.format.JsonParser;
 import duell.helpers.BinaryFileWriter;
 import duell.build.objects.Configuration;
 import duell.build.plugin.library.filesystem.AssetProcessorRegister;
@@ -67,8 +69,52 @@ class LibraryBuild
             }
         }
 
-        trace(changedFontFiles);
+        trace('changed: $changedFontFiles');
+
+        var fontsManifestFile = Path.join([AssetProcessorRegister.pathToTemporaryAssetArea, "vectorx", "fonts.json"]);
+        trace('manifest: $fontsManifestFile');
+
+        var oldFiles = getCurrentFonts(fontsManifestFile);
+        trace('oldFile: $oldFiles');
+        var fileMap: StringMap<Int> = new StringMap<Int>();
+
+        oldFiles = oldFiles.concat(changedFontFiles);
+        var newFiles: Array<String> = [];
+        for (file in oldFiles)
+        {
+            var fullPath = Path.join([AssetProcessorRegister.pathToTemporaryAssetArea, file]);
+            if (FileSystem.exists(fullPath) && !fileMap.exists(file))
+            {
+                newFiles.push(file);
+                fileMap.set(file, 1);
+            }
+        }
+
+        newFiles.sort(function(a,b) return Reflect.compare(a, b));
+
+        var dynObj  = {fonts: newFiles};
+
+        var output = Json.stringify(dynObj);
+        trace(output);
+        File.saveContent(fontsManifestFile, output);
         throw "Debug";
+    }
+
+    private function getCurrentFonts(filename: String): Array<String>
+    {
+        if (!FileSystem.exists(filename))
+        {
+            return [];
+        }
+
+        var json = Json.parse(File.getContent(filename));
+
+        if (json.fonts == null)
+        {
+            return [];
+        }
+
+        return json.fonts;
     }
 
 }
