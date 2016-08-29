@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <library>
 
+    <supported-duell-tool version="4.0.0+" />
+    <duelllib name="filesystem" version="7.0.0+" />
     <duelllib name="aggx" version="1.4.0+" />
 
 </library>

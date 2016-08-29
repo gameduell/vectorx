@@ -49,6 +49,8 @@ class StyledStringContext implements StyleProviderInterface
     public var colors(default, null): StringMap<Color4F>;
     public var styles(default, null): StyleStorage;
     public var fontContext: FontContext;
+    public var defaultFont: String;
+    public var loadFontFunc: String -> Data;
 
     private var loadImage: String -> Vector2 -> Vector2 -> ColorStorage;
 
@@ -109,18 +111,24 @@ class StyledStringContext implements StyleProviderInterface
                                   getImageSize: String -> Vector2 -> Vector2 -> Vector2,
                                   ?fontContext: FontContext): StyledStringContext
     {
-        var json: StyledStringContextConfing = Json.parse(configJson);
+        var json: StyledStringContextConfing = {defaultFont: "vectorx/arial.ttf.bytes"};
+        if (configJson != null)
+        {
+            json = Json.parse(configJson);
+        }
 
         var defaultFont: String = json.defaultFont;
         if (defaultFont == null)
         {
-            throw "No default font speciefied in config JSON";
+            defaultFont = "vectorx/arial.ttf.bytes";
         }
 
         var fontCache = new FontCache(loadFontFunc(defaultFont));
         var context = new StyledStringContext(fontCache);
+        context.defaultFont = defaultFont;
         context.fontAttachments.loadImage = loadImage;
         context.fontAttachments.getImageSize = getImageSize;
+        context.loadFontFunc = loadFontFunc;
 
         if (fontContext == null)
         {
@@ -128,14 +136,6 @@ class StyledStringContext implements StyleProviderInterface
         }
 
         context.fontContext = fontContext;
-
-        if (json.loadFonts != null)
-        {
-            for (fontName in json.loadFonts)
-            {
-                fontCache.preloadFontFromTTFData(loadFontFunc(fontName));
-            }
-        }
 
         if (json.fontAliases != null)
         {
@@ -163,6 +163,17 @@ class StyledStringContext implements StyleProviderInterface
         }
 
         return context;
+    }
+
+    public function loadFont(fontFilename: String)
+    {
+        //skip default font
+        if (fontFilename == defaultFont)
+        {
+            return;
+        }
+
+        fontCache.preloadFontFromTTFData(loadFontFunc(fontFilename));
     }
 
     public function getFontAliases(): FontAliasesStorage
