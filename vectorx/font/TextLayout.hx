@@ -45,32 +45,31 @@ class TextLayout
 
     private function fitPixelRatio(string: AttributedString, attachmentResolver: String -> Float -> FontAttachment)
     {
-        trace('out_h: ${outputRect.height}');
+        //trace('out_h: ${outputRect.height}');
 
-        if (textFits(lines, outputRect.height, rect) == 0)
+        if (textFits(lines, outputRect.height, rect))
         {
+            //trace('Already fits!');
             return;
         }
 
         var begin: Float = 0;
         var end: Float = pixelRatio;
-        var error = outputRect.height;
         var iteration: Int = 0;
         var lastRatio: Float = 0;
         var lines: Array<TextLine> = [];
         var height: Float = 0;
 
-        while(error > 2)
+        while((end - begin) * outputRect.height > 0.01)
         {
             lastRatio = (begin + end) / 2;
-            trace('ratio: $lastRatio');
+            //trace('ratio: $lastRatio');
             lines = TextLine.calculate(string, rect.width, attachmentResolver, lastRatio);
             height = calculateTextHeight(lines, string.string, lastRatio);
 
-            var cur = textFits(lines, height, rect);
-            if (cur == 0)
+            if (textFits(lines, height, rect))
             {
-                trace('begin = $lastRatio');
+                //trace('begin = $lastRatio');
                 begin = lastRatio;
                 this.lines = lines;
                 this.outputRect.height = height;
@@ -78,48 +77,74 @@ class TextLayout
             }
             else
             {
-                trace('end = $lastRatio');
+                //trace('end = $lastRatio');
                 end = lastRatio;
-                error = cur;
             }
 
             iteration++;
         }
 
-        //does not fits, but with low margin
-        if (textFits(lines, height, rect) > 0)
+        this.lines = lines;
+        this.outputRect.height = height;
+        pixelRatio = lastRatio;
+        trace('$pixelRatio');
+
+        if (!textFits(lines, height, rect))
         {
-            this.lines = lines;
-            this.outputRect.height = height;
-            pixelRatio = lastRatio;
-            trace('$pixelRatio');
+            var steps = 10;
+            var dt = (end - begin) / steps;
+            for (i in 1 ... steps + 1)
+            {
+                iteration++;
+                var cur = begin + dt * i;
+                //trace('ratio: $lastRatio');
+                lines = TextLine.calculate(string, rect.width, attachmentResolver, lastRatio);
+                height = calculateTextHeight(lines, string.string, lastRatio);
+                if (textFits(lines, height, rect))
+                {
+                    this.lines = lines;
+                    this.outputRect.height = height;
+                    pixelRatio = cur;
+                }
+            }
         }
 
-        pixelRatio = begin;
         //intentionally left for debugging
-        trace('found ratio: $pixelRatio in $iteration');
+        //trace('found ratio: $pixelRatio in $iteration');
     }
 
-    private static function textFits(lines: Array<TextLine>, height: Float, rect: RectI): Int
+    private static function maxTextOverlap(lines: Array<TextLine>, height: Float, rect: RectI): Float
     {
-        trace('textFits() height: $height rectHeight: ${rect.height}');
+        var overlap: Float = 0;
         if (height > rect.height)
         {
-            trace('height does not fit');
-            return Math.floor(height - rect.height);
+            overlap = height - rect.height;
         }
 
         for (line in lines)
         {
             if (line.width > rect.width)
             {
-                trace('lineWidth: ${line.width} rectHeight: ${rect.height}');
-                return Math.floor(line.width - rect.width);
+                var cur = line.width - rect.width;
+                if (cur > overlap)
+                {
+                    overlap = cur;
+                }
             }
         }
 
-        trace('fits');
-        return 0;
+        return overlap;
+    }
+
+    private static function textFits(lines: Array<TextLine>, height: Float, rect: RectI): Bool
+    {
+        var overlap = maxTextOverlap(lines, height, rect);
+        if (overlap <= 0)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private static function calculateTextHeight(lines: Array<TextLine>, string: String, pixelRatio: Float): Float
