@@ -168,7 +168,7 @@ class TextLayout
             }
             else
             {
-                height += line.maxBgHeight;
+                height += line.maxSpanHeight;
             }
 
             if(!isFirstLine && line.spans.length > 0)
