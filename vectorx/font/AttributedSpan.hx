@@ -1,5 +1,6 @@
 package vectorx.font;
 
+import haxe.Utf8;
 import types.Vector2;
 import types.Color4F;
 import vectorx.font.StringAttributes;
@@ -71,7 +72,7 @@ class AttributedSpan
 
     public function updateString()
     {
-        this.string = baseString.substr(range.index, range.length);
+        this.string = Utf8.sub(baseString, range.index, range.length);
     }
 
     public function toString(): String
