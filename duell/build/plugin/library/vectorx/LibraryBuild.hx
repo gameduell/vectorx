@@ -35,8 +35,14 @@ class LibraryBuild
 
     public function postParse(): Void
     {
+        trace("vectorx postParse");
         if (Configuration.getData().PLATFORM == null || Configuration.getData().PLATFORM.PLATFORM_NAME == "unitylayout")
             return;
+
+        if (Configuration.getData().LIBRARY.VECTORX == null)
+        {
+            Configuration.getData().LIBRARY.VECTORX = LibraryConfiguration.getData();
+        }
 
         AssetProcessorRegister.registerProcessor(process, AssetProcessorPriority.AssetProcessorPriorityLow, 0);
     }
