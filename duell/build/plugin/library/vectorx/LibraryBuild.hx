@@ -4,6 +4,7 @@
  */
 package duell.build.plugin.library.vectorx;
 
+import duell.helpers.TemplateHelper;
 import haxe.ds.StringMap;
 import haxe.format.JsonParser;
 import duell.helpers.BinaryFileWriter;
@@ -37,6 +38,11 @@ class LibraryBuild
     {
         if (Configuration.getData().PLATFORM == null || Configuration.getData().PLATFORM.PLATFORM_NAME == "unitylayout")
             return;
+
+        if (Configuration.getData().LIBRARY.VECTORX == null)
+        {
+            Configuration.getData().LIBRARY.VECTORX = LibraryConfiguration.getData();
+        }
 
         AssetProcessorRegister.registerProcessor(process, AssetProcessorPriority.AssetProcessorPriorityLow, 0);
     }
@@ -122,6 +128,17 @@ class LibraryBuild
         }
 
         return json.fonts;
+    }
+
+    public function preBuild() : Void
+    {
+        var libPath : String = DuellLib.getDuellLib("vectorx").getPath();
+
+        var exportPath : String = Path.join([Configuration.getData().OUTPUT,"haxe","vectorx"]);
+
+        var classSourcePath : String = Path.join([libPath,"template","vectorx"]);
+
+        TemplateHelper.recursiveCopyTemplatedFiles(classSourcePath, exportPath, Configuration.getData(), Configuration.getData().TEMPLATE_FUNCTIONS);
     }
 
 }
