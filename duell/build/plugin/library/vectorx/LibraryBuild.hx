@@ -36,7 +36,6 @@ class LibraryBuild
 
     public function postParse(): Void
     {
-        trace("vectorx postParse");
         if (Configuration.getData().PLATFORM == null || Configuration.getData().PLATFORM.PLATFORM_NAME == "unitylayout")
             return;
 
