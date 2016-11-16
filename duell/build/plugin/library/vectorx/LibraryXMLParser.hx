@@ -11,11 +11,8 @@ import haxe.xml.Fast;
 
 class LibraryXMLParser
 {
-
     public static function parse(xml: Fast): Void
     {
-        trace('vectorx.LibraryXMLParser.parse');
-
         Configuration.getData().LIBRARY.VECTORX = LibraryConfiguration.getData();
 
         for (element in xml.elements)
@@ -29,8 +26,6 @@ class LibraryXMLParser
             {
                 case 'forceUpscale':
                     parseForceUpscaleElement(element);
-                case 'upscaleFont':
-                    parseUpscaleFontElement(element);
             }
         }
     }
@@ -41,15 +36,4 @@ class LibraryXMLParser
 
         trace(LibraryConfiguration.getData());
     }
-
-    private static function parseUpscaleFontElement(element: Fast): Void
-    {
-        if (element.has.fontName)
-        {
-            LibraryConfiguration.getData().UPSCALE_FONTS.push(element.att.fontName);
-        }
-
-        trace(LibraryConfiguration.getData());
-    }
-
 }

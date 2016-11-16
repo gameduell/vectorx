@@ -2,7 +2,6 @@ package duell.build.plugin.library.vectorx;
 
 typedef LibraryConfigurationData = {
 FORCE_UPSCALE: Bool,
-UPSCALE_FONTS: Array<String>
 }
 
 class LibraryConfiguration
@@ -34,8 +33,7 @@ class LibraryConfiguration
     {
         configuration =
         {
-            FORCE_UPSCALE: false,
-            UPSCALE_FONTS: []
+            FORCE_UPSCALE: false
         };
     }
 }
